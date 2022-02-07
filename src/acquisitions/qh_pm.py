@@ -1,10 +1,10 @@
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
-from acquisition import DataAcquisition
+from src.acquisition import DataAcquisition
 import pandas as pd
 from typing import Optional, Union
 
 
-class CURRENT_VOLTAGE_DIODE_LEADS_NXCALS(DataAcquisition):
+class QH_PM(DataAcquisition):
     """
     Subclass of DataAquistion to query PC_PM
     """
@@ -15,9 +15,10 @@ class CURRENT_VOLTAGE_DIODE_LEADS_NXCALS(DataAcquisition):
                  timestamp_fgc: int,
                  spark: Optional[object] = None
                  ):
-        super(CURRENT_VOLTAGE_DIODE_LEADS_NXCALS, self).__init__(circuit_type, circuit_name, timestamp_fgc)
+        super(QH_PM, self).__init__(circuit_type, circuit_name, timestamp_fgc)
+        self.signal_names = ['I_HDS', 'U_HDS']
         self.query_builder = RbCircuitQuery(self.circuit_type, self.circuit_name)
-        self.duration = [(50, 's'), (350, 's')]
+        self.duration = [(10, 's'), (500, 's')]
         self.signal_timestamp = self.get_signal_timestamp()
         self.spark = spark
 
@@ -25,11 +26,16 @@ class CURRENT_VOLTAGE_DIODE_LEADS_NXCALS(DataAcquisition):
         """
         method to find correct timestamp for selected signal
         """
-        return self.query_builder.find_source_timestamp_qds(self.timestamp_fgc, duration=self.duration)
+        return self.query_builder.find_source_timestamp_qh(self.timestamp_fgc, duration=self.duration)
 
     def get_signal_data(self) -> list:
         """
         abstract method to get selected signal
         """
-        return self.query_builder.query_current_voltage_diode_leads_nxcals(self.signal_timestamp, spark=self.spark,
-                                                                           duration=self.duration)
+        return self.query_builder.query_qh_pm(self.signal_timestamp, signal_names=self.signal_names)
+
+    def get_reference_signal_data(self) -> list:
+        """
+        abstract method to get selected signal
+        """
+        return self.query_builder.query_qh_pm(self.signal_timestamp, signal_names=self.signal_names, is_ref=True)

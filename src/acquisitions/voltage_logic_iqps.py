@@ -1,9 +1,10 @@
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
-from acquisition import DataAcquisition
+from src.acquisition import DataAcquisition
 import pandas as pd
 from typing import Optional, Union
 
-class LEADS(DataAcquisition):
+
+class VOLTAGE_LOGIC_IQPS(DataAcquisition):
     """
     Subclass of DataAquistion to query PC_PM
     """
@@ -12,12 +13,12 @@ class LEADS(DataAcquisition):
                  circuit_type: str,
                  circuit_name: str,
                  timestamp_fgc: int,
-                 spark: object
+                 spark: Optional[object] = None
                  ):
-        super(LEADS, self).__init__(circuit_type, circuit_name, timestamp_fgc)
+        super(VOLTAGE_LOGIC_IQPS, self).__init__(circuit_type, circuit_name, timestamp_fgc)
+        self.signal_names = ['U_QS0', 'U_1', 'U_2', 'ST_NQD0', 'ST_MAGNET_OK']
         self.query_builder = RbCircuitQuery(self.circuit_type, self.circuit_name)
-        self.system = ['LEADS_ODD', 'LEADS_EVEN']
-        self.signal_names = ['U_HTS', 'U_RES']
+        self.duration = [(50, 's'), (500, 's')]
         self.signal_timestamp = self.get_signal_timestamp()
         self.spark = spark
 
@@ -25,11 +26,11 @@ class LEADS(DataAcquisition):
         """
         method to find correct timestamp for selected signal
         """
-        return self.query_builder.find_timestamp_leads(self.timestamp_fgc, self.system)
+        return self.query_builder.find_source_timestamp_qds(self.timestamp_fgc, duration=self.duration)
 
     def get_signal_data(self) -> list:
         """
         abstract method to get selected signal
         """
-        return self.query_builder.query_leads(self.timestamp_fgc, self.signal_timestamp, system=self.system,
-                                              signal_names=self.signal_names, spark=self.spark)
+        return self.query_builder.query_voltage_logic_iqps(self.signal_timestamp, signal_names=self.signal_names)
+    

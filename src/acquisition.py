@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import pandas as pd
 from typing import Optional, Union
+from pathlib import Path
 
 class DataAcquisition(ABC):
     """
@@ -16,15 +17,17 @@ class DataAcquisition(ABC):
                  circuit_type: str,
                  circuit_name: str,
                  timestamp_fgc: int,
-                 spark: Optional[object] = None
-                 ):
+                 hdf_dir: Path,
+                 context_dir: Path
+    ):
         """
         Specifies data to query from
         """
-        self.circuit_type = circuit_type
-        self.circuit_name = circuit_name
-        self.timestamp_fgc = timestamp_fgc
-        self.spark = spark
+        self.circuit_type = circuit_type,
+        self.circuit_name = circuit_name,
+        self.timestamp_fgc = timestamp_fgc,
+        self.hdf_dir = hdf_dir,
+        self.context_dir = context_dir
 
     def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
         """
@@ -38,5 +41,20 @@ class DataAcquisition(ABC):
         abstract method to get selected signal
         """
 
-def acquire_data(creator: DataAcquisition, circuit_type, circuit_name, timestamp_fgc) -> list:
-    return creator(circuit_type, circuit_name, timestamp_fgc).get_signal_data()
+    def log_transformation(self) -> None:
+        """
+        abstract method to store meta data
+        """
+
+    def to_hdf5(self) -> None:
+        """
+        abstract method to store data
+        """
+        data = self.get_signal_data()
+        for df in data:
+            file_name = f"{self.circuit_type}_{self.circuit_type}_{self.timestamp_fgc}_{df.columns.values[0]}.pkl"
+            df.to_pickle(self.hdf_dir / file_name)
+            self.log_transformation()
+
+
+

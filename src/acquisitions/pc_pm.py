@@ -1,5 +1,5 @@
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
-from acquisition import DataAcquisition
+from src.acquisition import DataAcquisition
 import pandas as pd
 from typing import Optional, Union
 
