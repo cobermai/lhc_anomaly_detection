@@ -32,5 +32,6 @@ class VOLTAGE_LOGIC_IQPS(DataAcquisition):
         """
         abstract method to get selected signal
         """
-        return self.query_builder.query_voltage_logic_iqps(self.signal_timestamp, signal_names=self.signal_names)
-    
+        signals = self.query_builder.query_voltage_logic_iqps(self.signal_timestamp, signal_names=self.signal_names)
+        return self.flatten_list(signals)
+

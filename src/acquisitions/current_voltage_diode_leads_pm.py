@@ -32,4 +32,5 @@ class CURRENT_VOLTAGE_DIODE_LEADS_PM(DataAcquisition):
         """
         abstract method to get selected signal
         """
-        return self.query_builder.query_current_voltage_diode_leads_pm(self.timestamp_fgc, self.signal_timestamp)
+        signals = self.query_builder.query_current_voltage_diode_leads_pm(self.timestamp_fgc, self.signal_timestamp)
+        return self.flatten_list(signals)

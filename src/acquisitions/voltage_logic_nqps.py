@@ -42,4 +42,4 @@ class VOLTAGE_LOGIC_NQPS(DataAcquisition):
         self.signal_timestamp[0]['timestamp'] = self.signal_timestamp[0]['timestamp'] + 2000000
         second_board = self.query_builder.query_voltage_nqps(self.signal_timestamp[1], self.signal_timestamp[0],
                                                              self.timestamp_fgc, spark=self.spark)
-        return [first_board, second_board]
+        return self.flatten_list(first_board + second_board)

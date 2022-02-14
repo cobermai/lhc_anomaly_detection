@@ -32,10 +32,12 @@ class QH_PM(DataAcquisition):
         """
         abstract method to get selected signal
         """
-        return self.query_builder.query_qh_pm(self.signal_timestamp, signal_names=self.signal_names)
+        signals = self.query_builder.query_qh_pm(self.signal_timestamp, signal_names=self.signal_names)
+        return self.flatten_list(signals)
 
     def get_reference_signal_data(self) -> list:
         """
         abstract method to get selected signal
         """
-        return self.query_builder.query_qh_pm(self.signal_timestamp, signal_names=self.signal_names, is_ref=True)
+        signals = self.query_builder.query_qh_pm(self.signal_timestamp, signal_names=self.signal_names, is_ref=True)
+        return self.flatten_list(signals)

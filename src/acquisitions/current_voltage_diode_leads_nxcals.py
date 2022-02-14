@@ -31,5 +31,7 @@ class CURRENT_VOLTAGE_DIODE_LEADS_NXCALS(DataAcquisition):
         """
         abstract method to get selected signal
         """
-        return self.query_builder.query_current_voltage_diode_leads_nxcals(self.signal_timestamp, spark=self.spark,
+        signals = self.query_builder.query_current_voltage_diode_leads_nxcals(self.signal_timestamp, spark=self.spark,
                                                                            duration=self.duration)
+
+        return [df.rename(columns={df.columns.values[0]:df.columns.values[0] + "_LEADS"}) for sublist in signals for df in sublist]

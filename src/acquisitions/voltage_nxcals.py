@@ -30,4 +30,4 @@ class VOLTAGE_NXCALS(DataAcquisition):
                                                           self.timestamp_fgc, spark=self.spark, duration=self.duration)
         u_earth = self.query_builder.query_voltage_nxcals(self.signal_names[1][0], self.signal_names[1][1],
                                                           self.timestamp_fgc, spark=self.spark, duration=self.duration)
-        return [u_diode, u_earth]
+        return u_diode + u_earth
