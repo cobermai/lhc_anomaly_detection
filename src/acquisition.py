@@ -48,7 +48,7 @@ class DataAcquisition(ABC):
 
     def log_acquisition(self, context_data: dict, context_path: Path) -> None:
         """
-        abstract method to store meta data
+        method to store meta data
         """
         identifier = {'circuit_type': self.circuit_type,
                       'circuit_name': self.circuit_name,
@@ -59,7 +59,8 @@ class DataAcquisition(ABC):
         else:
             df = pd.read_csv(context_path)
             # add identifier if not existing
-            if not df[identifier.keys()].isin(identifier.values()).all(axis=1).values[0]:
+            if not df[identifier.keys()].isin(identifier.values()).all(axis=1).values[-1]:
+                print(f"ADDED IDENTIFIER")
                 df_new = pd.DataFrame(identifier, index=[0])
                 df = pd.concat([df, df_new], axis=0)
 
@@ -69,18 +70,32 @@ class DataAcquisition(ABC):
         df.to_csv(context_path, index=False)
         return df
 
-    def to_hdf5(self, hdf_dir: Path, context_path: Path) -> None:
+    def to_hdf5(self, data_dir: Path) -> None:
         """
-        abstract method to store data
+        method to store data
         """
+        context_path = data_dir / "context_data.csv"
+        failed_queries_path = data_dir / "failed_queries.csv"
+        hdf_dir = data_dir / "data"
         hdf_dir.mkdir(parents=True, exist_ok=True)
-        data = self.get_signal_data()
-        for df in data:
-            if isinstance(df, pd.DataFrame):
-                if not df.empty:
-                    file_name = f"{self.circuit_type}_{self.circuit_name}_{self.timestamp_fgc}_{df.columns.values[0]}.pkl"
-                    df.to_pickle(hdf_dir / file_name)
 
-                    context_data = {f"{df.columns.values[0]}": len(df)}
-                    self.log_acquisition(context_data=context_data,
-                                         context_path=context_path)
+        data = self.get_signal_data()
+        try:
+            for df in data:
+                if isinstance(df, pd.DataFrame):
+                    if not df.empty:
+                        file_name = f"{self.circuit_type}_{self.circuit_name}_{self.timestamp_fgc}_{df.columns.values[0]}.pkl"
+                        df.to_pickle(hdf_dir / file_name)
+
+                        context_data = {f"{df.columns.values[0]}": len(df)}
+                        logging_df = self.log_acquisition(context_data=context_data,
+                                                          context_path=context_path)
+            print(f"finished to download: {str(self.__class__.__name__)}")
+            return logging_df
+
+        except Exception as e:
+            print(e)
+            failed_df = self.log_acquisition(context_data={"error": e},
+                                             context_path=failed_queries_path)
+            print(f"failed to download: {str(self.__class__.__name__)}")
+            return failed_df
