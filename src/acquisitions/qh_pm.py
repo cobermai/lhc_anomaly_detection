@@ -5,9 +5,9 @@ import pandas as pd
 from typing import Optional, Union
 
 
-class QH_PM(DataAcquisition):
+class QHPM(DataAcquisition):
     """
-    Subclass of DataAquistion to query PC_PM
+    Specifies method to query data for signals of group QHPM
     """
 
     def __init__(self,
@@ -16,9 +16,17 @@ class QH_PM(DataAcquisition):
                  timestamp_fgc: int,
                  spark: Optional[object] = None
                  ):
-        super(QH_PM, self).__init__(circuit_type, circuit_name, timestamp_fgc)
+        """
+        Initializes the QHPM class object, inherits from DataAcquisition.
+        :param circuit_type: lhc circuit name
+        :param circuit_name: lhc sector name
+        :param timestamp_fgc: fgc event timestamp
+        :param spark: spark object to query data from NXCALS
+        """
+        super(QHPM, self).__init__(circuit_type, circuit_name, timestamp_fgc)
         self.signal_names = ['I_HDS', 'U_HDS']
-        self.query_builder = RbCircuitQuery(self.circuit_type, self.circuit_name)
+        self.query_builder = RbCircuitQuery(
+            self.circuit_type, self.circuit_name)
         self.duration = [(10, 's'), (500, 's')]
         self.signal_timestamp = self.get_signal_timestamp()
         self.spark = spark
@@ -27,18 +35,21 @@ class QH_PM(DataAcquisition):
         """
         method to find correct timestamp for selected signal
         """
-        return self.query_builder.find_source_timestamp_qh(self.timestamp_fgc, duration=self.duration)
+        return self.query_builder.find_source_timestamp_qh(
+            self.timestamp_fgc, duration=self.duration)
 
     def get_signal_data(self) -> list:
         """
-        abstract method to get selected signal
+        method to get selected signal with specified sigmon query builder and signal timestamp
         """
-        signals = self.query_builder.query_qh_pm(self.signal_timestamp, signal_names=self.signal_names)
+        signals = self.query_builder.query_qh_pm(
+            self.signal_timestamp, signal_names=self.signal_names)
         return flatten_list(signals)
 
     def get_reference_signal_data(self) -> list:
         """
-        abstract method to get selected signal
+        method to get selected reference signal with specified sigmon query builder and signal timestamp
         """
-        signals = self.query_builder.query_qh_pm(self.signal_timestamp, signal_names=self.signal_names, is_ref=True)
+        signals = self.query_builder.query_qh_pm(
+            self.signal_timestamp, signal_names=self.signal_names, is_ref=True)
         return flatten_list(signals)

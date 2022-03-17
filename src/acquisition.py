@@ -23,7 +23,9 @@ class DataAcquisition(ABC):
                  timestamp_fgc: int,
                  ):
         """
-        Specifies data to query from
+        :param circuit_type: lhc circuit name
+        :param circuit_name: lhc sector name
+        :param timestamp_fgc: fgc event timestamp
         """
         self.circuit_type = circuit_type
         self.circuit_name = circuit_name
@@ -32,6 +34,7 @@ class DataAcquisition(ABC):
     def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
         """
         method to find correct timestamp for selected signal, default is fgc timestamp
+        :return: fgc timestamp as int or DataFrame of ints
         """
         return self.timestamp_fgc
 
@@ -39,6 +42,7 @@ class DataAcquisition(ABC):
     def get_signal_data(self) -> list:
         """
         abstract method to get selected signal
+        :return: list of dataframes containing queried signals
         """
 
     def log_acquisition(self, log_data: dict, log_path: Path) -> None:
@@ -56,15 +60,16 @@ class DataAcquisition(ABC):
         else:
             df = pd.read_csv(log_path)
             # add identifier if not existing
-            if not df[identifier.keys()].isin(identifier.values()).all(axis=1).values[-1]:
+            if not df[identifier.keys()].isin(
+                    identifier.values()).all(axis=1).values[-1]:
                 df_new = pd.DataFrame(identifier, index=[0])
                 df = pd.concat([df, df_new], axis=0)
 
         # add context data
         for key, value in log_data.items():
-            df.loc[df[identifier.keys()].isin(identifier.values()).all(axis=1), key] = value
+            df.loc[df[identifier.keys()].isin(
+                identifier.values()).all(axis=1), key] = value
         df.to_csv(log_path, index=False)
-        return df
 
     def to_hdf5(self, file_dir: Path) -> None:
         """
@@ -85,13 +90,21 @@ class DataAcquisition(ABC):
                         df_to_hdf(file_path=data_dir / file_name, df=df)
 
                         context_data = {f"{df.columns.values[0]}": len(df)}
-                        self.log_acquisition(log_data=context_data, log_path=context_path)
+                        self.log_acquisition(
+                            log_data=context_data, log_path=context_path)
                     else:
-                        self.log_acquisition(log_data={self.__class__.__name__: "empty DataFrame returned"},
-                                             log_path=failed_queries_path)
+                        self.log_acquisition(
+                            log_data={
+                                self.__class__.__name__: "empty DataFrame returned"},
+                            log_path=failed_queries_path)
                 else:
-                    self.log_acquisition(log_data={self.__class__.__name__: "no DataFrame returned"},
-                                         log_path=failed_queries_path)
+                    self.log_acquisition(
+                        log_data={
+                            self.__class__.__name__: "no DataFrame returned"},
+                        log_path=failed_queries_path)
 
         except Exception as e:
-            self.log_acquisition(log_data={"error": e}, log_path=failed_queries_path)
+            self.log_acquisition(
+                log_data={
+                    "error": e},
+                log_path=failed_queries_path)

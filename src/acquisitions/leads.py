@@ -1,12 +1,12 @@
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
 from src.acquisition import DataAcquisition
-from src.utils.utils import flatten_list
 import pandas as pd
 from typing import Optional, Union
 
-class LEADS(DataAcquisition):
+
+class Leads(DataAcquisition):
     """
-    Subclass of DataAquistion to query PC_PM
+    Specifies method to query data for signals of group Leads
     """
 
     def __init__(self,
@@ -15,8 +15,16 @@ class LEADS(DataAcquisition):
                  timestamp_fgc: int,
                  spark: object
                  ):
-        super(LEADS, self).__init__(circuit_type, circuit_name, timestamp_fgc)
-        self.query_builder = RbCircuitQuery(self.circuit_type, self.circuit_name)
+        """
+        Initializes the Leads class object, inherits from DataAcquisition.
+        :param circuit_type: lhc circuit name
+        :param circuit_name: lhc sector name
+        :param timestamp_fgc: fgc event timestamp
+        :param spark: spark object to query data from NXCALS
+        """
+        super(Leads, self).__init__(circuit_type, circuit_name, timestamp_fgc)
+        self.query_builder = RbCircuitQuery(
+            self.circuit_type, self.circuit_name)
         self.system = ['LEADS_ODD', 'LEADS_EVEN']
         self.signal_names = ['U_HTS', 'U_RES']
         self.signal_timestamp = self.get_signal_timestamp()
@@ -26,11 +34,16 @@ class LEADS(DataAcquisition):
         """
         method to find correct timestamp for selected signal
         """
-        return self.query_builder.find_timestamp_leads(self.timestamp_fgc, self.system)
+        return self.query_builder.find_timestamp_leads(
+            self.timestamp_fgc, self.system)
 
     def get_signal_data(self) -> list:
         """
-        abstract method to get selected signal
+        method to get selected signal with specified sigmon query builder and signal timestamp
         """
-        return self.query_builder.query_leads(self.timestamp_fgc, self.signal_timestamp, system=self.system,
-                                              signal_names=self.signal_names, spark=self.spark)
+        return self.query_builder.query_leads(
+            self.timestamp_fgc,
+            self.signal_timestamp,
+            system=self.system,
+            signal_names=self.signal_names,
+            spark=self.spark)
