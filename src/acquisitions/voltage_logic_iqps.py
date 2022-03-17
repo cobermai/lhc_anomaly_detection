@@ -1,5 +1,6 @@
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
 from src.acquisition import DataAcquisition
+from src.utils.utils import flatten_list
 import pandas as pd
 from typing import Optional, Union
 
@@ -33,5 +34,5 @@ class VOLTAGE_LOGIC_IQPS(DataAcquisition):
         abstract method to get selected signal
         """
         signals = self.query_builder.query_voltage_logic_iqps(self.signal_timestamp, signal_names=self.signal_names)
-        return self.flatten_list(signals)
+        return flatten_list(signals)
 

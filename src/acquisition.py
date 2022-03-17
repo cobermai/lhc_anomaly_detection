@@ -3,6 +3,8 @@ import pandas as pd
 from typing import Optional, Union
 from pathlib import Path
 
+from src.utils.hdf_tools import df_to_hdf
+
 
 class DataAcquisition(ABC):
     """
@@ -39,63 +41,57 @@ class DataAcquisition(ABC):
         abstract method to get selected signal
         """
 
-    @staticmethod
-    def flatten_list(stacked_list) -> list:
+    def log_acquisition(self, log_data: dict, log_path: Path) -> None:
         """
-        abstract method to flatten list of lists
-        """
-        return [item for sublist in stacked_list for item in sublist]
-
-    def log_acquisition(self, context_data: dict, context_path: Path) -> None:
-        """
-        method to store meta data
+        method stores logs data to given csv, if identifier not exists, a new line is created
+        :param log_data: dict data to log
+        :param log_path: directory where csv is stored
         """
         identifier = {'circuit_type': self.circuit_type,
                       'circuit_name': self.circuit_name,
                       'timestamp_fgc': self.timestamp_fgc}
-        if not context_path.is_file():
-            context_path.parent.mkdir(parents=True, exist_ok=True)
+        if not log_path.is_file():
+            log_path.parent.mkdir(parents=True, exist_ok=True)
             df = pd.DataFrame(identifier, index=[0])
         else:
-            df = pd.read_csv(context_path)
+            df = pd.read_csv(log_path)
             # add identifier if not existing
             if not df[identifier.keys()].isin(identifier.values()).all(axis=1).values[-1]:
-                print(f"ADDED IDENTIFIER")
                 df_new = pd.DataFrame(identifier, index=[0])
                 df = pd.concat([df, df_new], axis=0)
 
         # add context data
-        for key, value in context_data.items():
+        for key, value in log_data.items():
             df.loc[df[identifier.keys()].isin(identifier.values()).all(axis=1), key] = value
-        df.to_csv(context_path, index=False)
+        df.to_csv(log_path, index=False)
         return df
 
-    def to_hdf5(self, data_dir: Path) -> None:
+    def to_hdf5(self, file_dir: Path) -> None:
         """
-        method to store data
+        method stores data as hdf5, and logs both successful and failed queries as csv
+        :param file_dir: directory to store data and log data
         """
-        context_path = data_dir / "context_data.csv"
-        failed_queries_path = data_dir / "failed_queries.csv"
-        hdf_dir = data_dir / "data"
-        hdf_dir.mkdir(parents=True, exist_ok=True)
+        context_path = file_dir / "context_data.csv"
+        failed_queries_path = file_dir / "failed_queries.csv"
+        data_dir = file_dir / "data"
+        data_dir.mkdir(parents=True, exist_ok=True)
 
-        data = self.get_signal_data()
         try:
-            for df in data:
+            list_df = self.get_signal_data()
+            for df in list_df:
                 if isinstance(df, pd.DataFrame):
                     if not df.empty:
-                        file_name = f"{self.circuit_type}_{self.circuit_name}_{self.timestamp_fgc}_{df.columns.values[0]}.pkl"
-                        df.to_pickle(hdf_dir / file_name)
+                        file_name = f"{self.circuit_type}_{self.circuit_name}_{self.timestamp_fgc}.hdf5"
+                        df_to_hdf(file_path=data_dir / file_name, df=df)
 
                         context_data = {f"{df.columns.values[0]}": len(df)}
-                        logging_df = self.log_acquisition(context_data=context_data,
-                                                          context_path=context_path)
-            print(f"finished to download: {str(self.__class__.__name__)}")
-            return logging_df
+                        self.log_acquisition(log_data=context_data, log_path=context_path)
+                    else:
+                        self.log_acquisition(log_data={self.__class__.__name__: "empty DataFrame returned"},
+                                             log_path=failed_queries_path)
+                else:
+                    self.log_acquisition(log_data={self.__class__.__name__: "no DataFrame returned"},
+                                         log_path=failed_queries_path)
 
         except Exception as e:
-            print(e)
-            failed_df = self.log_acquisition(context_data={"error": e},
-                                             context_path=failed_queries_path)
-            print(f"failed to download: {str(self.__class__.__name__)}")
-            return failed_df
+            self.log_acquisition(log_data={"error": e}, log_path=failed_queries_path)

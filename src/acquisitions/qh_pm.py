@@ -1,5 +1,6 @@
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
 from src.acquisition import DataAcquisition
+from src.utils.utils import flatten_list
 import pandas as pd
 from typing import Optional, Union
 
@@ -33,11 +34,11 @@ class QH_PM(DataAcquisition):
         abstract method to get selected signal
         """
         signals = self.query_builder.query_qh_pm(self.signal_timestamp, signal_names=self.signal_names)
-        return self.flatten_list(signals)
+        return flatten_list(signals)
 
     def get_reference_signal_data(self) -> list:
         """
         abstract method to get selected signal
         """
         signals = self.query_builder.query_qh_pm(self.signal_timestamp, signal_names=self.signal_names, is_ref=True)
-        return self.flatten_list(signals)
+        return flatten_list(signals)

@@ -6,15 +6,21 @@ from typing import Optional, Union
 
 class CURRENT_VOLTAGE_DIODE_LEADS_NXCALS(DataAcquisition):
     """
-    Subclass of DataAquistion to query PC_PM
+    Specifies method to query data for signals of group CURRENT_VOLTAGE_DIODE_LEADS_NXCALS
     """
-
     def __init__(self,
                  circuit_type: str,
                  circuit_name: str,
                  timestamp_fgc: int,
                  spark: Optional[object] = None
                  ):
+        """
+        Initializes the CURRENT_VOLTAGE_DIODE_LEADS_NXCALS class object, inherits from DataAquistion.
+        :param circuit_type: source directory of tdms files
+        :param circuit_name: only convert the not yet converted files
+        :param timestamp_fgc: number of processes for parallel conversion
+        :param spark: number of processes for parallel conversion
+        """
         super(CURRENT_VOLTAGE_DIODE_LEADS_NXCALS, self).__init__(circuit_type, circuit_name, timestamp_fgc)
         self.query_builder = RbCircuitQuery(self.circuit_type, self.circuit_name)
         self.duration = [(50, 's'), (350, 's')]

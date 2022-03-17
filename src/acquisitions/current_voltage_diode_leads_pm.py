@@ -1,5 +1,6 @@
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
 from src.acquisition import DataAcquisition
+from src.utils.utils import flatten_list
 import pandas as pd
 from typing import Optional, Union
 
@@ -33,4 +34,4 @@ class CURRENT_VOLTAGE_DIODE_LEADS_PM(DataAcquisition):
         abstract method to get selected signal
         """
         signals = self.query_builder.query_current_voltage_diode_leads_pm(self.timestamp_fgc, self.signal_timestamp)
-        return self.flatten_list(signals)
+        return flatten_list(signals)
