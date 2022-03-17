@@ -1,4 +1,4 @@
-# Anomaly detection in the LHC TB circuit
+# Anomaly detection in the LHC RB circuit
 
 Analysis of the LHC RB circuit with ML.
 

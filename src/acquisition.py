@@ -81,30 +81,29 @@ class DataAcquisition(ABC):
         data_dir = file_dir / "data"
         data_dir.mkdir(parents=True, exist_ok=True)
 
+        group_name = self.__class__.__name__
         try:
             list_df = self.get_signal_data()
             for df in list_df:
                 if isinstance(df, pd.DataFrame):
                     if not df.empty:
                         file_name = f"{self.circuit_type}_{self.circuit_name}_{self.timestamp_fgc}.hdf5"
-                        df_to_hdf(file_path=data_dir / file_name, df=df)
+                        df_to_hdf(file_path=data_dir / file_name, df=df, hdf_dir=group_name)
 
-                        context_data = {f"{df.columns.values[0]}": len(df)}
+                        context_data = {f"{group_name + '_' + str(df.columns.values[0])}": len(df)}
                         self.log_acquisition(
-                            log_data=context_data, log_path=context_path)
+                            log_data=context_data,
+                            log_path=context_path)
                     else:
                         self.log_acquisition(
-                            log_data={
-                                self.__class__.__name__: "empty DataFrame returned"},
+                            log_data={group_name: "empty DataFrame returned"},
                             log_path=failed_queries_path)
                 else:
                     self.log_acquisition(
-                        log_data={
-                            self.__class__.__name__: "no DataFrame returned"},
+                        log_data={group_name: "no DataFrame returned"},
                         log_path=failed_queries_path)
 
         except Exception as e:
             self.log_acquisition(
-                log_data={
-                    "error": e},
+                log_data={group_name: str(e)},
                 log_path=failed_queries_path)
