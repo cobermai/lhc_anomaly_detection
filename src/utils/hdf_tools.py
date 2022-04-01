@@ -1,7 +1,7 @@
 from pathlib import Path
-import pandas as pd
-import numpy as np
+
 import h5py
+import pandas as pd
 
 
 def df_to_hdf(file_path: Path, df: pd.DataFrame, hdf_dir: str = ""):

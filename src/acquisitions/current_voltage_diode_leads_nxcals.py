@@ -1,13 +1,13 @@
-from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
-from src.acquisition import DataAcquisition
-import pandas as pd
 from typing import Optional, Union
+
+import pandas as pd
+from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
+
+from src.acquisition import DataAcquisition
 
 
 class CurrentVoltageDiodeLeadsNXCALS(DataAcquisition):
-    """
-    Specifies method to query data for signals of group CurrentVoltageDiodeLeadsNXCALS
-    """
+    """ Specifies method to query data for signals of group CurrentVoltageDiodeLeadsNXCALS """
 
     def __init__(self,
                  circuit_type: str,
@@ -22,12 +22,7 @@ class CurrentVoltageDiodeLeadsNXCALS(DataAcquisition):
         :param timestamp_fgc: fgc event timestamp
         :param spark: spark object to query data from NXCALS
         """
-        super(
-            CurrentVoltageDiodeLeadsNXCALS,
-            self).__init__(
-            circuit_type,
-            circuit_name,
-            timestamp_fgc)
+        super().__init__(circuit_type, circuit_name, timestamp_fgc)
         self.query_builder = RbCircuitQuery(
             self.circuit_type, self.circuit_name)
         self.duration = [(50, 's'), (350, 's')]
@@ -35,16 +30,12 @@ class CurrentVoltageDiodeLeadsNXCALS(DataAcquisition):
         self.spark = spark
 
     def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
-        """
-        method to find correct timestamp for selected signal
-        """
+        """ method to find correct timestamp for selected signal """
         return self.query_builder.find_source_timestamp_qds(
             self.timestamp_fgc, duration=self.duration)
 
     def get_signal_data(self) -> list:
-        """
-        method to get selected signal with specified sigmon query builder and signal timestamp
-        """
+        """ method to get selected signal with specified sigmon query builder and signal timestamp """
         signals = self.query_builder.query_current_voltage_diode_leads_nxcals(
             self.signal_timestamp, spark=self.spark, duration=self.duration)
 

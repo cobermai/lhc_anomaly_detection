@@ -1,8 +1,10 @@
+from typing import Optional, Union
+
+import pandas as pd
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
+
 from src.acquisition import DataAcquisition
 from src.utils.utils import flatten_list
-import pandas as pd
-from typing import Optional, Union
 
 
 class QHPM(DataAcquisition):
@@ -23,7 +25,7 @@ class QHPM(DataAcquisition):
         :param timestamp_fgc: fgc event timestamp
         :param spark: spark object to query data from NXCALS
         """
-        super(QHPM, self).__init__(circuit_type, circuit_name, timestamp_fgc)
+        super().__init__(circuit_type, circuit_name, timestamp_fgc)
         self.signal_names = ['I_HDS', 'U_HDS']
         self.query_builder = RbCircuitQuery(
             self.circuit_type, self.circuit_name)
@@ -32,24 +34,18 @@ class QHPM(DataAcquisition):
         self.spark = spark
 
     def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
-        """
-        method to find correct timestamp for selected signal
-        """
+        """ method to find correct timestamp for selected signal """
         return self.query_builder.find_source_timestamp_qh(
             self.timestamp_fgc, duration=self.duration)
 
     def get_signal_data(self) -> list:
-        """
-        method to get selected signal with specified sigmon query builder and signal timestamp
-        """
+        """ method to get selected signal with specified sigmon query builder and signal timestamp  """
         signals = self.query_builder.query_qh_pm(
             self.signal_timestamp, signal_names=self.signal_names)
         return flatten_list(signals)
 
     def get_reference_signal_data(self) -> list:
-        """
-        method to get selected reference signal with specified sigmon query builder and signal timestamp
-        """
+        """ method to get selected reference signal with specified sigmon query builder and signal timestamp  """
         signals = self.query_builder.query_qh_pm(
             self.signal_timestamp, signal_names=self.signal_names, is_ref=True)
         return flatten_list(signals)

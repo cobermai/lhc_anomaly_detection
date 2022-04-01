@@ -1,4 +1,5 @@
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
+
 from src.acquisition import DataAcquisition
 
 
@@ -20,12 +21,7 @@ class VoltageNXCALS(DataAcquisition):
         :param timestamp_fgc: fgc event timestamp
         :param spark: spark object to query data from NXCALS
         """
-        super(
-            VoltageNXCALS,
-            self).__init__(
-            circuit_type,
-            circuit_name,
-            timestamp_fgc)
+        super().__init__(circuit_type, circuit_name, timestamp_fgc)
         self.signal_names = [['DIODE_RB', 'U_DIODE_RB'], ['VF', 'U_EARTH_RB']]
         self.query_builder = RbCircuitQuery(
             self.circuit_type, self.circuit_name)
@@ -34,9 +30,7 @@ class VoltageNXCALS(DataAcquisition):
         self.spark = spark
 
     def get_signal_data(self) -> list:
-        """
-        method to get selected signal with specified sigmon query builder and signal timestamp
-        """
+        """ method to get selected signal with specified sigmon query builder and signal timestamp  """
         u_diode = self.query_builder.query_voltage_nxcals(
             self.signal_names[0][0],
             self.signal_names[0][1],

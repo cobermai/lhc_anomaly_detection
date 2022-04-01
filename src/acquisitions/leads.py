@@ -1,7 +1,9 @@
-from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
-from src.acquisition import DataAcquisition
+from typing import Union
+
 import pandas as pd
-from typing import Optional, Union
+from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
+
+from src.acquisition import DataAcquisition
 
 
 class Leads(DataAcquisition):
@@ -22,7 +24,7 @@ class Leads(DataAcquisition):
         :param timestamp_fgc: fgc event timestamp
         :param spark: spark object to query data from NXCALS
         """
-        super(Leads, self).__init__(circuit_type, circuit_name, timestamp_fgc)
+        super().__init__(circuit_type, circuit_name, timestamp_fgc)
         self.query_builder = RbCircuitQuery(
             self.circuit_type, self.circuit_name)
         self.system = ['LEADS_ODD', 'LEADS_EVEN']
@@ -31,16 +33,12 @@ class Leads(DataAcquisition):
         self.spark = spark
 
     def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
-        """
-        method to find correct timestamp for selected signal
-        """
+        """ method to find correct timestamp for selected signal """
         return self.query_builder.find_timestamp_leads(
             self.timestamp_fgc, self.system)
 
     def get_signal_data(self) -> list:
-        """
-        method to get selected signal with specified sigmon query builder and signal timestamp
-        """
+        """ method to get selected signal with specified sigmon query builder and signal timestamp  """
         return self.query_builder.query_leads(
             self.timestamp_fgc,
             self.signal_timestamp,

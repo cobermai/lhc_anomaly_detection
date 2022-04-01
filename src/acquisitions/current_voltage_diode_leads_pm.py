@@ -1,14 +1,14 @@
+from typing import Optional, Union
+
+import pandas as pd
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
+
 from src.acquisition import DataAcquisition
 from src.utils.utils import flatten_list
-import pandas as pd
-from typing import Optional, Union
 
 
 class CurrentVoltageDiodeLeadsPM(DataAcquisition):
-    """
-    Specifies method to query data for signals of group CurrentVoltageDiodeLeadsPM
-    """
+    """ Specifies method to query data for signals of group CurrentVoltageDiodeLeadsPM """
 
     def __init__(self,
                  circuit_type: str,
@@ -23,12 +23,7 @@ class CurrentVoltageDiodeLeadsPM(DataAcquisition):
         :param timestamp_fgc: fgc event timestamp
         :param spark: spark object to query data from NXCALS
         """
-        super(
-            CurrentVoltageDiodeLeadsPM,
-            self).__init__(
-            circuit_type,
-            circuit_name,
-            timestamp_fgc)
+        super().__init__(circuit_type, circuit_name, timestamp_fgc)
         self.signal_names = ['I_HDS', 'U_HDS']
         self.query_builder = RbCircuitQuery(
             self.circuit_type, self.circuit_name)
@@ -37,16 +32,12 @@ class CurrentVoltageDiodeLeadsPM(DataAcquisition):
         self.spark = spark
 
     def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
-        """
-        method to find correct timestamp for selected signal
-        """
+        """ method to find correct timestamp for selected signal """
         return self.query_builder.find_source_timestamp_qds(
             self.timestamp_fgc, duration=self.duration)
 
     def get_signal_data(self) -> list:
-        """
-        method to get selected signal with specified sigmon query builder and signal timestamp
-        """
+        """ method to get selected signal with specified sigmon query builder and signal timestamp """
         signals = self.query_builder.query_current_voltage_diode_leads_pm(
             self.timestamp_fgc, self.signal_timestamp)
         return flatten_list(signals)

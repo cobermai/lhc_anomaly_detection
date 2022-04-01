@@ -12,7 +12,10 @@ pip install -r requirements.txt
 
 
 ## Hints
-### Generate requirements
+### Install requirements
+Access to the AccPy repo is necessary for installing NXCALS.
+
+### Create requirements
 ```
 pip install pipreqs
 pipreqs

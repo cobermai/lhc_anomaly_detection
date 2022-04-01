@@ -1,8 +1,8 @@
+from typing import Optional
+
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
+
 from src.acquisition import DataAcquisition
-from src.utils.utils import flatten_list
-import pandas as pd
-from typing import Optional, Union
 
 
 class PCPM(DataAcquisition):
@@ -23,7 +23,7 @@ class PCPM(DataAcquisition):
         :param timestamp_fgc: fgc event timestamp
         :param spark: spark object to query data from NXCALS
         """
-        super(PCPM, self).__init__(circuit_type, circuit_name, timestamp_fgc)
+        super().__init__(circuit_type, circuit_name, timestamp_fgc)
         self.signal_names = [
             'I_MEAS',
             'I_A',
@@ -36,18 +36,14 @@ class PCPM(DataAcquisition):
         self.spark = spark
 
     def get_signal_data(self) -> list:
-        """
-        method to get selected signal with specified sigmon query builder and signal timestamp
-        """
+        """ method to get selected signal with specified sigmon query builder and signal timestamp  """
         return self.query_builder.query_pc_pm(
             self.signal_timestamp,
             self.signal_timestamp,
             signal_names=self.signal_names)
 
     def get_reference_signal_data(self) -> list:
-        """
-        method to get selected reference signal with specified sigmon query builder and signal timestamp
-        """
+        """ method to get selected reference signal with specified sigmon query builder and signal timestamp  """
         timestamp_fgc_ref = self.query_builder.get_timestamp_ref(col='fgcPm')
         return self.query_builder.query_pc_pm(
             timestamp_fgc_ref,
