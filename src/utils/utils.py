@@ -5,6 +5,7 @@ import pandas as pd
 def log_acquisition(identifier: dict, log_data: dict, log_path: Path) -> None:
     """
     method stores logs data to given csv, if identifier not exists, a new line is created
+    :param identifier: dict to specify location to log data
     :param log_data: dict data to log
     :param log_path: directory where csv is stored
     """

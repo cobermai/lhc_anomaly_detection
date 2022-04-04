@@ -25,9 +25,7 @@ class VoltageLogicNQPS(DataAcquisition):
         :param timestamp_fgc: fgc event timestamp
         :param spark: spark object to query data from NXCALS
         """
-        super(
-            VoltageLogicNQPS,
-            self).__init__()
+        super().__init__(circuit_type, circuit_name, timestamp_fgc)
         self.signal_names = ['U_QS0', 'U_1', 'U_2', 'ST_NQD0', 'ST_MAGNET_OK']
         self.query_builder = RbCircuitQuery(
             self.circuit_type, self.circuit_name)
