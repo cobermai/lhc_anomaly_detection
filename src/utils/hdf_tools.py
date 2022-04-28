@@ -5,7 +5,7 @@ import pandas as pd
 
 from src.utils.utils import log_acquisition
 
-def acquisition_to_hdf5(acquisition: object, file_dir: Path) -> None:
+def acquisition_to_hdf5(acquisition: "DataAcquisition", file_dir: Path) -> None:
     """
     method stores acquisition data as hdf5, and logs both successful and failed queries as csv
     :param acquisition: DataAcquisition class to query data from

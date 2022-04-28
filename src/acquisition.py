@@ -1,11 +1,12 @@
+import pandas as pd
 from abc import ABC, abstractmethod
+from nxcals.spark_session_builder import get_or_create, Flavor
 from pathlib import Path
 from typing import Union
 
-import pandas as pd
-
 from src.utils.hdf_tools import df_to_hdf
 from src.utils.utils import log_acquisition
+
 
 class DataAcquisition(ABC):
     """
@@ -45,3 +46,8 @@ class DataAcquisition(ABC):
         abstract method to get selected signal
         :return: list of dataframes containing queried signals
         """
+
+if __name__ == "__main__":
+    spark = get_or_create(flavor=Flavor.YARN_MEDIUM)
+
+    
