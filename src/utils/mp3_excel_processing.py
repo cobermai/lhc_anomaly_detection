@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -5,6 +6,7 @@ from lhcsmapi.Time import Time
 from lhcsmapi.metadata.SignalMetadata import SignalMetadata
 from lhcsmapi.pyedsl.dbsignal.post_mortem.PmDbRequest import PmDbRequest
 
+from src.utils.utils import load_acquisition_log
 
 def find_real_fgc_timestamp(circuit_name: str, fgc_datetime: str) -> list:
     """
@@ -61,6 +63,40 @@ def get_fgc_timestamp_missing(mp3_df: pd.DataFrame) -> int:
             _, real_fgc_timestamp = real_fgc_timestamps[0]
             return int(real_fgc_timestamp)
 
+
+def select_fgc_period(mp3_df: pd.DataFrame, lower_threshold: str, upper_threshold: str) -> pd.DataFrame:
+    """
+    function selects time period from mp3 excel file to analyze
+    :param mp3_df: df from mp3 fpa excel
+    :param lower_threshold: lower threshold date
+    :param upper_threshold: upper threshold date
+    :return: real excel file within given period
+    """
+    lower_threshold_unix = Time.to_unix_timestamp(lower_threshold)
+    upper_threshold_unix = Time.to_unix_timestamp(upper_threshold)
+    mp3_fpa_df_period = mp3_df[(mp3_df['timestamp_fgc'] >= lower_threshold_unix) &
+                               (mp3_df['timestamp_fgc'] <= upper_threshold_unix)].reset_index(drop=True)
+
+    return mp3_fpa_df_period
+
+def select_fgc_not_downloaded(context_path: Path, mp3_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    gathers all .csv files from path
+    :param path: path where acquisition is stored
+    :param mp3_df: df from mp3 fpa excel
+    :return: mp3 df with fpa events not downloaded
+    """
+    if os.path.exists(context_path):
+        df_context = load_acquisition_log(path=context_path)
+        dowloaded_fgc_ts = df_context[df_context.download_complete==True].timestamp_fgc.values
+
+        mp3_fpa_df_to_download = mp3_df[~mp3_df.timestamp_fgc.isin(dowloaded_fgc_ts)]
+    else:
+        mp3_fpa_df_to_download = mp3_df
+
+    return mp3_fpa_df_to_download
+
+
 def process_mp3_excel(data_dir: Path, mp3_file_name: str):
     """
     process mp3 excel file for further analysis
@@ -83,7 +119,6 @@ def process_mp3_excel(data_dir: Path, mp3_file_name: str):
         "timestamp_fgc"].dropna().values
 
     mp3_fpa_df.to_csv(data_dir / (mp3_file_name + "_processed.csv"))
-
 
 if __name__ == "__main__":
     data_dir = Path("../../data")

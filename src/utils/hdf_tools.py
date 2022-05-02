@@ -11,8 +11,8 @@ def acquisition_to_hdf5(acquisition: "DataAcquisition", file_dir: Path) -> None:
     :param acquisition: DataAcquisition class to query data from
     :param file_dir: directory to store data and log data
     """
-    context_path = file_dir / "context_data.csv"
-    failed_queries_path = file_dir / "failed_queries.csv"
+    context_path = file_dir / "context"
+    failed_queries_path = file_dir / "failed"
     data_dir = file_dir / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
 
@@ -26,9 +26,8 @@ def acquisition_to_hdf5(acquisition: "DataAcquisition", file_dir: Path) -> None:
         for df in list_df:
             if isinstance(df, pd.DataFrame):
                 if not df.empty:
-                    file_name = f"{acquisition.circuit_type}_{acquisition.circuit_name}_{acquisition.timestamp_fgc}.hdf5"
-                    df_to_hdf(file_path=data_dir / file_name, df=df, hdf_dir=group_name)
-
+                    file_name = f"{identifier['circuit_type']}_{identifier['circuit_name']}_{identifier['timestamp_fgc']}.hdf5"
+                    df_to_hdf(file_path=data_dir / file_name , df=df, hdf_dir=group_name)
                     context_data = {f"{group_name + '_' + str(df.columns.values[0])}": len(df)}
                     log_acquisition(
                         identifier=identifier,
