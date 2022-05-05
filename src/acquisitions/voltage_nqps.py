@@ -7,9 +7,9 @@ from src.acquisition import DataAcquisition
 from src.utils.utils import flatten_list
 
 
-class VoltageLogicNQPS(DataAcquisition):
+class VoltageNQPS(DataAcquisition):
     """
-    Specifies method to query data for signals of group VoltageLogicNQPS
+    Specifies method to query data for signals of group VoltageNQPS
     """
 
     def __init__(self,
@@ -19,7 +19,7 @@ class VoltageLogicNQPS(DataAcquisition):
                  spark: object
                  ):
         """
-        Initializes the VoltageLogicNQPS class object, inherits from DataAcquisition.
+        Initializes the VoltageNQPS class object, inherits from DataAcquisition.
         :param circuit_type: lhc circuit name
         :param circuit_name: lhc sector name
         :param timestamp_fgc: fgc event timestamp

@@ -34,8 +34,12 @@ class EEUDumpResPM(DataAcquisition):
 
     def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
         """ method to find correct timestamp for selected signal """
-        return self.query_builder.find_source_timestamp_ee(
-            self.timestamp_fgc, system=self.systems).loc[0, 'timestamp']
+        timestamp_df = self.query_builder.find_source_timestamp_ee(self.timestamp_fgc, system=self.systems)
+        if not timestamp_df.empty:
+            return timestamp_df.loc[0, 'timestamp']
+        else:
+            return 0
+
 
     def get_signal_data(self) -> list:
         """ method to get selected signal with specified sigmon query builder and signal timestamp  """
