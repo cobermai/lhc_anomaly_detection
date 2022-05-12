@@ -20,10 +20,7 @@ from src.utils.utils import log_acquisition
 if __name__ == "__main__":
     spark = get_or_create(flavor=Flavor.YARN_MEDIUM)
     file_dir = Path('/eos/project/m/ml-for-alarm-system/private/RB_signals')
-    signal_groups = [CurrentVoltageDiodeLeadsPM, CurrentVoltageDiodeLeadsNXCALS, EETResPM, EEUDumpResPM, Leads, PCPM,
-                     QHPM, VoltageLogicIQPS, VoltageNQPS, VoltageNXCALS]
-
-    signal_groups = [VoltageNXCALS]
+    signal_groups = [PCPM, VoltageNQPS, VoltageNXCALS]
 
     mp3_excel_path = "../data/RB_TC_extract_2021_11_22_processed.csv"
     mp3_fpa_df = pd.read_csv(mp3_excel_path)
@@ -36,21 +33,16 @@ if __name__ == "__main__":
                                           upper_threshold='2023-01-01 00:00:00+01:00')
 
     #mp3_fpa_df_to_download = select_fgc_not_downloaded(context_path=file_dir / "context", mp3_df=mp3_fpa_df_period) # loading of context data takes to long
-    mp3_fpa_df_to_download = pd.DataFrame({'Circuit Family': "RB",
-                                          'Circuit Name': "RB.A12",
-                                          'timestamp_fgc': 1619196160600000000}, index=[0])
+    mp3_fpa_df_to_download = mp3_fpa_df_period
 
 
     for index, row in mp3_fpa_df_to_download.iterrows():
         fpa_identifier = {'circuit_type': row['Circuit Family'],
                           'circuit_name': row['Circuit Name'],
                           'timestamp_fgc': int(row['timestamp_fgc'])}
-        i =0
+
         for signal_group in signal_groups:
-            print(i)
             group = signal_group(**fpa_identifier, spark=spark)
             acquisition_to_hdf5(acquisition=group, file_dir=file_dir)
-            print(i)
-            i+=1
 
         log_acquisition(identifier=fpa_identifier, log_data={"download_complete": True}, log_path=file_dir / "context")
