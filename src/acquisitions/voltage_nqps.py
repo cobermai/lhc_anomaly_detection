@@ -26,7 +26,6 @@ class VoltageNQPS(DataAcquisition):
         :param spark: spark object to query data from NXCALS
         """
         super().__init__(circuit_type, circuit_name, timestamp_fgc)
-        self.signal_names = ['U_QS0', 'U_1', 'U_2', 'ST_NQD0', 'ST_MAGNET_OK']
         self.query_builder = RbCircuitQuery(
             self.circuit_type, self.circuit_name)
         self.duration = [(50, 's'), (500, 's')]
@@ -42,17 +41,11 @@ class VoltageNQPS(DataAcquisition):
         return [source_timestamp_qds_df, source_timestamp_nqps_df]
 
     def get_signal_data(self) -> list:
-        """ method to get selected signal with specified sigmon query builder and signal timestamp  """
-        first_board = self.query_builder.query_voltage_nqps(
+        """ query_voltage_nqps compares qds and nqps timestamp. Then queries from NXCALS or PM  """
+        u_nqps_dfs = self.query_builder.query_voltage_nqps(
             self.signal_timestamp[1],
             self.signal_timestamp[0],
             self.timestamp_fgc,
             spark=self.spark)
 
-        self.signal_timestamp[0]['timestamp'] = self.signal_timestamp[0]['timestamp'] + 2000000
-        second_board = self.query_builder.query_voltage_nqps(
-            self.signal_timestamp[1],
-            self.signal_timestamp[0],
-            self.timestamp_fgc,
-            spark=self.spark)
-        return flatten_list(first_board + second_board)
+        return flatten_list(u_nqps_dfs)
