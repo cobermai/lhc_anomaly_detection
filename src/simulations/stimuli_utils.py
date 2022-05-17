@@ -1,59 +1,11 @@
-def StimulaAdjustment_Time(Inputfile, Outputfile, type_stl, numbering, tShift, last_time):
-    Stimuli = ['R_field']  # ,'V_circuit','V_field']
-
-    stlString = ''
-    count = 0
-    with open(Inputfile, 'r') as ifile:
-        with open(Outputfile, type_stl) as ofile:
-            validStl = 0
-            for line in ifile:
-                if '.STIMULUS' in line:
-                    validStl = 0
-                    for st in Stimuli:
-                        if st in line: validStl = 1
-                    if validStl:
-                        line = line.replace('stim', 'stim_' + str(numbering))
-                        stlString = stlString + line
-                elif '0.0s' in line and validStl:
-                    count = 0
-                    stlString = stlString + line
-                elif 's,' in line and validStl:
-                    for i, c in enumerate(line):
-                        if c.isdigit():
-                            idxD1 = i
-                            break
-                    idxD2 = line.find('s,')
-                    if line[idxD1:idxD2] == str(last_time):
-                        new_t = 10000
-                    else:
-                        new_t = float(line[idxD1:idxD2]) + tShift
-                    line = line.replace(line[idxD1:idxD2], str(new_t))
-                    #######
-                    count = count + 1
-                    if count < sparseTimeStepping and new_t != 10000:
-                        continue
-                    else:
-                        count = 0
-                    #######
-                    stlString = stlString + line
-                elif validStl:
-                    stlString = stlString + line
-                else:
-                    continue
-            ofile.write(stlString)
-
-
-def appendGeneralStimuli(Inputfile, Outputfile):
-    with open(Inputfile, 'r') as ifile:
-        with open(Outputfile, 'a') as ofile:
-            stlString = ''
-            for line in ifile:
-                stlString = stlString + line
-            ofile.write(stlString)
+import matplotlib.pyplot as plt
+from scipy.interpolate import UnivariateSpline
+from scipy.interpolate import interp1d
+from steam_nb_api.utils.STEAMLib_simulations import *
 
 
 # Append changed stimuli & models
-def appendGenericMagnetModel(cir_file, Library_file):
+def appendGenericMagnetModel(cir_file, Library_file, elPositions):
     new_cir = cir_file.replace('.cir', '_final.cir')
     # validStl = ['V_circuit_1_stim','V_circuit_2_stim','V_field_1_stim','V_field_2_stim','R_field_1_stim','R_field_2_stim']
     validStl = ['R_field_1_stim', 'R_field_2_stim']
@@ -134,52 +86,6 @@ def generateConfFile(final_dir, endTime, timeStep):
 
         cfile.write(stlString)
         print(Conf_File + ' generated.')
-
-
-def WriteStimuliFromLEDET(Inputfile, Outputfile, type_stl, numbering, timeShift):
-    if timeShift < 0: timeShift = 0
-
-    with open(Inputfile, "r") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        row_count = sum(1 for row in csv_reader)
-
-    stlString = ''
-    for i in range(2):
-        line_count = 0
-        with open(Inputfile, "r") as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=',')
-            stlString = stlString + '\n .STIMULUS R_field_' + str(i + 1) + '_stim_' + str(
-                numbering) + ' PWL \n + TIME_SCALE_FACTOR = 1 \n + VALUE_SCALE_FACTOR = 1 \n'
-            count = 0
-            for row in csv_reader:
-                if line_count == 0:
-                    idxR = row.index(' R_CoilSections_' + str(i + 1))
-                    idxt = row.index('time_vector')
-                    line_count = 1
-                    count = count + 1
-                elif line_count == 1:
-                    if float(row[idxt]) < 0:  timeShift = timeShift + abs(float(row[idxt])) - 0.03
-                    if float(row[idxt]) + timeShift < 0:
-                        tt = 0
-                    else:
-                        tt = float(row[idxt]) + timeShift
-                    stlString = stlString + "+ ( " + str(tt) + "s, 0.0 )\n"
-                    line_count = 2
-                    count = count + 1
-                elif count >= sparseTimeStepping and line_count < row_count - 1:
-                    stlString = stlString + "+ ( " + str(float(row[idxt]) + timeShift) + "s," + str(row[idxR]) + " ) \n"
-                    line_count = line_count + 1
-                    count = 1
-                elif line_count == row_count - 1:
-                    stlString = stlString + "+ ( " + str(10000) + "s," + str(row[idxR]) + " ) \n"
-                else:
-                    count = count + 1
-                    continue
-            stlString = stlString + " \n"
-
-    with open(Outputfile, type_stl) as ifile:
-        ifile.write(stlString)
-
 
 def InterpolateResistance(current_level, Type):
     max_time = 1.1
@@ -275,7 +181,7 @@ def InterpolateResistance(current_level, Type):
     return [time, new_R1, new_R2]
 
 
-def writeStimuliFromInterpolation(current_level, Outputfile, type_stl, tShift, InterpolationType):
+def writeStimuliFromInterpolation(current_level, Outputfile, type_stl, tShift, InterpolationType, sparseTimeStepping):
     R1 = np.array([])
     R2 = np.array([])
     print("Interpolating Coil-Resistances")

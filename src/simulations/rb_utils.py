@@ -1,7 +1,69 @@
+from pathlib import Path
+import os
+from py4j.java_gateway import launch_gateway, java_import, JavaGateway, JavaObject, GatewayParameters, Py4JNetworkError
+from steam_nb_api.utils.STEAMLib_simulations import *
+import pandas as pd
+from datetime import datetime
+import os
+from pathlib import Path
+import numpy as np
+from steam_nb_api.utils import arrays as a
+import shutil
+import copy
 
+import matplotlib.pyplot as pltp
+from scipy.interpolate import interp1d
+from scipy.interpolate import UnivariateSpline
+
+from src.simulations.rb_utils import *
+
+Config_Name = ''
+
+LEDET_only = 0  # If 1, the quenches will be simulated in LEDET only
+Skip_SetUp = 0  # If set to 1, the set-up will be skipped and you jump straigt to the stitching & results
+Interpolation_only = 1  # If set to 1, the set-up will be skipped and results will be obtained by interpolation of previously obtained results
+InterpolationType = 'Linear'  # Supported: 'Spline', 'Linear'
+
+# Half-Turns here are arbitrary for now --> Waiting for Zinur
+enableQuench = 1  # 0 = no quenches included, 1 yes
+quenchHalfTurn_EXT = 40  # Turn set to quench if quench origin = EXT
+quenchHalfTurn_INT = 80  # Turn set to quench if quench origin = INT
+
+tEnd = 300
+Opts = Options()
+Opts.t_0 = [0.000, 0.12, 0.20, 0.3, 0.5]
+Opts.t_end = [0.12, 0.20, 0.30, 0.5, 1.1]
+Opts.t_step_max = [[1.0e-4, 1.0e-4, 1.0e-4, 1.0e-4, 1.0e-4]] + [[1.0e-5, 5.0e-5, 1.0e-4, 1.0e-4, 1.0e-4]]
+Opts.relTolerance = [8e-4] + [None]
+Opts.absTolerance = [5] + [None]
+Opts.executionOrder = [1] + [2]
+Opts.executeCleanRun = [True, True]
+
+sparseTimeStepping = 100
+
+# Launch a Gateway in a new Java process, this returns port
+port = launch_gateway(classpath='../../steam/*')
+# JavaGateway instance is connected to a Gateway instance on the Java side
+gateway = JavaGateway(gateway_parameters=GatewayParameters(port=port))
+# Get STEAM API Java classes
+MutualInductance = gateway.jvm.component.MutualInductance
+Netlist = gateway.jvm.netlist.Netlist
+CommentElement = gateway.jvm.netlist.elements.CommentElement
+GeneralElement = gateway.jvm.netlist.elements.GeneralElement
+ACSolverElement = gateway.jvm.netlist.solvers.ACSolverElement
+StimulusElement = gateway.jvm.netlist.imports.StimulusElement
+ParameterizedElement = gateway.jvm.netlist.elements.ParameterizedElement
+GlobalParameterElement = gateway.jvm.netlist.elements.GlobalParameterElement
+OutputGeneralElement = gateway.jvm.netlist.elements.OutputGeneralElement
+OptionSolverSettingsElement = gateway.jvm.netlist.solvers.OptionSolverSettingsElement
+TransientSolverElement = gateway.jvm.netlist.solvers.TransientSolverElement
+AutoconvergeSolverSettingsElement = gateway.jvm.netlist.solvers.AutoconvergeSolverSettingsElement
+CircuitalPreconditionerSubcircuit = gateway.jvm.preconditioner.CircuitalPreconditionerSubcircuit
+TextFile = gateway.jvm.utils.TextFile
+CSVReader = gateway.jvm.utils.CSVReader
 
 ## find position
-def findRBposition(Layout_db, pos):
+def findRBposition(Layout_db, pos, Circuit):
     mag_pos = 'MB.' + pos
     pos_db = pd.read_excel(Layout_db)
     idx = pos_db.index[pos_db['ASSEMBLY_NAME'] == mag_pos][1]
@@ -57,8 +119,24 @@ def changeRBStimuli(StimulusFile, t_EE_1, t_EE_2, EE1=0, EE2=0):
 
 
 ## Generate Quench circuit for spec. position
-def generateCircuitFile(circuit_name, position_quenching_magnet, elPositions=[],
+def generateCircuitFile(circuit_name, position_quenching_magnet, R_EE_1, R_EE_2, elPositions=[],
                         libraryPath="C:\\cernbox\\steam-pspice-library\\", FinalRun=0):
+    # Launch a Gateway in a new Java process, this returns port
+    port = launch_gateway(classpath='../../steam/*')
+    # JavaGateway instance is connected to a Gateway instance on the Java side
+    gateway = JavaGateway(gateway_parameters=GatewayParameters(port=port))
+    # Get STEAM API Java classes
+    MutualInductance = gateway.jvm.component.MutualInductance
+
+    Netlist = gateway.jvm.netlist.Netlist
+    CommentElement = gateway.jvm.netlist.elements.CommentElement
+    GeneralElement = gateway.jvm.netlist.elements.GeneralElement
+    ParameterizedElement = gateway.jvm.netlist.elements.ParameterizedElement
+    GlobalParameterElement = gateway.jvm.netlist.elements.GlobalParameterElement
+    OutputGeneralElement = gateway.jvm.netlist.elements.OutputGeneralElement
+    TextFile = gateway.jvm.utils.TextFile
+    CSVReader = gateway.jvm.utils.CSVReader
+
     if not isinstance(position_quenching_magnet, list): position_quenching_magnet = [position_quenching_magnet]
     if elPositions: position_quenching_magnet = elPositions
     pathRB = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'RB')
@@ -70,7 +148,7 @@ def generateCircuitFile(circuit_name, position_quenching_magnet, elPositions=[],
     N_MAGS = 154
     INDEX_OUT_NODE = 3
 
-    netlistPath = "netlist.cir";
+    netlistPath = "netlist.cir"
     netlist = Netlist(netlistPath)
 
     # Set paths to libraries

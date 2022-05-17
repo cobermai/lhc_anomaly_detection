@@ -11,9 +11,9 @@ source ./venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Hints
+# Acquisition
 ### Install requirements
-Access to the AccPy repo is necessary for installing NXCALS.
+Access to the AccPy repo is necessary for installing NXCALS. Execution only on Linux.
 
 ### Run code outside SWAN:
 Install necessary packages:
@@ -35,13 +35,19 @@ from nxcals.spark_session_builder import get_or_create, Flavor
 spark = get_or_create(flavor=Flavor.YARN_MEDIUM) # or any other flavor or dict with config
 ```
 
-### Using steam sing
+# Simulation data
+
+## Using steam sing
 * Clone steam-notebooks directory: https://gitlab.cern.ch/steam/steam-notebooks.git and specify path bellow (commit sha: e591c2ebc6ea191fa8ed240cf7cc7361d1a3fae4)
 * Required Programs: PSPICE, COSIM, and LEDET
 * Contact emmanuele.ravaioli@cern.ch to get get access to COSIM and LEDET
 * Create personal configurations in "steam-notebooks\steam-sing-input\resources\User configurations\config.\<user\>.yaml"
 * Select signals to simulate in "steam-notebooks\steam-sing-input\resources\selectedSignals_RB.csv"
 
+## Requirements
+Execution only on Windows, as PSpice is utilized
+
+# Hints
 ### Create requirements
 ```
 pip install pipreqs

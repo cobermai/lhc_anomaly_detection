@@ -1,6 +1,16 @@
-h5py
+# General requirements
 numpy
 pandas
-steam-nb-api
 xlrd
 openpyxl
+h5py
+# Acquisition requirements
+nxcals
+lhcsmapi==1.5.20
+# Simulation requirements
+steam-nb-api
+py4j
+matplotlib
+scypy
+PyYAML
+tqdm
