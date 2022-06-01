@@ -6,7 +6,7 @@ import pandas as pd
 
 class DataAcquisition(ABC):
     """
-    abstract class which acts as a template to download LHC circuit data
+    Abstract class which acts as a template to download LHC circuit data.
     Questions:
     * EE_U_DUMP_RES_PM: query both 'EE_ODD', 'EE_EVEN'?, take only first element of list?
     * EE_T_RES_PM: what is t_res_odd_1_df ? - not implemented yet
@@ -31,7 +31,7 @@ class DataAcquisition(ABC):
 
     def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
         """
-        method to find correct timestamp for selected signal, default is fgc timestamp
+        Method to find correct timestamp for selected signal, the default is a fgc timestamp.
         :return: fgc timestamp as int or DataFrame of ints
         """
         return self.timestamp_fgc
@@ -39,7 +39,7 @@ class DataAcquisition(ABC):
     @abstractmethod
     def get_signal_data(self) -> list:
         """
-        abstract method to get selected signal
+        Abstract method to get selected signal.
         :return: list of dataframes containing queried signals
         """
 

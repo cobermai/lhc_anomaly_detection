@@ -28,7 +28,7 @@ def acquisition_to_hdf5(acquisition: "DataAcquisition", file_dir: Path) -> None:
             if isinstance(df, pd.DataFrame):
                 if not df.empty:
                     file_name = f"{identifier['circuit_type']}_{identifier['circuit_name']}_{identifier['timestamp_fgc']}.hdf5"
-                    df_to_hdf(file_path=data_dir / file_name , df=df, hdf_dir=group_name)
+                    df_to_hdf(file_path=data_dir / file_name, df=df, hdf_dir=group_name)
                     context_data = {f"{group_name + '_' + str(df.columns.values[0])}": len(df)}
                     log_acquisition(
                         identifier=identifier,
@@ -64,14 +64,14 @@ def df_to_hdf(file_path: Path, df: pd.DataFrame, hdf_dir: str = ""):
             append_or_overwrite_hdf_group(file=f,
                                           hdf_path=f"{hdf_dir}/{df[column].name}/values",
                                           data=df[column].values)
-        append_or_overwrite_hdf_group(file=f,
-                                      hdf_path=f"{hdf_dir}/index",
-                                      data=df[column].index.values)
+            append_or_overwrite_hdf_group(file=f,
+                                          hdf_path=f"{hdf_dir}/{df[column].name}/index",
+                                          data=df[column].index.values)
 
 
 def append_or_overwrite_hdf_group(file: h5py.File, hdf_path: str, data: np.array):
     """
-    append data to h5py file, appends if group not exists, overwrite it it does
+    append data to h5py file, appends if group not exists, overwrite it
     file: opened h5 file
     h5_path: path within h5 file
     data: data to add

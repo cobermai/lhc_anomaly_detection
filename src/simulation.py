@@ -1,42 +1,44 @@
+
 from steam_nb_api.utils.STEAMLib_simulations import *
-# Install required package
-import pandas as pd
+from src.simulations.stimuli_utils import *
+from src.simulations.rb_utils import findRBposition, changeRBStimuli, generateCircuitFile
+# datetime package needs to be imported afterwards, otherwise there will be an error
 from datetime import datetime
-import os
-from pathlib import Path
-import numpy as np
-from steam_nb_api.utils import arrays as a
-import shutil
-import copy
-from py4j.java_gateway import launch_gateway, java_import, JavaGateway, JavaObject, GatewayParameters, \
-    Py4JNetworkError
-# %matplotlib notebook
-import matplotlib.pyplot as plt
-
-# import mpld3
-# mpld3.enable_notebook()
-from scipy.interpolate import interp1d
-from scipy.interpolate import UnivariateSpline
 
 
+def simulate_RB_circuit(RB_event_data, final_dir=""):
+    ################################# Load RB data from CSV & Set-Up simulations ###############################
+    ##################################### Provide all necessary Inputs & Options #####################################
 
-def load_rb_data(RB_event_file):
+    # Half-Turns here are arbitrary for now --> Waiting for Zinur
+    enableQuench = 1  # 0 = no quenches included, 1 yes
+    quenchHalfTurn_EXT = 40  # Turn set to quench if quench origin = EXT
+    quenchHalfTurn_INT = 80  # Turn set to quench if quench origin = INT
+
+    Opts = Options()
+    Opts.t_0 = [0.000, 0.12, 0.20, 0.3, 0.5]
+    Opts.t_end = [0.12, 0.20, 0.30, 0.5, 1.1]
+    Opts.t_step_max = [[1.0e-4, 1.0e-4, 1.0e-4, 1.0e-4, 1.0e-4]] + [[1.0e-5, 5.0e-5, 1.0e-4, 1.0e-4, 1.0e-4]]
+    Opts.relTolerance = [8e-4] + [None]
+    Opts.absTolerance = [5] + [None]
+    Opts.executionOrder = [1] + [2]
+    Opts.executeCleanRun = [True, True]
+    InterpolationType = 'Linear'  # Supported: 'Spline', 'Linear'
+    sparseTimeStepping = 100
+
     Layout_db = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'resources',
                              'RB_Layout_Database.xls')
-    RB_event_data = pd.read_csv(RB_event_file)
-    StimulusFile = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'RB', 'Gate-EE_Stimuli.stl')
+    Config_Name = ''
     startTime = []
     elPositions = []
     CurrentLevel = []
     finalTime = []
     TimeStamp = ''
+    tEnd = 300
 
+    # Iterate through primary quench and secondary quenches
     for index, row in RB_event_data.iterrows():
         if row[0] != row[0]: continue
-        if index == 0:
-            Append = False
-        else:
-            Append = True
         if index == 0:
             date = RB_event_data['Date (FGC)'][0]
             if '/' in date:
@@ -62,14 +64,6 @@ def load_rb_data(RB_event_file):
         Pos = RB_event_data['Position'][index]
         startTime.append(float(RB_event_data['Delta_t(iQPS-PIC)'][index] / 1000))
         start = float(RB_event_data['Delta_t(iQPS-PIC)'][index] / 1000)
-        if start > (t_EE_1 / 1000):
-            EE1 = 1
-        else:
-            EE1 = 0
-        if start > (t_EE_2 / 1000):
-            EE2 = 1
-        else:
-            EE2 = 0
 
         newOpts = deepcopy(Opts)
         if I_00 * 2 < 4000:
@@ -78,21 +72,12 @@ def load_rb_data(RB_event_file):
             newOpts.t_end[-1] = 2
         finalTime.append(newOpts.t_end[-1])
 
-        if not Skip_SetUp:
-            ## Change Stimuli
-            tempStimFile = changeRBStimuli(StimulusFile, t_EE_1, t_EE_2, EE1=EE1, EE2=EE2)
-
         ## Find position
-        el_pos = findRBposition(Layout_db, Pos)
+        el_pos = findRBposition(Layout_db, Pos, Circuit)
         elPositions.append(el_pos)
+        print(I_00)
         TimeStamp_Temp = TimeStamp + '_' + str(int(I_00 * 2)) + 'A_Q' + str(el_pos)
 
-        if not Skip_SetUp:
-            ## Generate .cir-file for Quench position
-            if not LEDET_only:
-                CircuitFile = generateCircuitFile(Circuit, el_pos)
-            else:
-                CircuitFile = ''
 
         ## Adjust temporary Circuit_Param_Table
         df = pd.read_csv(os.path.join(os.getcwd(), 'RB_Circuit_Param_Table.csv'))
@@ -106,8 +91,6 @@ def load_rb_data(RB_event_file):
             new_iqT = 1
             print('Quench origin not understood. Choose Turn 1.')
         df["i_qT"] = new_iqT
-        if LEDET_only:
-            df["flag_COSIM"] = 0
         tPC = df["t_PC"][1]
         df.to_csv(os.path.join(os.getcwd(), 'tempDir', 'RB_Circuit_Param_Table.csv'), index=False)
 
@@ -115,151 +98,38 @@ def load_rb_data(RB_event_file):
         ParameterFile = os.path.join(os.getcwd(), 'tempDir', 'RB_Circuit_Param_Table.csv')
         LSS = LibSim_setup(Circuit, ParameterFile, Opts=newOpts)
         LSS.load_config(Config_Name)
-        if not Skip_SetUp:
-            LSS.SetUpSimulation(TimeStamp_Temp, [[int(I_initial)]], ManualStimuli=['I_FPA_PC'], Append=Append,
-                                ManualCircuit=CircuitFile, AppendStimuli=tempStimFile, HierCOSIM='_' + str(index + 1),
-                                convergenceElement='x_MB' + str(el_pos))
+
         shutil.rmtree(os.path.join(os.getcwd(), 'tempDir'))
 
-    if not Skip_SetUp:
-        if LEDET_only:
-            LSS.StampBatch(TimeStamp + '_LEDET')
-        else:
-            LSS.StampBatch(TimeStamp + '_COSIM')
-
-
-def pspice_setup():
-    if not Interpolation_only:
-        ## Check if all results are present
-        if not LEDET_only:
-            Inputfile_stub = os.path.join(LSS.ModelFolder_EOS, 'COSIM_' + Circuit + '_' + TimeStamp, TimeStamp + '_')
-            for k in range(len(elPositions)):
-                Inputfile = os.path.join(
-                    Inputfile_stub + str(int(CurrentLevel[k] * 2)) + 'A_Q' + str(elPositions[k]) + '_' + str(k + 1),
-                    'Output', '1_PSPICE', 'Output', 'out_final.csv')
-                print(Inputfile)
-                if os.path.exists(Inputfile):
-                    continue
-                else:
-                    print(k)
-                    raise NameError(
-                        'Not all results found. Please check. If you want to continue, please do so, but code will crash.')
-        else:
-            Inputfile_stub = os.path.join(LSS.ModelFolder_EOS, 'LEDET_model_' + Circuit + '_' + TimeStamp,
-                                          TimeStamp + '_')
-            for k in range(len(elPositions)):
-                Inputfile = os.path.join(
-                    Inputfile_stub + str(int(CurrentLevel[k] * 2)) + 'A_Q' + str(elPositions[k]) + '_' + str(k + 1),
-                    'LEDET', 'LEDET', 'MB_2COILS', 'Output', 'Txt Files', 'MB_2COILS_VariableHistory_0.txt')
-                print(Inputfile)
-                if os.path.exists(Inputfile):
-                    continue
-                else:
-                    raise NameError(
-                        'Not all results found. Please check. If you want to continue, please do so, but code will crash.')
-
-
-if __name__ == '__main__':
-    RB_event_file = "RB.A78_FPA-2021-03-28-22h09-2021-03-29-01h00.csv"
-    # RB_event_file = "RB.A78_FPA-2021-03-28-22h09.csv"
-
-    Config_Name = ''
-
-    LEDET_only = 0  # If 1, the quenches will be simulated in LEDET only
-    Skip_SetUp = 0  # If set to 1, the set-up will be skipped and you jump straigt to the stitching & results
-    # If set to 1, the set-up will be skipped and results will be obtained by interpolation
-    # of previously obtained results
-    Interpolation_only = 1
-    InterpolationType = 'Linear'  # Supported: 'Spline', 'Linear'
-
-    # Half-Turns here are arbitrary for now --> Waiting for Zinur
-    enableQuench = 1  # 0 = no quenches included, 1 yes
-    quenchHalfTurn_EXT = 40  # Turn set to quench if quench origin = EXT
-    quenchHalfTurn_INT = 80  # Turn set to quench if quench origin = INT
-
-    tEnd = 300
-    Opts = Options()
-    Opts.t_0 = [0.000, 0.12, 0.20, 0.3, 0.5]
-    Opts.t_end = [0.12, 0.20, 0.30, 0.5, 1.1]
-    Opts.t_step_max = [[1.0e-4, 1.0e-4, 1.0e-4, 1.0e-4, 1.0e-4]] + [[1.0e-5, 5.0e-5, 1.0e-4, 1.0e-4, 1.0e-4]]
-    Opts.relTolerance = [8e-4] + [None]
-    Opts.absTolerance = [5] + [None]
-    Opts.executionOrder = [1] + [2]
-    Opts.executeCleanRun = [True, True]
-
-    sparseTimeStepping = 100
-
-    if Interpolation_only:
-        Skip_SetUp = 1
-        LEDET_only = 0
-    if LEDET_only == Interpolation_only and Interpolation_only == 1:
-        raise "Please decide if interpolation only and LEDET only"
-
-    # Launch a Gateway in a new Java process, this returns port
-    port = launch_gateway(classpath='../../steam/*')
-    # JavaGateway instance is connected to a Gateway instance on the Java side
-    gateway = JavaGateway(gateway_parameters=GatewayParameters(port=port))
-    # Get STEAM API Java classes
-    MutualInductance = gateway.jvm.component.MutualInductance
-    Netlist = gateway.jvm.netlist.Netlist
-    CommentElement = gateway.jvm.netlist.elements.CommentElement
-    GeneralElement = gateway.jvm.netlist.elements.GeneralElement
-    ACSolverElement = gateway.jvm.netlist.solvers.ACSolverElement
-    StimulusElement = gateway.jvm.netlist.imports.StimulusElement
-    ParameterizedElement = gateway.jvm.netlist.elements.ParameterizedElement
-    GlobalParameterElement = gateway.jvm.netlist.elements.GlobalParameterElement
-    OutputGeneralElement = gateway.jvm.netlist.elements.OutputGeneralElement
-    OptionSolverSettingsElement = gateway.jvm.netlist.solvers.OptionSolverSettingsElement
-    TransientSolverElement = gateway.jvm.netlist.solvers.TransientSolverElement
-    AutoconvergeSolverSettingsElement = gateway.jvm.netlist.solvers.AutoconvergeSolverSettingsElement
-    CircuitalPreconditionerSubcircuit = gateway.jvm.preconditioner.CircuitalPreconditionerSubcircuit
-    TextFile = gateway.jvm.utils.TextFile
-    CSVReader = gateway.jvm.utils.CSVReader
-
+    ######################## Generate combined PSPICE simulation for the complete duration & stitch together results #######################################
     Inputfile_stub = os.path.join(LSS.ModelFolder_EOS, 'COSIM_' + Circuit + '_' + TimeStamp, TimeStamp + '_')
     Lib_Path = LSS.path_PSPICELib.replace(LSS.EOS_stub_C, LSS.EOS_stub_EOS)
     Lib_Path = Lib_Path.replace('\\', '//')
-    PSPICE_folder = LSS.PSPICE_Folder.replace(LSS.EOS_stub_C, LSS.EOS_stub_EOS)
-    PSPICE_folder = PSPICE_folder.replace('\\', '//')
-    if LEDET_only:
-        strLEDET = '_LEDET'
-    elif Interpolation_only:
+
+    if final_dir == "":
+        PSPICE_folder = LSS.PSPICE_Folder.replace(LSS.EOS_stub_C, LSS.EOS_stub_EOS)
+        PSPICE_folder = PSPICE_folder.replace('\\', '//')
         strLEDET = '_Interpolation'
-    else:
-        strLEDET = '_COSIM'
-    final_dir = os.path.join(PSPICE_folder, TimeStamp + '_final' + strLEDET)
+        final_dir = os.path.join(PSPICE_folder, TimeStamp + '_final' + strLEDET)
+
+
     if not os.path.isdir(final_dir): os.mkdir(final_dir)
 
-    if LEDET_only or Interpolation_only:
-        fakeLSS = LibSim_setup('fake', '')
-        fakeLSS.ManualStimuli = ['I_FPA_PC']
-        if os.path.isdir('tempDir'): shutil.rmtree(os.path.join(os.getcwd(), 'tempDir'))
-        os.mkdir('tempDir')
-        StimulusFile = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'RB', 'Gate-EE_Stimuli.stl')
-        tempStimFile = changeRBStimuli(StimulusFile, t_EE_1, t_EE_2)
-        StimFile = os.path.join(os.path.join(final_dir, 'InputsAsStimula.stl'))
-        fakeLSS.generateStimuliCOSIM(StimFile, 'RB', [CurrentLevel[0]], 0, float(tPC), tempStimFile,
-                                     AppendStimuli=tempStimFile)
-    else:
-        GeneralStim = os.path.join(
-            Inputfile_stub + str(int(CurrentLevel[0] * 2)) + 'A_Q' + str(elPositions[0]) + '_' + str(1), 'Input',
-            'PSpice', 'ExternalStimulus.stl')
-
-
+    fakeLSS = LibSim_setup('fake', '')
+    fakeLSS.ManualStimuli = ['I_FPA_PC']
+    if os.path.isdir('tempDir'): shutil.rmtree(os.path.join(os.getcwd(), 'tempDir'))
+    os.mkdir('tempDir')
+    StimulusFile = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'RB', 'Gate-EE_Stimuli.stl')
+    tempStimFile = changeRBStimuli(StimulusFile, t_EE_1, t_EE_2)
+    StimFile = os.path.join(os.path.join(final_dir, 'InputsAsStimula.stl'))
+    fakeLSS.generateStimuliCOSIM(StimFile, 'RB', [CurrentLevel[0]], 0, float(tPC), AppendStimuli=tempStimFile)
 
     timeShift = []
     for k in range(len(elPositions)):
-        if not LEDET_only:
-            Inputfile_stub = os.path.join(LSS.ModelFolder_EOS, 'COSIM_' + Circuit + '_' + TimeStamp, TimeStamp + '_')
-            Inputfile = os.path.join(
-                Inputfile_stub + str(int(CurrentLevel[k] * 2)) + 'A_Q' + str(elPositions[k]) + '_' + str(k + 1),
-                'Output', '1_PSPICE', 'Model', 'InputsAsStimula.stl')
-        else:
-            Inputfile_stub = os.path.join(LSS.ModelFolder_EOS, 'LEDET_model_' + Circuit + '_' + TimeStamp,
-                                          TimeStamp + '_')
-            Inputfile = os.path.join(
-                Inputfile_stub + str(int(CurrentLevel[k] * 2)) + 'A_Q' + str(elPositions[k]) + '_' + str(k + 1),
-                'LEDET', 'LEDET', 'MB_2COILS', 'Output', 'Txt Files', 'MB_2COILS_VariableHistory_0.txt')
+        Inputfile_stub = os.path.join(LSS.ModelFolder_EOS, 'COSIM_' + Circuit + '_' + TimeStamp, TimeStamp + '_')
+        Inputfile = os.path.join(
+            Inputfile_stub + str(int(CurrentLevel[k] * 2)) + 'A_Q' + str(elPositions[k]) + '_' + str(k + 1),
+            'Output', '1_PSPICE', 'Model', 'InputsAsStimula.stl')
 
         Outputfile = os.path.join(final_dir, 'InputsAsStimula.stl')
         if k == 0:
@@ -270,16 +140,39 @@ if __name__ == '__main__':
         if tShift < 0: tShift = 0
         lastTime = finalTime[k]
 
-        if LEDET_only:
-            type_stl = 'a'
-            WriteStimuliFromLEDET(Inputfile, Outputfile, type_stl, k + 1, tShift)
-        elif not Interpolation_only:
-            StimulaAdjustment_Time(Inputfile, Outputfile, type_stl, k + 1, tShift, lastTime)
-        else:
-            timeShift.append(tShift)
+        # Specific to Interpolation_only
+        timeShift.append(tShift)
+    writeStimuliFromInterpolation(CurrentLevel, Outputfile, type_stl, timeShift, InterpolationType, sparseTimeStepping)
 
-    if Interpolation_only:
-        writeStimuliFromInterpolation(CurrentLevel, Outputfile, type_stl, timeShift, InterpolationType)
+    ################### Generate new Circuit with all quenched magnets & include all new subcircuits ###################
+    Library_file = os.path.join(Lib_Path, 'magnet', 'Items', 'magnets_cosimulation.lib')
+    pp = LSS.path_NotebookLib.replace(LSS.EOS_stub_EOS, LSS.EOS_stub_C)
+    currentDir_C = os.path.join(pp, 'steam-sing-input', 'STEAMLibrary_simulations', final_dir)
+    currentDir_C = currentDir_C.replace('/', '\\')
+    currentDir_C = currentDir_C.replace('//', '\\')
 
-    if not LEDET_only and not Interpolation_only:
-        appendGeneralStimuli(GeneralStim, Outputfile)
+    if not os.path.isdir('tempDir'):
+        os.mkdir('tempDir')
+    CircuitFile = generateCircuitFile(Circuit, elPositions, R_EE_1, R_EE_2, elPositions=elPositions,
+                                      libraryPath=LSS.path_PSPICELib,
+                                      FinalRun=1)
+    shutil.copy(CircuitFile, final_dir)
+    CircuitFile = CircuitFile.replace(os.path.join(os.getcwd(), 'tempDir'), final_dir)
+    os.rename(CircuitFile, os.path.join(final_dir, 'Circuit.cir'))
+    CircuitFile = os.path.join(final_dir, 'Circuit.cir')
+    appendGenericMagnetModel(CircuitFile, Library_file, elPositions)
+    shutil.rmtree(os.path.join(os.getcwd(), 'tempDir'))
+    generateConfFile(final_dir, tEnd, 0.001)
+
+
+# Execution only on Windows, as PSpice is utilized
+if __name__ == "__main__":
+    steam_notebooks_dir = 'C:\\Users\\cobermai\\cernbox\\SWAN_projects\\steam-notebooks\\steam-sing-input\\STEAMLibrary_simulations'
+    rb_event_files_dir = os.path.abspath(os.path.join(os.pardir, "data", "STEAM_context_data"))
+    os.chdir(steam_notebooks_dir)
+    os.getcwd()
+
+    # RB_event_file = os.path.join(rb_event_files_dir,"RB.A78_FPA-2021-03-28-22h09-2021-03-29-01h00.csv")
+    RB_event_file = "RB.A78_FPA-2021-03-28-22h09.csv"
+    RB_event_data = pd.read_csv(RB_event_file)
+    simulate_RB_circuit(RB_event_data)

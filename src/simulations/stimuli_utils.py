@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import UnivariateSpline
 from scipy.interpolate import interp1d
 from steam_nb_api.utils.STEAMLib_simulations import *
-
+from src.simulations.rb_utils import findRBposition, changeRBStimuli, generateCircuitFile
+# datetime package needs to be imported afterwards, otherwise there will be an error
+from datetime import datetime
 
 # Append changed stimuli & models
 def appendGenericMagnetModel(cir_file, Library_file, elPositions):
@@ -87,7 +89,7 @@ def generateConfFile(final_dir, endTime, timeStep):
         cfile.write(stlString)
         print(Conf_File + ' generated.')
 
-def InterpolateResistance(current_level, Type):
+def InterpolateResistance(current_level, Type, plot_interpolation=False):
     max_time = 1.1
     ## Do the interpolation here
     IntpRB_file = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'resources',
@@ -154,30 +156,31 @@ def InterpolateResistance(current_level, Type):
             except:
                 new_R2 = np.append(new_R2, np.nan)
 
-    f = plt.figure(figsize=(17, 8))
-    plt.subplot(1, 2, 1)
-    plt.plot(time, new_R1)
-    leg = ["Interpolated-" + str(current_level)]
-    for i in range(data_R1.shape[1]):
-        plt.plot(time, data_R1[:, i])
-        leg.append(x[i][0])
-    plt.legend(leg)
-    plt.xlabel('Time [s]')
-    plt.ylabel('Resistance [Ohm]')
-    plt.title('R_CoilSection 1')
+    if plot_interpolation:
+        f = plt.figure(figsize=(17, 8))
+        plt.subplot(1, 2, 1)
+        plt.plot(time, new_R1)
+        leg = ["Interpolated-" + str(current_level)]
+        for i in range(data_R1.shape[1]):
+            plt.plot(time, data_R1[:, i])
+            leg.append(x[i][0])
+        plt.legend(leg)
+        plt.xlabel('Time [s]')
+        plt.ylabel('Resistance [Ohm]')
+        plt.title('R_CoilSection 1')
 
-    plt.subplot(1, 2, 2)
-    plt.plot(time, new_R2)
-    leg = ["Interpolated-" + str(current_level)]
-    for i in range(data_R2.shape[1]):
-        plt.plot(time, data_R2[:, i])
-        leg.append(x[i][0])
-    plt.legend(leg)
-    plt.xlabel('Time [s]')
-    plt.ylabel('Resistance [Ohm]')
-    plt.title('R_CoilSection 2')
-    f.suptitle(str(current_level[0][0]) + 'A', fontsize=16)
-    plt.show()
+        plt.subplot(1, 2, 2)
+        plt.plot(time, new_R2)
+        leg = ["Interpolated-" + str(current_level)]
+        for i in range(data_R2.shape[1]):
+            plt.plot(time, data_R2[:, i])
+            leg.append(x[i][0])
+        plt.legend(leg)
+        plt.xlabel('Time [s]')
+        plt.ylabel('Resistance [Ohm]')
+        plt.title('R_CoilSection 2')
+        f.suptitle(str(current_level[0][0]) + 'A', fontsize=16)
+        plt.show()
     return [time, new_R1, new_R2]
 
 
@@ -188,11 +191,13 @@ def writeStimuliFromInterpolation(current_level, Outputfile, type_stl, tShift, I
     for k in current_level:
         [time, data_R1, data_R2] = InterpolateResistance(k * 2, InterpolationType)
         if not R1.size > 0:
-            R1 = data_R1
+            # added by cobermai: [np.newaxis, ...]
+            R1 = data_R1[np.newaxis, ...]
         else:
             R1 = np.vstack((R1, data_R1))
         if not R2.size > 0:
-            R2 = data_R2
+            # added by cobermai: [np.newaxis, ...]
+            R2 = data_R2[np.newaxis, ...]
         else:
             R2 = np.vstack((R2, data_R2))
     stlString = ''
