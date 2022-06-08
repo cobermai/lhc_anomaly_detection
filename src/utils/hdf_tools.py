@@ -25,7 +25,6 @@ def acquisition_to_hdf5(acquisition: "DataAcquisition", file_dir: Path) -> None:
     group_name = acquisition.__class__.__name__
     file_name = f"{identifier['circuit_type']}_{identifier['circuit_name']}_{identifier['timestamp_fgc']}.hdf5"
 
-    #temporary:
     try:
         with h5py.File(data_dir / file_name, "a") as f:
             del f[group_name]
@@ -64,7 +63,7 @@ def df_to_hdf(file_path: Path, df: pd.DataFrame, hdf_dir: str = ""):
     """
     converts DataFrame into hdf files. For each column a group is created.
     Each column is a group with one index dataset and one value dataset
-    :param file_path: path of the hdf file to write.
+    :param file_path: path of the hdf file to write
     :param df: DataFrame to write to hdf5
     :param hdf_dir: directory inside hdf5 file where to store DataFrame
     """
@@ -84,7 +83,7 @@ def append_or_overwrite_hdf_group(file: h5py.File, hdf_path: str, data: np.array
     """
     append data to h5py file, appends if group not exists, overwrite it
     :param file: opened h5 file
-    :param h5_path: path within h5 file
+    :param hdf_path: path within h5 file
     :param data: data to add
     """
     if hdf_path in file:

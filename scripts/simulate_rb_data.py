@@ -6,11 +6,6 @@ from src.simulation import simulate_RB_circuit
 
 # Execution only on Windows, as PSpice is utilized
 if __name__ == "__main__":
-    steam_notebooks_dir = 'C:\\Users\\cobermai\\cernbox\\SWAN_projects\\steam-notebooks\\steam-sing-input\\STEAMLibrary_simulations'
-    rb_event_files_dir = os.path.abspath(
-        os.path.join(os.pardir, "data", "STEAM_context_data"))
-    os.chdir(steam_notebooks_dir)
-
     mp3_excel_path = r'C:\Users\cobermai\cernbox\SWAN_projects\lhc-anomaly-detection\data\RB_TC_extract_2021_11_22_processed_filled'
     mp3_fpa_df = pd.read_csv(mp3_excel_path)
 

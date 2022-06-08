@@ -5,10 +5,11 @@ import pandas as pd
 from lhcsmapi.Time import Time
 from lhcsmapi.metadata.SignalMetadata import SignalMetadata
 from lhcsmapi.pyedsl.dbsignal.post_mortem.PmDbRequest import PmDbRequest
-# import lhcsmnb.utils
+import lhcsmnb.utils
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
 
 from src.utils.utils import load_acquisition_log
+
 
 def find_real_fgc_timestamp(circuit_name: str, fgc_datetime: str) -> list:
     """
@@ -58,7 +59,7 @@ def get_fgc_timestamp_missing(mp3_df: pd.DataFrame) -> int:
     :return: real fgc timestamp
     """
     date_time_str = f"{mp3_df['Date (FGC)']} {mp3_df['Time (FGC)']}".replace("00:00:00", "")
-    for t in range(6, 24): # LHC operation from 6:00 to 24:00
+    for t in range(6, 24):  # LHC operation from 6:00 to 24:00
         date_time_str_new = date_time_str.replace(" 00:", f" {t}:")
         real_fgc_timestamps = find_real_fgc_timestamp(mp3_df['Circuit Name'], date_time_str_new)
         if real_fgc_timestamps:
@@ -81,6 +82,7 @@ def select_fgc_period(mp3_df: pd.DataFrame, lower_threshold: str, upper_threshol
 
     return mp3_fpa_df_period
 
+
 def select_fgc_not_downloaded(context_path: Path, mp3_df: pd.DataFrame) -> pd.DataFrame:
     """
     gathers all .csv files from path
@@ -90,7 +92,7 @@ def select_fgc_not_downloaded(context_path: Path, mp3_df: pd.DataFrame) -> pd.Da
     """
     if os.path.exists(context_path):
         df_context = load_acquisition_log(path=context_path)
-        dowloaded_fgc_ts = df_context[df_context.download_complete==True].timestamp_fgc.values
+        dowloaded_fgc_ts = df_context[df_context.download_complete == True].timestamp_fgc.values
 
         mp3_fpa_df_to_download = mp3_df[~mp3_df.timestamp_fgc.isin(dowloaded_fgc_ts)]
     else:
@@ -122,7 +124,8 @@ def process_mp3_excel(data_dir: Path, mp3_file_name: str):
 
     mp3_fpa_df.to_csv(data_dir / (mp3_file_name + "_processed.csv"))
 
-def find_missing_excel_features(mp3_fpa_df_to_download: pd.DataFrame, file_name: str, spark:object):
+
+def find_missing_excel_features(mp3_fpa_df_to_download: pd.DataFrame, file_name: str, spark: object):
     """
     extract missing features of mp3 excel file from NXCALS / PM and stores new file
     :param mp3_fpa_df_to_download: excel file with missing features
@@ -136,14 +139,14 @@ def find_missing_excel_features(mp3_fpa_df_to_download: pd.DataFrame, file_name:
             source_timestamp_ee_even_df = rb_query.find_source_timestamp_ee(int(row['timestamp_fgc']), system='EE_EVEN')
             timestamp_ee_even = lhcsmnb.utils.get_at(source_timestamp_ee_even_df, 0, 'timestamp')
             u_dump_res_even_df = \
-            rb_query.query_ee_u_dump_res_pm(timestamp_ee_even, int(row['timestamp_fgc']), system='EE_EVEN',
-                                            signal_names=['U_DUMP_RES'])[0]
+                rb_query.query_ee_u_dump_res_pm(timestamp_ee_even, int(row['timestamp_fgc']), system='EE_EVEN',
+                                                signal_names=['U_DUMP_RES'])[0]
 
             source_timestamp_ee_odd_df = rb_query.find_source_timestamp_ee(int(row['timestamp_fgc']), system='EE_ODD')
             timestamp_ee_odd = lhcsmnb.utils.get_at(source_timestamp_ee_odd_df, 0, 'timestamp')
             u_dump_res_odd_df = \
-            rb_query.query_ee_u_dump_res_pm(timestamp_ee_odd, int(row['timestamp_fgc']), system='EE_ODD',
-                                            signal_names=['U_DUMP_RES'])[0]
+                rb_query.query_ee_u_dump_res_pm(timestamp_ee_odd, int(row['timestamp_fgc']), system='EE_ODD',
+                                                signal_names=['U_DUMP_RES'])[0]
 
             timestamp_pic = rb_query.find_timestamp_pic(int(row['timestamp_fgc']), spark=spark)[0]
             source_timestamp_qds_df = rb_query.find_source_timestamp_qds(int(row['timestamp_fgc']),
@@ -161,12 +164,9 @@ def find_missing_excel_features(mp3_fpa_df_to_download: pd.DataFrame, file_name:
         except:
             print('failed')
 
+
 if __name__ == "__main__":
     data_dir = Path("../../data")
     mp3_file_name = "RB_TC_extract_2021_11_22"
 
     process_mp3_excel(data_dir=data_dir, mp3_file_name=mp3_file_name)
-
-
-
-
