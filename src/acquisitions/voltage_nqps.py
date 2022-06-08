@@ -9,7 +9,12 @@ from src.utils.utils import flatten_list
 
 class VoltageNQPS(DataAcquisition):
     """
-    Specifies method to query data for signals of group VoltageNQPS
+    Specifies method to query data for signals of group VoltageNQPS.
+    If a nQps crate is triggered it stores data, which is then saved to PM in high resolution.
+    There are 3 magnets per nQps crate + reference magnet.
+    A secondary quench magnet on the same nQps crate cannot save data as the nQps buffer is already full.
+    However if a secondary quenched magnet is on another nQps crate, high resolution data is stored.
+    query_voltage_nqps returns a list of lists, where each list contains dataframes from on
     """
 
     def __init__(self,
@@ -48,4 +53,4 @@ class VoltageNQPS(DataAcquisition):
             self.timestamp_fgc,
             spark=self.spark)
 
-        return flatten_list(u_nqps_dfs)
+        return u_nqps_dfs[0]

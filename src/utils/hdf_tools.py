@@ -2,6 +2,7 @@ from pathlib import Path
 
 import h5py
 import pandas as pd
+import matplotlib.pyplot as plt
 import numpy as np
 
 from src.utils.utils import log_acquisition
@@ -12,9 +13,9 @@ def acquisition_to_hdf5(acquisition: "DataAcquisition", file_dir: Path) -> None:
     :param acquisition: DataAcquisition class to query data from
     :param file_dir: directory to store data and log data
     """
-    context_path = file_dir / "context_1"
-    failed_queries_path = file_dir / "failed_1"
-    data_dir = file_dir / "data_1"
+    context_path = file_dir / "context"
+    failed_queries_path = file_dir / "failed"
+    data_dir = file_dir / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
 
     identifier = {'circuit_type': acquisition.circuit_type,
@@ -22,14 +23,22 @@ def acquisition_to_hdf5(acquisition: "DataAcquisition", file_dir: Path) -> None:
                   'timestamp_fgc': acquisition.timestamp_fgc}
 
     group_name = acquisition.__class__.__name__
+    file_name = f"{identifier['circuit_type']}_{identifier['circuit_name']}_{identifier['timestamp_fgc']}.hdf5"
+
+    #temporary:
     try:
+        with h5py.File(data_dir / file_name, "a") as f:
+            del f[group_name]
+
         list_df = acquisition.get_signal_data()
+
         for df in list_df:
             if isinstance(df, pd.DataFrame):
                 if not df.empty:
-                    file_name = f"{identifier['circuit_type']}_{identifier['circuit_name']}_{identifier['timestamp_fgc']}.hdf5"
+
                     df_to_hdf(file_path=data_dir / file_name, df=df, hdf_dir=group_name)
                     context_data = {f"{group_name + '_' + str(df.columns.values[0])}": len(df)}
+
                     log_acquisition(
                         identifier=identifier,
                         log_data=context_data,
@@ -67,14 +76,16 @@ def df_to_hdf(file_path: Path, df: pd.DataFrame, hdf_dir: str = ""):
             append_or_overwrite_hdf_group(file=f,
                                           hdf_path=f"{hdf_dir}/{df[column].name}/index",
                                           data=df[column].index.values)
-
+        #append_or_overwrite_hdf_group(file=f,
+        #                              hdf_path=f"{hdf_dir}/index",
+        #                              data=df[column].index.values)
 
 def append_or_overwrite_hdf_group(file: h5py.File, hdf_path: str, data: np.array):
     """
     append data to h5py file, appends if group not exists, overwrite it
-    file: opened h5 file
-    h5_path: path within h5 file
-    data: data to add
+    :param file: opened h5 file
+    :param h5_path: path within h5 file
+    :param data: data to add
     """
     if hdf_path in file:
         del file[hdf_path]

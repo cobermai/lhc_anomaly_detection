@@ -28,6 +28,7 @@ sudo firewall-cmd --add-port=5001/tcp
 sudo firewall-cmd --add-port=5101/tcp
 sudo firewall-cmd --add-port=5201/tcp
 sudo firewall-cmd --runtime-to-permanent
+firewall-cmd --list-ports
 ```
 Start spark session:
 ```

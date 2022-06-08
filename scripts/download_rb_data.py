@@ -34,19 +34,20 @@ if __name__ == "__main__":
                                           upper_threshold='2023-01-01 00:00:00+01:00')
 
     #mp3_fpa_df_to_download = select_fgc_not_downloaded(context_path=file_dir / "context", mp3_df=mp3_fpa_df_period) # loading of context data takes to long
-    #mp3_fpa_df_to_download = mp3_fpa_df_period
-
-    mp3_fpa_df_to_download = pd.Dataframe({'circuit_type': 'RB',
-                                           'circuit_name': 'RB.A12',
-                                           'timestamp_fgc': 1436908751420000000}, index=[0])
+    mp3_fpa_df_to_download = mp3_fpa_df_period
 
     for index, row in mp3_fpa_df_to_download.iterrows():
         fpa_identifier = {'circuit_type': row['Circuit Family'],
                           'circuit_name': row['Circuit Name'],
                           'timestamp_fgc': int(row['timestamp_fgc'])}
 
+        #fpa_identifier = {'circuit_type': 'RB',
+        #                 'circuit_name': 'RB.A78',
+        #                 'timestamp_fgc': 1616962174400000000}
+
         for signal_group in signal_groups:
             group = signal_group(**fpa_identifier, spark=spark)
             acquisition_to_hdf5(acquisition=group, file_dir=file_dir)
 
         log_acquisition(identifier=fpa_identifier, log_data={"download_complete": True}, log_path=file_dir / "context")
+
