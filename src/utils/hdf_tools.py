@@ -7,15 +7,25 @@ import numpy as np
 
 from src.utils.utils import log_acquisition
 
-def acquisition_to_hdf5(acquisition: "DataAcquisition", file_dir: Path) -> None:
+
+def acquisition_to_hdf5(acquisition: "DataAcquisition",
+                        file_dir: Path,
+                        context_dir_name: str = "context",
+                        failed_queries_dir_name: str = "failed",
+                        data_dir_name: str = "data") -> None:
     """
     method stores acquisition data as hdf5, and logs both successful and failed queries as csv
     :param acquisition: DataAcquisition class to query data from
     :param file_dir: directory to store data and log data
+    :param context_dir_name: name of directory to store context data
+    :param failed_queries_dir_name: name of directory to store context data of failed queries
+    :param data_dir_name: name of directory to store data
     """
-    context_path = file_dir / "context"
-    failed_queries_path = file_dir / "failed"
-    data_dir = file_dir / "data"
+    context_path = file_dir / context_dir_name
+    context_path.mkdir(parents=True, exist_ok=True)
+    failed_queries_path = file_dir / failed_queries_dir_name
+    failed_queries_path.mkdir(parents=True, exist_ok=True)
+    data_dir = file_dir / data_dir_name
     data_dir.mkdir(parents=True, exist_ok=True)
 
     identifier = {'circuit_type': acquisition.circuit_type,
@@ -26,9 +36,6 @@ def acquisition_to_hdf5(acquisition: "DataAcquisition", file_dir: Path) -> None:
     file_name = f"{identifier['circuit_type']}_{identifier['circuit_name']}_{identifier['timestamp_fgc']}.hdf5"
 
     try:
-        #with h5py.File(data_dir / file_name, "a") as f:
-        #    del f[group_name]
-
         list_df = acquisition.get_signal_data()
 
         for df in list_df:
@@ -59,6 +66,7 @@ def acquisition_to_hdf5(acquisition: "DataAcquisition", file_dir: Path) -> None:
             log_data={group_name: str(e)},
             log_path=failed_queries_path)
 
+
 def df_to_hdf(file_path: Path, df: pd.DataFrame, hdf_dir: str = ""):
     """
     converts DataFrame into hdf files. For each column a group is created.
@@ -75,9 +83,10 @@ def df_to_hdf(file_path: Path, df: pd.DataFrame, hdf_dir: str = ""):
             append_or_overwrite_hdf_group(file=f,
                                           hdf_path=f"{hdf_dir}/{df[column].name}/index",
                                           data=df[column].index.values)
-        #append_or_overwrite_hdf_group(file=f,
+        # append_or_overwrite_hdf_group(file=f,
         #                              hdf_path=f"{hdf_dir}/index",
         #                              data=df[column].index.values)
+
 
 def append_or_overwrite_hdf_group(file: h5py.File, hdf_path: str, data: np.array):
     """

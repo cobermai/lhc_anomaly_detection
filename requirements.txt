@@ -13,6 +13,6 @@ lhcsmapi==1.5.20
 steam-nb-api
 py4j
 matplotlib
-scypy
+scipy
 PyYAML
 tqdm

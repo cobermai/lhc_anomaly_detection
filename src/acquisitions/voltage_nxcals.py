@@ -1,4 +1,5 @@
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
+from pyspark.sql import SparkSession
 
 from src.acquisition import DataAcquisition
 
@@ -12,7 +13,7 @@ class VoltageNXCALS(DataAcquisition):
                  circuit_type: str,
                  circuit_name: str,
                  timestamp_fgc: int,
-                 spark: object
+                 spark: SparkSession
                  ):
         """
         Initializes the VoltageNXCALS class object, inherits from DataAcquisition.
