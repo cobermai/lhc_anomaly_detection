@@ -29,7 +29,9 @@ class PCPM(DataAcquisition):
             'I_A',
             'I_EARTH',
             'I_EARTH_PCNT',
-            'I_REF']
+            'I_REF',
+            'V_MEAS',
+            'V_REF']
         self.query_builder = RbCircuitQuery(
             self.circuit_type, self.circuit_name)
         self.signal_timestamp = self.get_signal_timestamp()
