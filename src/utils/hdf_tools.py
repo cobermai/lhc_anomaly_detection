@@ -26,8 +26,8 @@ def acquisition_to_hdf5(acquisition: "DataAcquisition", file_dir: Path) -> None:
     file_name = f"{identifier['circuit_type']}_{identifier['circuit_name']}_{identifier['timestamp_fgc']}.hdf5"
 
     try:
-        with h5py.File(data_dir / file_name, "a") as f:
-            del f[group_name]
+        #with h5py.File(data_dir / file_name, "a") as f:
+        #    del f[group_name]
 
         list_df = acquisition.get_signal_data()
 
