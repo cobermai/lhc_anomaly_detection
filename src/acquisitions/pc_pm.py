@@ -1,6 +1,7 @@
 from typing import Optional
 
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
+from pyspark.sql import SparkSession
 
 from src.acquisition import DataAcquisition
 
@@ -14,7 +15,7 @@ class PCPM(DataAcquisition):
                  circuit_type: str,
                  circuit_name: str,
                  timestamp_fgc: int,
-                 spark: Optional[object] = None
+                 spark: Optional[SparkSession] = None
                  ):
         """
         Initializes the EETResPM class object, inherits from DataAcquisition.

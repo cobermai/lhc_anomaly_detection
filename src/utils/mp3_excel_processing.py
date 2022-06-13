@@ -3,9 +3,8 @@ from pathlib import Path
 
 import pandas as pd
 from lhcsmapi.Time import Time
-from lhcsmapi.metadata.SignalMetadata import SignalMetadata
 from lhcsmapi.pyedsl.dbsignal.post_mortem.PmDbRequest import PmDbRequest
-import lhcsmnb.utils
+from lhcsmapi.metadata import signal_metadata
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
 
 from src.utils.utils import load_acquisition_log
@@ -19,8 +18,7 @@ def find_real_fgc_timestamp(circuit_name: str, fgc_datetime: str) -> list:
     :return: list with real fgc timestamps
     """
     fgc_timestamp = Time.to_unix_timestamp(fgc_datetime)
-    metadata_fgc = SignalMetadata.get_circuit_signal_database_metadata(
-        'RB', circuit_name, 'PC', 'PM', timestamp_query=fgc_timestamp)
+    metadata_fgc = signal_metadata.get_signal_metadata('RB', circuit_name, 'PC', 'PM', fgc_timestamp)
 
     one_sec_in_ns = 1e9
     start_time = fgc_timestamp - one_sec_in_ns

@@ -20,7 +20,6 @@ from src.utils.utils import log_acquisition
 if __name__ == "__main__":
     spark = get_or_create(flavor=Flavor.YARN_MEDIUM)
     file_dir = Path('/eos/project/m/ml-for-alarm-system/private/RB_signals')
-    #signal_groups = [PCPM, VoltageNQPS, VoltageNXCALS]
     signal_groups = [VoltageNQPS]
 
     mp3_excel_path = "../data/RB_TC_extract_2021_11_22_processed.csv"
@@ -40,10 +39,6 @@ if __name__ == "__main__":
         fpa_identifier = {'circuit_type': row['Circuit Family'],
                           'circuit_name': row['Circuit Name'],
                           'timestamp_fgc': int(row['timestamp_fgc'])}
-
-        #fpa_identifier = {'circuit_type': 'RB',
-        #                 'circuit_name': 'RB.A78',
-        #                 'timestamp_fgc': 1616962174400000000}
 
         for signal_group in signal_groups:
             group = signal_group(**fpa_identifier, spark=spark)
