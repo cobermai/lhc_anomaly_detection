@@ -35,28 +35,30 @@ class EEUDumpResPM(DataAcquisition):
 
     def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
         """ method to find correct timestamp for selected signal """
-        timestamp_df = self.query_builder.find_source_timestamp_ee(self.timestamp_fgc, system=self.systems)
-        if not timestamp_df.empty:
-            return timestamp_df.loc[0, 'timestamp']
-        else:
-            return 0
+        signal_timestamp = self.query_builder.find_source_timestamp_ee(
+            self.timestamp_fgc, system=self.systems)
+        return signal_timestamp
 
 
     def get_signal_data(self) -> list:
         """ method to get selected signal with specified sigmon query builder and signal timestamp  """
-        return self.query_builder.query_ee_u_dump_res_pm(
-            self.signal_timestamp,
+        signal_timestamp_odd = self.query_builder.find_source_timestamp_ee(
+            self.timestamp_fgc, system=self.systems[0])
+        signal_timestamp_ref_odd = self.signal_timestamp_odd.loc[0, 'timestamp']
+        signal_timestamp_even = self.query_builder.find_source_timestamp_ee(
+            self.timestamp_fgc, system=self.systems[1])
+        signal_timestamp_ref_even = self.signal_timestamp_even.loc[0, 'timestamp']
+
+        U_dump_res_odd = self.query_builder.query_ee_u_dump_res_pm(
+            signal_timestamp_ref_odd,
             self.timestamp_fgc,
-            system=self.systems,
+            system=self.systems[0],
             signal_names=self.signal_names)
 
-    def get_reference_signal_data(self) -> list:
-        """ method to get selected reference signal with specified sigmon query builder and signal timestamp  """
-        timestamp_fgc_ref = self.query_builder.get_timestamp_ref(col='fgcPm')
-        signal_timestamp_ref = self.query_builder.find_source_timestamp_ee(
-            timestamp_fgc_ref, system=self.systems).loc[0, 'timestamp']
-        return self.query_builder.query_ee_u_dump_res_pm(
-            signal_timestamp_ref,
-            timestamp_fgc_ref,
-            system=self.systems,
+        U_dump_res_even = self.query_builder.query_ee_u_dump_res_pm(
+            signal_timestamp_ref_even,
+            self.timestamp_fgc,
+            system=self.systems[1],
             signal_names=self.signal_names)
+
+        return U_dump_res_odd + U_dump_res_even
