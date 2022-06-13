@@ -122,47 +122,6 @@ def process_mp3_excel(data_dir: Path, mp3_file_name: str):
 
     mp3_fpa_df.to_csv(data_dir / (mp3_file_name + "_processed.csv"))
 
-
-def find_missing_excel_features(mp3_fpa_df_to_download: pd.DataFrame, file_name: str, spark: object):
-    """
-    extract missing features of mp3 excel file from NXCALS / PM and stores new file
-    :param mp3_fpa_df_to_download: excel file with missing features
-    :param file_name: filename where of new file
-    :param spark: spark object to query data from NXCALS
-    """
-    for index, row in mp3_fpa_df_to_download.iterrows():
-        try:
-            rb_query = RbCircuitQuery(row['Circuit Family'], row['Circuit Name'], max_executions=45)
-
-            source_timestamp_ee_even_df = rb_query.find_source_timestamp_ee(int(row['timestamp_fgc']), system='EE_EVEN')
-            timestamp_ee_even = lhcsmnb.utils.get_at(source_timestamp_ee_even_df, 0, 'timestamp')
-            u_dump_res_even_df = \
-                rb_query.query_ee_u_dump_res_pm(timestamp_ee_even, int(row['timestamp_fgc']), system='EE_EVEN',
-                                                signal_names=['U_DUMP_RES'])[0]
-
-            source_timestamp_ee_odd_df = rb_query.find_source_timestamp_ee(int(row['timestamp_fgc']), system='EE_ODD')
-            timestamp_ee_odd = lhcsmnb.utils.get_at(source_timestamp_ee_odd_df, 0, 'timestamp')
-            u_dump_res_odd_df = \
-                rb_query.query_ee_u_dump_res_pm(timestamp_ee_odd, int(row['timestamp_fgc']), system='EE_ODD',
-                                                signal_names=['U_DUMP_RES'])[0]
-
-            timestamp_pic = rb_query.find_timestamp_pic(int(row['timestamp_fgc']), spark=spark)[0]
-            source_timestamp_qds_df = rb_query.find_source_timestamp_qds(int(row['timestamp_fgc']),
-                                                                         duration=[(50, 's'), (500, 's')])
-            timestamp_iQps = source_timestamp_qds_df.timestamp[0]
-
-            mp3_fpa_df_to_download.loc[index, 'Delta_t(EE_odd-PIC)'] = (timestamp_ee_odd - timestamp_pic) / 1e6
-            mp3_fpa_df_to_download.loc[index, 'Delta_t(EE_even-PIC)'] = (timestamp_ee_even - timestamp_pic) / 1e6
-            mp3_fpa_df_to_download.loc[index, 'Delta_t(iQPS-PIC)'] = (timestamp_iQps - timestamp_pic) / 1e6
-
-            mp3_fpa_df_to_download.loc[index, 'U_EE_max_ODD'] = u_dump_res_odd_df.max()[0]
-            mp3_fpa_df_to_download.loc[index, 'U_EE_max_EVEN'] = u_dump_res_even_df.max()[0]
-
-            mp3_fpa_df_to_download.to_csv(file_name)
-        except:
-            print('failed')
-
-
 if __name__ == "__main__":
     data_dir = Path("../../data")
     mp3_file_name = "RB_TC_extract_2021_11_22"

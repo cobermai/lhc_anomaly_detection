@@ -2,7 +2,6 @@ from pathlib import Path
 
 import h5py
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 
 from src.utils.utils import log_acquisition
@@ -100,3 +99,59 @@ def append_or_overwrite_hdf_group(file: h5py.File, hdf_path: str, data: np.array
         file[hdf_path] = data
     else:
         file[hdf_path] = data
+
+
+def hdf_to_df(file_path: Path, hdf_dir: str = "") -> pd.DataFrame:
+    """
+    converts hdf file into dataframe, given the path to the data in the hdf file
+    :param file_path: path of the hdf file to load
+    :param hdf_dir: directory inside hdf5 file where DataFrame is stored
+    : return: DataFrame with values and index of given hdf path
+    """
+    with h5py.File(file_path, "r") as f:
+        data = np.array(f[hdf_dir].get("values"))
+        index = np.array(f[hdf_dir].get("index"))
+        colum_name = Path(hdf_dir).name
+    return pd.DataFrame(data, index=index, columns=[colum_name])
+
+
+def get_hdf_tree(file_path: Path, regex_list: list = ['']):
+    """
+    get paths of datasets in hdf file which contain regex
+    :param file_path: path of the hdf file to extract file tree
+    :param regex_list: list of strings which file should contain
+    : return: list of paths with regex in hdf5 file
+    """
+
+    def extract_file_tree(name, node):
+        """
+        append parent path of hdf dataset file
+        :param name: name of dataset
+        :param node: node of dataset
+        """
+        if isinstance(node, h5py.Dataset):
+            parent_path = str(Path(name).parent)
+            if not parent_path in file_tree:
+                file_tree.append(parent_path)
+        return None
+
+    with h5py.File(file_path, "r") as f:
+        file_tree = []
+        f.visititems(extract_file_tree)
+        file_tree_filtered = [t for t in file_tree for r in regex_list if r in t]
+
+    return file_tree_filtered
+
+
+def load_from_hdf_with_regex(file_path: Path, regex_list: list = ['']) -> list:
+    """
+    get datasets in hdf file which contain regex
+    :param file_path: path of the hdf file to extract file tree
+    :param regex_list: list of strings which file should contain
+    : return: list of DataFrames with data of regex
+    """
+    hdf_paths = get_hdf_tree(file_path=file_path, regex_list=regex_list)
+    data = []
+    for hdf_path in hdf_paths:
+        data.append(hdf_to_df(file_path=file_path, hdf_dir=hdf_path))
+    return data
