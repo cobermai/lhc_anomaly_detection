@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Union
 
 import pandas as pd
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
@@ -17,7 +17,7 @@ class VoltageLogicIQPS(DataAcquisition):
                  circuit_type: str,
                  circuit_name: str,
                  timestamp_fgc: int,
-                 spark: Optional[SparkSession] = None
+                 spark: SparkSession
                  ):
         """
         Initializes the VoltageLogicIQPS class object, inherits from DataAcquisition.
@@ -27,20 +27,41 @@ class VoltageLogicIQPS(DataAcquisition):
         :param spark: spark object to query data from NXCALS
         """
         super().__init__(circuit_type, circuit_name, timestamp_fgc)
-        self.signal_names = ['U_QS0', 'U_1', 'U_2', 'ST_NQD0', 'ST_MAGNET_OK']
         self.query_builder = RbCircuitQuery(
             self.circuit_type, self.circuit_name)
-        self.duration = [(50, 's'), (500, 's')]
+        self.duration = [(10, 's'), (10, 's')]
+        self.signal_names = ['U_QS0', 'U_1', 'U_2']
         self.signal_timestamp = self.get_signal_timestamp()
         self.spark = spark
 
     def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
         """ method to find correct timestamp for selected signal """
-        return self.query_builder.find_source_timestamp_qds(
+        source_timestamp_qds_df = self.query_builder.find_source_timestamp_qds_board_ab(
             self.timestamp_fgc, duration=self.duration)
+        source_timestamp_qds_df.drop_duplicates(subset=['source', 'timestamp'], inplace=True)
+        source_timestamp_qds_df.reset_index(drop=True, inplace=True)
+        iqps_board_type_df = self.query_builder.query_pm_iqps_board_type(source_timestamp_qds_df=source_timestamp_qds_df)
+        source_timestamp_qds_df['iqps_board_type'] = iqps_board_type_df['iqps_board_type']
+        return source_timestamp_qds_df
+
+    def include_iqps_board_type(self, signals) -> list:
+        """ method to re-include the iqps_board_type into the signal names"""
+        # loop through all timestamps
+        for i in range(len(self.signal_timestamp['iqps_board_type'])):
+            # loop through all signals per timestamp
+            for k in range(len(signals[i])):
+                source = self.signal_timestamp.loc[i, 'source']
+                if self.signal_timestamp.loc[i, 'iqps_board_type'] == '0':
+                    appendix = 'A'
+                elif self.signal_timestamp.loc[i, 'iqps_board_type'] == '1':
+                    appendix = 'B'
+                name = f'{source}_{appendix}:{self.signal_names[k]}'
+                signals[i][k].columns = [name]
+        return signals
 
     def get_signal_data(self) -> list:
         """ method to get selected signal with specified sigmon query builder and signal timestamp  """
-        signals = self.query_builder.query_voltage_logic_iqps(
-            self.signal_timestamp, signal_names=self.signal_names)
+        signals = self.query_builder.query_voltage_logic_iqps(source_timestamp_qds_df=self.signal_timestamp,
+                                                              signal_names=self.signal_names, filter_window=3)
+        signals = self.include_iqps_board_type(signals)
         return flatten_list(signals)
