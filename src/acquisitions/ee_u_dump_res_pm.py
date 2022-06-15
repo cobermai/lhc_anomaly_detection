@@ -44,10 +44,10 @@ class EEUDumpResPM(DataAcquisition):
         """ method to get selected signal with specified sigmon query builder and signal timestamp  """
         signal_timestamp_odd = self.query_builder.find_source_timestamp_ee(
             self.timestamp_fgc, system=self.systems[0])
-        signal_timestamp_ref_odd = self.signal_timestamp_odd.loc[0, 'timestamp']
+        signal_timestamp_ref_odd = signal_timestamp_odd.loc[0, 'timestamp']
         signal_timestamp_even = self.query_builder.find_source_timestamp_ee(
             self.timestamp_fgc, system=self.systems[1])
-        signal_timestamp_ref_even = self.signal_timestamp_even.loc[0, 'timestamp']
+        signal_timestamp_ref_even = signal_timestamp_even.loc[0, 'timestamp']
 
         U_dump_res_odd = self.query_builder.query_ee_u_dump_res_pm(
             signal_timestamp_ref_odd,
