@@ -1,0 +1,18 @@
+# General requirements
+numpy
+pandas
+xlrd
+openpyxl
+h5py
+
+# Acquisition requirements
+nxcals
+lhcsmapi==1.5.21
+
+# Simulation requirements
+steam-nb-api
+py4j
+matplotlib
+scipy
+PyYAML
+tqdm
