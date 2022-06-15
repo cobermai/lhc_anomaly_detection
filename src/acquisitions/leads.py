@@ -33,7 +33,7 @@ class Leads(DataAcquisition):
         self.signal_timestamp = self.get_signal_timestamp()
         self.spark = spark
 
-    def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
+    def get_signal_timestamp(self) -> Union[int, pd.DataFrame, list]:
         """ method to find correct timestamp for selected signal """
         return self.query_builder.find_timestamp_leads(
             self.timestamp_fgc, self.system)

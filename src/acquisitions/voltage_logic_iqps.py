@@ -10,7 +10,7 @@ from src.utils.utils import flatten_list
 
 class VoltageLogicIQPS(DataAcquisition):
     """
-    Specifies method to query data for signals of group VoltageLogicIQPS
+    Specifies method to query data for signals of group VoltageNQPSFPACrate
     """
 
     def __init__(self,
@@ -34,7 +34,7 @@ class VoltageLogicIQPS(DataAcquisition):
         self.signal_timestamp = self.get_signal_timestamp()
         self.spark = spark
 
-    def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
+    def get_signal_timestamp(self) -> Union[int, pd.DataFrame, list]:
         """ method to find correct timestamp for selected signal """
         source_timestamp_qds_df = self.query_builder.find_source_timestamp_qds_board_ab(
             self.timestamp_fgc, duration=self.duration)

@@ -29,7 +29,7 @@ class DataAcquisition(ABC):
         self.circuit_name = circuit_name
         self.timestamp_fgc = timestamp_fgc
 
-    def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
+    def get_signal_timestamp(self) -> Union[int, pd.DataFrame, list]:
         """
         Method to find correct timestamp for selected signal, the default is a fgc timestamp.
         :return: fgc timestamp as int or DataFrame of ints

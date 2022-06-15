@@ -111,7 +111,7 @@ def hdf_to_df(file_path: Path, hdf_dir: str = "") -> pd.DataFrame:
     with h5py.File(file_path, "r") as f:
         data = np.array(f[hdf_dir].get("values"))
         index = np.array(f[hdf_dir].get("index"))
-        colum_name = Path(hdf_dir).name
+        colum_name = hdf_dir
     return pd.DataFrame(data, index=index, columns=[colum_name])
 
 

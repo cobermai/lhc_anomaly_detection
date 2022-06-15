@@ -33,32 +33,23 @@ class EEUDumpResPM(DataAcquisition):
         self.signal_timestamp = self.get_signal_timestamp()
         self.spark = spark
 
-    def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
+    def get_signal_timestamp(self) -> Union[int, pd.DataFrame, list]:
         """ method to find correct timestamp for selected signal """
-        signal_timestamp = self.query_builder.find_source_timestamp_ee(
-            self.timestamp_fgc, system=self.systems)
-        return signal_timestamp
-
+        timestamps = []
+        for system in self.systems:
+            signal_timestamp_odd = self.query_builder.find_source_timestamp_ee(
+                self.timestamp_fgc, system=system)
+            timestamps.append(signal_timestamp_odd.loc[0, 'timestamp'])
+        return timestamps
 
     def get_signal_data(self) -> list:
         """ method to get selected signal with specified sigmon query builder and signal timestamp  """
-        signal_timestamp_odd = self.query_builder.find_source_timestamp_ee(
-            self.timestamp_fgc, system=self.systems[0])
-        signal_timestamp_ref_odd = self.signal_timestamp_odd.loc[0, 'timestamp']
-        signal_timestamp_even = self.query_builder.find_source_timestamp_ee(
-            self.timestamp_fgc, system=self.systems[1])
-        signal_timestamp_ref_even = self.signal_timestamp_even.loc[0, 'timestamp']
-
-        U_dump_res_odd = self.query_builder.query_ee_u_dump_res_pm(
-            signal_timestamp_ref_odd,
-            self.timestamp_fgc,
-            system=self.systems[0],
-            signal_names=self.signal_names)
-
-        U_dump_res_even = self.query_builder.query_ee_u_dump_res_pm(
-            signal_timestamp_ref_even,
-            self.timestamp_fgc,
-            system=self.systems[1],
-            signal_names=self.signal_names)
-
-        return U_dump_res_odd + U_dump_res_even
+        dfs = []
+        for i, system in enumerate(self.systems):
+            df = self.query_builder.query_ee_u_dump_res_pm(
+                self.signal_timestamp[i],
+                self.timestamp_fgc,
+                system=system,
+                signal_names=self.signal_names)
+            dfs.append(df)
+        return dfs
