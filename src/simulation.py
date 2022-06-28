@@ -60,7 +60,7 @@ def simulate_RB_circuit(RB_event_data, final_dir=""):
         I_initial = float(RB_event_data['I_Q_circ'][index] / 2)
         CurrentLevel.append(I_00)
         R_EE_1 = float(RB_event_data['U_EE_max_ODD'][index]) / float(RB_event_data['I_Q_circ'][index])
-        R_EE_2 = float(RB_event_data['U_EE_max_EVEN'][index]) / float(RB_event_data['I_Q_circ'][index])
+        R_EE_2 = float(RB_event_data['U_EE_max_ODD'][index]) / float(RB_event_data['I_Q_circ'][index])
         Pos = RB_event_data['Position'][index]
         startTime.append(float(RB_event_data['Delta_t(iQPS-PIC)'][index] / 1000))
         start = float(RB_event_data['Delta_t(iQPS-PIC)'][index] / 1000)
