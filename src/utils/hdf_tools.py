@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 import h5py
 import pandas as pd
@@ -82,9 +83,6 @@ def df_to_hdf(file_path: Path, df: pd.DataFrame, hdf_dir: str = ""):
             append_or_overwrite_hdf_group(file=f,
                                           hdf_path=f"{hdf_dir}/{df[column].name}/index",
                                           data=df[column].index.values)
-        # append_or_overwrite_hdf_group(file=f,
-        #                              hdf_path=f"{hdf_dir}/index",
-        #                              data=df[column].index.values)
 
 
 def append_or_overwrite_hdf_group(file: h5py.File, hdf_path: str, data: np.array):
@@ -138,7 +136,9 @@ def get_hdf_tree(file_path: Path, regex_list: list = ['']):
     with h5py.File(file_path, "r") as f:
         file_tree = []
         f.visititems(extract_file_tree)
-        file_tree_filtered = [t for t in file_tree for r in regex_list if r in t]
+
+        file_tree_filtered = [t for t in file_tree for r in regex_list if bool(re.search(r, t))]
+        # file_tree_filtered = [t for t in file_tree for r in regex_list if r in t]
 
     return file_tree_filtered
 
@@ -155,3 +155,27 @@ def load_from_hdf_with_regex(file_path: Path, regex_list: list = ['']) -> list:
     for hdf_path in hdf_paths:
         data.append(hdf_to_df(file_path=file_path, hdf_dir=hdf_path))
     return data
+
+
+def load_u_diode_nxcals(data_dir: Path, len_data: int = 5500) -> pd.DataFrame:
+    """
+    load data from hdf5 data_dir. Function to be replaced with load_from_hdf_with_regex with new acquired data
+    :param data_dir: Path to hdf file
+    :param len_data: len to cut signals to if to long/short
+    :return: dataframe with U_Diode_signals
+    """
+    with h5py.File(data_dir, "r") as f:
+        group = "VoltageNXCALS"
+        columns = [k for k in f[group].keys() if not (k == "index") | ("U_EARTH" in k)]
+        data = np.zeros((len(columns), len_data)) * np.nan
+        time = np.zeros(len_data) * np.nan
+
+        for i, k in enumerate(columns):
+            i_data = np.array(f[group][k].get("values"))
+            data[i, :len(i_data)] = i_data[:len_data]
+
+        i_time = np.array(f[group]["index"])
+        time[:len(i_time)] = i_time[:len_data]
+
+        df_data_nxcals = pd.DataFrame(np.transpose(np.array(data)), columns=columns, index=time)
+    return df_data_nxcals
