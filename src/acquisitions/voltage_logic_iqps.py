@@ -73,14 +73,10 @@ class VoltageLogicIQPS(DataAcquisition):
 
         count = 0
         c = 0
-<<<<<<< Updated upstream
-        offset = signals[0].index.values[0]
-=======
         offsets = []
         for i in range(len(self.signal_timestamp)*len(self.signal_names)):
             offsets.append(signals[i].index.values[0])
         offset = -1*np.min(abs(np.array(offsets)))
->>>>>>> Stashed changes
         
         for i in range(len(self.signal_timestamp)*3):
             t_fgc = float(self.timestamp_fgc)

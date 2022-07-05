@@ -48,13 +48,6 @@ class VoltageNQPS(DataAcquisition):
 
     def get_signal_data(self) -> list:
         """ query_voltage_nqps compares qds and nqps timestamp. Then queries from NXCALS or PM  """
-<<<<<<< Updated upstream
-        u_nqps_dfs = self.query_builder.query_voltage_nqps(
-            self.signal_timestamp[1],
-            self.signal_timestamp[0],
-            self.timestamp_fgc,
-            spark=self.spark)
-=======
         pm_data = []
         for index, row in self.signal_timestamp.iterrows():
             wildcard = {'MAGNET': '*', 'QPS_CRATE': row['source']}
@@ -71,6 +64,3 @@ class VoltageNQPS(DataAcquisition):
                 pm_data.append(data_processed)
 
         return pm_data
->>>>>>> Stashed changes
-
-        return u_nqps_dfs[0]
