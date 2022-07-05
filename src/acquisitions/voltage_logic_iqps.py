@@ -4,6 +4,8 @@ import pandas as pd
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
 from lhcsmapi.Time import Time
 from pyspark.sql import SparkSession
+from lhcsmapi.Time import Time
+import numpy as np
 
 from src.acquisition import DataAcquisition
 from src.utils.utils import flatten_list
@@ -34,6 +36,7 @@ class VoltageLogicIQPS(DataAcquisition):
         self.signal_names = ['U_QS0', 'U_1', 'U_2']
         self.timestamp_fgc = timestamp_fgc
         self.signal_timestamp = self.get_signal_timestamp()
+        self.timestamp_fgc = timestamp_fgc
         self.spark = spark
 
     def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
@@ -70,7 +73,14 @@ class VoltageLogicIQPS(DataAcquisition):
 
         count = 0
         c = 0
+<<<<<<< Updated upstream
         offset = signals[0].index.values[0]
+=======
+        offsets = []
+        for i in range(len(self.signal_timestamp)*len(self.signal_names)):
+            offsets.append(signals[i].index.values[0])
+        offset = -1*np.min(abs(np.array(offsets)))
+>>>>>>> Stashed changes
         
         for i in range(len(self.signal_timestamp)*3):
             t_fgc = float(self.timestamp_fgc)
