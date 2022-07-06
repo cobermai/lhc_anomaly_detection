@@ -2,7 +2,10 @@ from typing import Union
 
 import pandas as pd
 from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
+from lhcsmapi.Time import Time
 from pyspark.sql import SparkSession
+from lhcsmapi.Time import Time
+import numpy as np
 
 from src.acquisition import DataAcquisition
 from src.utils.utils import flatten_list
@@ -31,7 +34,9 @@ class VoltageLogicIQPS(DataAcquisition):
             self.circuit_type, self.circuit_name)
         self.duration = [(10, 's'), (10, 's')]
         self.signal_names = ['U_QS0', 'U_1', 'U_2']
+        self.timestamp_fgc = timestamp_fgc
         self.signal_timestamp = self.get_signal_timestamp()
+        self.timestamp_fgc = timestamp_fgc
         self.spark = spark
 
     def get_signal_timestamp(self) -> Union[int, pd.DataFrame, list]:
@@ -64,4 +69,27 @@ class VoltageLogicIQPS(DataAcquisition):
         signals = self.query_builder.query_voltage_logic_iqps(source_timestamp_qds_df=self.signal_timestamp,
                                                               signal_names=self.signal_names, filter_window=3)
         signals = self.include_iqps_board_type(signals)
-        return flatten_list(signals)
+        signals = flatten_list(signals)
+
+        count = 0
+        c = 0
+        offsets = []
+        for i in range(len(self.signal_timestamp)*len(self.signal_names)):
+            offsets.append(signals[i].index.values[0])
+        offset = -1*np.min(abs(np.array(offsets)))
+        
+        for i in range(len(self.signal_timestamp)*3):
+            t_fgc = float(self.timestamp_fgc)
+            q_fgc = float(self.signal_timestamp.loc[count, 'timestamp'])
+            a = Time.to_pandas_timestamp(q_fgc)
+            b = Time.to_pandas_timestamp(t_fgc)
+            off = (b-a).total_seconds()
+            
+            start = signals[i].index.values[0]
+            signals[i].index = signals[i].index - off + (offset-start)
+            
+            c = c+1
+            if c==3:
+                c=0
+                count = count +1
+        return signals
