@@ -20,7 +20,7 @@ from src.utils.utils import log_acquisition
 if __name__ == "__main__":
     spark = get_or_create(flavor=Flavor.YARN_MEDIUM)
     file_dir = Path('/eos/project/m/ml-for-alarm-system/private/RB_signals')
-    signal_groups = [VoltageNQPS]
+    signal_groups = signal_groups = [PCPM, VoltageNXCALS, VoltageNQPS, VoltageLogicIQPS, EEUDumpResPM, QHPM]
 
     mp3_excel_path = "../data/RB_TC_extract_2021_11_22_processed.csv"
     mp3_fpa_df = pd.read_csv(mp3_excel_path)
@@ -42,7 +42,11 @@ if __name__ == "__main__":
 
         for signal_group in signal_groups:
             group = signal_group(**fpa_identifier, spark=spark)
-            acquisition_to_hdf5(acquisition=group, file_dir=file_dir)
+            acquisition_to_hdf5(acquisition=group,
+                                file_dir=file_dir,
+                                context_dir_name="20220624_context",
+                                failed_queries_dir_name="20220624_failed",
+                                data_dir_name="20220624_data")
 
         log_acquisition(identifier=fpa_identifier, log_data={"download_complete": True}, log_path=file_dir / "context")
 

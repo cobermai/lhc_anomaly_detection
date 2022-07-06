@@ -35,12 +35,14 @@ class EEUDumpResPM(DataAcquisition):
         self.signal_timestamp = self.get_signal_timestamp()
         self.spark = spark
 
-    def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
+    def get_signal_timestamp(self) -> Union[int, pd.DataFrame, list]:
         """ method to find correct timestamp for selected signal """
-        signal_timestamp = self.query_builder.find_source_timestamp_ee(
-            self.timestamp_fgc, system=self.systems)
-        return signal_timestamp
-
+        timestamps = []
+        for system in self.systems:
+            signal_timestamp_odd = self.query_builder.find_source_timestamp_ee(
+                self.timestamp_fgc, system=system)
+            timestamps.append(signal_timestamp_odd.loc[0, 'timestamp'])
+        return timestamps
 
     def get_signal_data(self) -> list:
         """ method to get selected signal with specified sigmon query builder and signal timestamp  """

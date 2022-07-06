@@ -31,7 +31,7 @@ class EETResPM(DataAcquisition):
         self.signal_timestamp = self.get_signal_timestamp()
         self.spark = spark
 
-    def get_signal_timestamp(self) -> Union[int, pd.DataFrame]:
+    def get_signal_timestamp(self) -> Union[int, pd.DataFrame, list]:
         """ method to find correct timestamp for selected signal """
         timestamp_df = self.query_builder.find_source_timestamp_ee(self.timestamp_fgc, system=self.systems)
         if not timestamp_df.empty:
