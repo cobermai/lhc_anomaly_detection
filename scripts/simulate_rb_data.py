@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 import pandas as pd
+from matplotlib import pyplot as plt
 
 from src.utils.hdf_tools import df_to_hdf
 from src.visualisation.visualisation import plot_hdf

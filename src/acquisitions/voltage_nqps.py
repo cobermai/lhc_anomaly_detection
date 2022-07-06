@@ -48,7 +48,7 @@ class VoltageNQPS(DataAcquisition):
         pm_data = []
         for index, row in self.signal_timestamp.iterrows():
             wildcard = {'MAGNET': '*', 'QPS_CRATE': row['source']}
-            params = resolver.get_params_for_pm_signals('RB', 'RB.A78', 'DIODE_RB', row['timestamp'],
+            params = resolver.get_params_for_pm_signals('RB', self.circuit_name, 'DIODE_RB', row['timestamp'],
                                                         signals=self.signals, wildcard=wildcard)
             data = query.query_pm_signals_with_resolved_params(params)
 

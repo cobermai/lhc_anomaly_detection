@@ -88,6 +88,7 @@ def df_to_hdf(file_path: Path, df: pd.DataFrame, hdf_dir: str = ""):
 def append_or_overwrite_hdf_group(file: h5py.File, hdf_path: str, data: np.array):
     """
     append data to h5py file, appends if group not exists, overwrite it
+    TODO: last group in list gives error: "Unable to open object (bad header version number)"
     :param file: opened h5 file
     :param hdf_path: path within h5 file
     :param data: data to add
