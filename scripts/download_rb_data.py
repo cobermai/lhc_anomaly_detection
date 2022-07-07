@@ -44,9 +44,9 @@ if __name__ == "__main__":
             group = signal_group(**fpa_identifier, spark=spark)
             acquisition_to_hdf5(acquisition=group,
                                 file_dir=file_dir,
-                                context_dir_name="20220624_context",
-                                failed_queries_dir_name="20220624_failed",
-                                data_dir_name="20220624_data")
+                                context_dir_name="20220707_context",
+                                failed_queries_dir_name="20220707_failed",
+                                data_dir_name="20220707_data")
 
         log_acquisition(identifier=fpa_identifier, log_data={"download_complete": True}, log_path=file_dir / "context")
 

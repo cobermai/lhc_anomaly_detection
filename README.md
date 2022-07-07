@@ -61,7 +61,7 @@ Open mandatory ports and extend runtime:
 ```
 sudo firewall-cmd --add-port=5001/tcp
 sudo firewall-cmd --add-port=5101/tcp
-sudo firewall-cmd --add-port=5201/tcp
+sudo firewall-cmd --add-port=5201/tcp cern.2020
 sudo firewall-cmd --runtime-to-permanent
 firewall-cmd --list-ports
 ```
