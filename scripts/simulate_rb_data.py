@@ -16,7 +16,7 @@ if __name__ == "__main__":
     # define STEAM paths
     steam_dir = r'C:\Users\cobermai\cernbox\SWAN_projects\steam-models-dev'
     steam_analysis_dir = r'\analyses\analysis_RB_with_yaml'
-    file_name_analysis = r'analysisSTEAM_example_RB.yaml'
+    file_name_analysis = r'C:\Users\cobermai\cernbox\SWAN_projects\lhc-anomaly-detection\data\STEAM_context_data\analysisSTEAM_example_RB.yaml'
     sys.path.insert(0, steam_dir)
     os.chdir(steam_dir + steam_analysis_dir)
     from analyses.analysis_RB_with_yaml.utils_RB import *
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     # only events > 2014 (1388530800000000000), string to unix timestamp with
     # only events = 2021 (1608530800000000000), string to unix timestamp with
     # lhcsmapi.Time.to_unix_timestamp()
-    lower_threshold_unix = 1616962174400000000 #1628530800000000000
+    lower_threshold_unix = 1608530800000000000 #1628530800000000000
     mp3_fpa_df_period = mp3_fpa_df_unique[(
         mp3_fpa_df_unique['timestamp_fgc'] >= lower_threshold_unix)].reset_index(drop=True)
 
@@ -86,5 +86,4 @@ if __name__ == "__main__":
             column_regex = ['r1_warm', "0v_mag"]
             data = load_from_hdf_with_regex(file_path=Path(hdf_dir) / (fpa_identifier + ".hdf"), regex_list=column_regex)
             plot_hdf(data=data, column_regex=column_regex, fig_path=Path(plot_dir) / (fpa_identifier + ".png"))
-            plt.show()
-            print(context_data)
+
