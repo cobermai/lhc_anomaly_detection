@@ -16,6 +16,6 @@ py4j
 matplotlib
 scipy
 PyYAML
-tqdm
+tqdmpi
 tzlocal
 mpmath

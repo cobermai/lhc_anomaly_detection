@@ -114,7 +114,7 @@ def hdf_to_df(file_path: Path, hdf_dir: str = "") -> pd.DataFrame:
     return pd.DataFrame(data, index=index, columns=[colum_name])
 
 
-def get_hdf_tree(file_path: Path, regex_list: list = ['']):
+def get_hdf_tree(file_path: Path, regex_list: list = ['']) -> pd.DataFrame:
     """
     get paths of datasets in hdf file which contain regex
     :param file_path: path of the hdf file to extract file tree
@@ -139,7 +139,6 @@ def get_hdf_tree(file_path: Path, regex_list: list = ['']):
         f.visititems(extract_file_tree)
 
         file_tree_filtered = [t for t in file_tree for r in regex_list if bool(re.search(r, t))]
-        # file_tree_filtered = [t for t in file_tree for r in regex_list if r in t]
 
     return file_tree_filtered
 
@@ -158,25 +157,33 @@ def load_from_hdf_with_regex(file_path: Path, regex_list: list = ['']) -> list:
     return data
 
 
-def load_u_diode_nxcals(data_dir: Path, len_data: int = 5500) -> pd.DataFrame:
+def u_diode_data_to_df(data: list, len_data: int = 5500) -> pd.DataFrame:
     """
-    load data from hdf5 data_dir. Function to be replaced with load_from_hdf_with_regex with new acquired data
-    :param data_dir: Path to hdf file
+    puts list of df in dataframe
+    :param data: list of df with nxcals data
     :param len_data: len to cut signals to if to long/short
     :return: dataframe with U_Diode_signals
     """
-    with h5py.File(data_dir, "r") as f:
-        group = "VoltageNXCALS"
-        columns = [k for k in f[group].keys() if not (k == "index") | ("U_EARTH" in k)]
-        data = np.zeros((len(columns), len_data)) * np.nan
-        time = np.zeros(len_data) * np.nan
 
-        for i, k in enumerate(columns):
-            i_data = np.array(f[group][k].get("values"))
-            data[i, :len(i_data)] = i_data[:len_data]
+    data_columns = [df.columns.values[0].split("/")[1] for df in data]
+    data_new = np.zeros((len(data_columns), len_data)) * np.nan
+    time = np.zeros(len_data) * np.nan
 
-        i_time = np.array(f[group]["index"])
-        time[:len(i_time)] = i_time[:len_data]
+    for i, df in enumerate(data):
+        data_new[i, :len(df.values)] = df.values[:len_data][:, 0]
+    time[:len(df.index.values)] = df.index.values[:len_data]  # TODO: interpolate index, not take first one
 
-        df_data_nxcals = pd.DataFrame(np.transpose(np.array(data)), columns=columns, index=time)
+    df_data_nxcals = pd.DataFrame(np.transpose(np.array(data_new)), columns=data_columns, index=time)
     return df_data_nxcals
+
+
+def data_list_to_df(data: list) -> pd.DataFrame:
+    """
+    transforms list of dataframes into single dataframe. Dataframes must have equal length.
+    :param data: list of dataframes
+    :return: single dataframe
+    """
+    data_values = np.array([df[df.columns[0]].to_list() for df in data]).T
+    data_index = data[0].index  # TODO: interpolate index, not take first one
+    data_columns = [df.columns.values[0].split("/")[1] for df in data]
+    return pd.DataFrame(data_values, index=data_index, columns=data_columns)

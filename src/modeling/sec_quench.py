@@ -2,12 +2,13 @@ import numpy as np
 import pandas as pd
 from lhcsmapi.metadata.MappingMetadata import MappingMetadata
 from scipy import signal
+from scipy.signal import find_peaks, peak_prominences
 
 
 def get_sec_quench_frame_exclude_quench(df_data: pd.DataFrame,
                                         all_quenched_magnets: list,
                                         quench_times: list,
-                                        time_frame: int) -> list:
+                                        time_frame: list) -> list:
     """
     spliting dataframe with nxcals u diode data into list of dataframes around secondary quench
     :param df_data: dataframe with nxcals u diode data
@@ -23,12 +24,27 @@ def get_sec_quench_frame_exclude_quench(df_data: pd.DataFrame,
         quench_within_frame = ["MB." + all_quenched_magnets[i] + ":U_DIODE_RB" for i, t in enumerate(quench_times)
                                if t < delta + time_frame]
 
-        # mask: defines time window
         mask = (df_data.index > delta) & (df_data.index < delta + time_frame)
         df_subset = df_data.drop(columns=quench_within_frame).loc[mask]
 
-        sec_quenches.append(df_subset)
+        df_subset = get_df_time_window(df=df_data, timestamp=delta, time_frame=[0, 2])
+
+        sec_quenches.append(df_subset.drop(columns=quench_within_frame))
     return sec_quenches[1:]
+
+
+def get_df_time_window(df, timestamp, time_frame=[0, 2]):
+    """
+    cuts time_frame window out of datafame
+    :param df_data: dataframe
+    :param timestamp: integer with time center
+    :param time_frame: list which defines area around timestamp
+    :return: dataframes
+    """
+    # mask: defines time window
+    mask = (df.index > timestamp - time_frame[0]) & (df.index < timestamp + time_frame[1])
+    df_subset = df.loc[mask]
+    return df_subset
 
 
 def get_std_of_diff(df: pd.DataFrame) -> pd.DataFrame:
@@ -136,3 +152,22 @@ def calc_wiggle_area(df, medfilt_len = 5):
     idx_lower_mean_left = df[(df.distance_to_quench < 0) & (df.dstd_medfilt < df.dstd_medfilt.mean())]\
         .distance_to_quench.max()
     return max(0, abs(idx_lower_mean_left)) + max(0, abs(idx_lower_mean_right))
+
+
+def peak12_ratio(series: pd.Series, meanfilt_len: int = 15, **kwargs) -> float:
+    """
+    returns the ratio between the highest two points, applies mean filter and interpolates missing values
+    :param series: data
+    :param meanfilt_len: length of mean filter
+    :param kwargs: additional arguments for function find_peaks
+    :return: between the highest two points
+    """
+    df_interpol = series.interpolate(method='linear')
+    df_median = df_interpol.rolling(meanfilt_len).mean()
+
+    peaks = find_peaks(df_median.values, **kwargs)
+    df_sorted = df_median[peaks[0]].sort_values(ascending=False)
+    if len(df_sorted) > 1:
+        return df_sorted.iloc[0] / df_sorted.iloc[1]
+    else:
+        return 0

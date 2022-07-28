@@ -62,7 +62,7 @@ if __name__ == "__main__":
                 "selected_circuit": row['Circuit Name'],
                 "I_end_2_from_data": mp3_fpa_df_subset['I_Q_M'].max(),
                 "dI_dt_from_data": 0,
-                "EE_quantities": {'R_EE_odd': float(mp3_fpa_df_subset['U_EE_max_ODD'].values[0])
+                "EE_quantities": {'R_EE_odd': float(mp3_fpa_df_subset['U_EE_max_ODD'].values[0]) 
                                                / float(mp3_fpa_df_subset['I_Q_M'].max()),
                                   'R_EE_even': float(mp3_fpa_df_subset['U_EE_max_ODD'].values[0])
                                                 / float(mp3_fpa_df_subset['I_Q_M'].max()),
@@ -86,4 +86,4 @@ if __name__ == "__main__":
             column_regex = ['r1_warm', "0v_mag"]
             data = load_from_hdf_with_regex(file_path=Path(hdf_dir) / (fpa_identifier + ".hdf"), regex_list=column_regex)
             plot_hdf(data=data, column_regex=column_regex, fig_path=Path(plot_dir) / (fpa_identifier + ".png"))
-
+ 
