@@ -10,7 +10,7 @@ nxcals
 lhcsmapi==1.6
 
 # Simulation requirements
-steam-sdk~=0.0.81
+steam-sdk~=0.0.82
 steam-nb-api
 py4j
 matplotlib

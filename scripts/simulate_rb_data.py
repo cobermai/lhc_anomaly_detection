@@ -22,14 +22,14 @@ if __name__ == "__main__":
     from analyses.analysis_RB_with_yaml.utils_RB import *
 
     # store hdf in
-    hdf_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20220627_simulation'
+    hdf_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20220707_simulation'
     Path(hdf_dir).mkdir(parents=True, exist_ok=True)
     # store plots in
-    plot_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20220627_plots'
+    plot_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20220707_sim_plots'
     Path(plot_dir).mkdir(parents=True, exist_ok=True)
 
     # load mp3 files
-    mp3_excel_path = r'C:\Users\cobermai\cernbox\SWAN_projects\lhc-anomaly-detection\data\RB_TC_extract_2021_11_22_processed_filled'
+    mp3_excel_path = r'C:\Users\cobermai\cernbox\SWAN_projects\lhc-anomaly-detection\data\RB_TC_extract_2022_07_07_processed_filled.csv'
     mp3_fpa_df = pd.read_csv(mp3_excel_path)
 
     # secondary quenches have same timestamp as primary quenches
@@ -83,7 +83,7 @@ if __name__ == "__main__":
             df = pd.DataFrame(data_sim, index=time_sim, columns=signals_sim)
             df_to_hdf(file_path=Path(hdf_dir) / (fpa_identifier + ".hdf"), df=df)
 
-            column_regex = ['r1_warm', "0v_mag"]
+            column_regex = ['r1_warm', "0v_magf"]
             data = load_from_hdf_with_regex(file_path=Path(hdf_dir) / (fpa_identifier + ".hdf"), regex_list=column_regex)
             plot_hdf(data=data, column_regex=column_regex, fig_path=Path(plot_dir) / (fpa_identifier + ".png"))
  

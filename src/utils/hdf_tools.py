@@ -170,6 +170,7 @@ def u_diode_data_to_df(data: list, len_data: int = 5500) -> pd.DataFrame:
     time = np.zeros(len_data) * np.nan
 
     for i, df in enumerate(data):
+        df = df[~df.index.duplicated(keep="first")] # datapoints are sometimes logged twice
         data_new[i, :len(df.values)] = df.values[:len_data][:, 0]
     time[:len(df.index.values)] = df.index.values[:len_data]  # TODO: interpolate index, not take first one
 

@@ -20,23 +20,17 @@ def get_sec_quench_frame_exclude_quench(df_data: pd.DataFrame,
     sec_quenches = []
     for i, row in enumerate(all_quenched_magnets):
         delta = quench_times[i]
-
         quench_within_frame = ["MB." + all_quenched_magnets[i] + ":U_DIODE_RB" for i, t in enumerate(quench_times)
-                               if t < delta + time_frame]
-
-        mask = (df_data.index > delta) & (df_data.index < delta + time_frame)
-        df_subset = df_data.drop(columns=quench_within_frame).loc[mask]
-
-        df_subset = get_df_time_window(df=df_data, timestamp=delta, time_frame=[0, 2])
-
+                               if (t < delta + time_frame[1])]
+        df_subset = get_df_time_window(df=df_data, timestamp=delta, time_frame=time_frame)
         sec_quenches.append(df_subset.drop(columns=quench_within_frame))
     return sec_quenches[1:]
 
 
-def get_df_time_window(df, timestamp, time_frame=[0, 2]):
+def get_df_time_window(df, timestamp, time_frame):
     """
     cuts time_frame window out of datafame
-    :param df_data: dataframe
+    :param df_data: dataframe with nxcals u diode data
     :param timestamp: integer with time center
     :param time_frame: list which defines area around timestamp
     :return: dataframes
@@ -75,7 +69,7 @@ def sort_by_metadata(df: pd.DataFrame, circuit: str, quenched_magnet: str, by: s
     df_std_meta = df_metadata_circuit.merge(df, left_on=['Circuit', 'Magnet'], right_on=['Circuit', 'Magnet'],
                                             how="left")
     df_std_meta = df_std_meta.sort_values(by=by).reset_index(drop=True)
-    quenched_magnet_pos = df_std_meta[df_std_meta.Magnet == "MB."+quenched_magnet].index.values[0]
+    quenched_magnet_pos = df_std_meta[df_std_meta.Magnet == "MB." + quenched_magnet].index.values[0]
     df_std_meta["distance_to_quench"] = df_std_meta.index.values - quenched_magnet_pos
 
     return df_std_meta
@@ -121,7 +115,11 @@ def get_weighted_average(series: pd.Series, weight: np.array) -> float:
     return weighted_average
 
 
-def get_dstd_score(df: pd.DataFrame, window_len: int, window_function: signal.windows = signal.windows.boxcar, **kwargs) -> float:
+def get_dstd_score(
+        df: pd.DataFrame,
+        window_len: int,
+        window_function: signal.windows = signal.windows.boxcar,
+        **kwargs) -> float:
     """
     calculates weighted average with given window function, and divides it by global average
     :param df: dataframe containing dstd for each magnet
@@ -139,7 +137,8 @@ def get_dstd_score(df: pd.DataFrame, window_len: int, window_function: signal.wi
     dstd_score = get_weighted_average(df.dstd, weight=window) / get_weighted_average(df.dstd, weight=1 - window)
     return dstd_score
 
-def calc_wiggle_area(df, medfilt_len = 5):
+
+def calc_wiggle_area(df, medfilt_len=5):
     """
     calculates the amount of neighbouring magnets containing a wiggle
     :param df: dataframe containing distance_to_quench and dstd of each magnet
@@ -171,3 +170,79 @@ def peak12_ratio(series: pd.Series, meanfilt_len: int = 15, **kwargs) -> float:
         return df_sorted.iloc[0] / df_sorted.iloc[1]
     else:
         return 0
+
+
+def get_sec_quench_features(
+        df_quench_frame: pd.DataFrame,
+        df_mp3_subset: pd.DataFrame,
+        time_frame_after_quench: list,
+        sec_quench_number: int) -> pd.DataFrame:
+    """
+    calculates features of given data period
+    :param df_quench_frame: dataframe with frame of u diode data around secondary quench
+    :param df_mp3_subset: context data: subset of mp3 fpa excel of fpa event
+    :param time_frame_after_quench: amount of quenches within intervall
+    :param sec_quench_number: number of secondary fpa event
+    :return: dataframe with features of fpa event
+    """
+    event_index = df_mp3_subset.iloc[sec_quench_number + 1].name
+    quench_times = df_mp3_subset["Delta_t(iQPS-PIC)"].values / 1e3
+
+    # define dataframe to log results into
+    df_results = df_mp3_subset.loc[event_index, ['Circuit Family', 'Circuit Name', 'timestamp_fgc', 'Position']]
+
+    df_std = get_std_of_diff(df=df_quench_frame)
+
+    df_std_meta_pos = sort_by_metadata(
+        df=df_std,
+        quenched_magnet=df_mp3_subset.Position.values[sec_quench_number + 1],
+        circuit=df_results['Circuit Name'],
+        by="Position")
+
+    df_std_meta_elpos = sort_by_metadata(
+        df=df_std,
+        quenched_magnet=df_mp3_subset.Position.values[sec_quench_number + 1],
+        circuit=df_results['Circuit Name'],
+        by="#Electric_EE")
+
+    df_results["sec_quench_number"] = sec_quench_number
+
+    idx_0 = df_quench_frame.index[0]
+    idx_min = df_quench_frame.min(axis=1).idxmin()
+    idx_max = df_quench_frame.max(axis=1).idxmax()
+    df_results["start_time"] = idx_0
+    df_results["min_time"] = idx_min - idx_0
+    df_results["max_time"] = idx_max - idx_0
+
+    df_results["min_amplitude"] = df_quench_frame.loc[idx_min].mean() - \
+        df_quench_frame.loc[idx_min].min()
+    df_results["max_amplitude"] = df_quench_frame.loc[idx_max].max() - \
+        df_quench_frame.loc[idx_max].mean()
+    df_results["dU_max"] = df_quench_frame.diff().max().max()
+    df_results["dU_min"] = df_quench_frame.diff().min().min()
+    df_results["dstd_max"] = df_std.dstd.max()
+    df_results["dstd_mean"] = df_std.dstd.mean()
+    df_results["el_peak12_ratio"] = peak12_ratio(series=df_std_meta_elpos.dstd, distance=15, width=3)
+
+    quenches_within_frame = [q for q in quench_times
+                             if (q > quench_times[sec_quench_number + 1] - time_frame_after_quench[0]) &
+                             (q < quench_times[sec_quench_number + 1] + time_frame_after_quench[1])]
+
+    df_results["n_other_quenches"] = len(quenches_within_frame)
+
+    df_results["dstd_score_pos_15"] = get_dstd_score(df_std_meta_pos, window_len=15)
+    df_results["dstd_score_elpos_15"] = get_dstd_score(df_std_meta_elpos, window_len=15)
+    df_results["dstd_score_pos_15_exp"] = get_dstd_score(df_std_meta_pos, window_len=15,
+                                                         window_function=signal.windows.exponential)
+    df_results["dstd_score_elpos_15_exp"] = get_dstd_score(df_std_meta_elpos, window_len=15,
+                                                           window_function=signal.windows.exponential)
+    df_results["dstd_score_pos_15_tuk"] = get_dstd_score(df_std_meta_pos, window_len=15,
+                                                         window_function=signal.windows.tukey)
+    df_results["dstd_score_elpos_15_tuk"] = get_dstd_score(df_std_meta_elpos, window_len=15,
+                                                           window_function=signal.windows.tukey)
+
+    threshold = df_std_meta_pos.dstd.mean() + 2 * df_std_meta_pos.dstd.std()
+    df_results["wiggle_magnets"] = len(df_std_meta_pos[df_std_meta_pos.dstd.abs() > threshold])
+    df_results["wiggle_area_pos"] = calc_wiggle_area(df_std_meta_pos)
+    df_results["wiggle_area_elpos"] = calc_wiggle_area(df_std_meta_elpos)
+    return df_results.to_frame().transpose()
