@@ -61,7 +61,7 @@ Open mandatory ports and extend runtime:
 ```
 sudo firewall-cmd --add-port=5001/tcp
 sudo firewall-cmd --add-port=5101/tcp
-sudo firewall-cmd --add-port=5201/tcp cern.2020
+sudo firewall-cmd --add-port=5201/tcp
 sudo firewall-cmd --runtime-to-permanent
 firewall-cmd --list-ports
 ```
@@ -77,8 +77,18 @@ Execution only on Windows, as PSpice is utilized.
 * Clone steam-notebooks directory: https://gitlab.cern.ch/steam/steam-notebooks.git and specify path bellow (commit sha: e591c2ebc6ea191fa8ed240cf7cc7361d1a3fae4)
 * Required Programs: PSPICE, COSIM, and LEDET
 * Contact emmanuele.ravaioli@cern.ch to get get access to COSIM and LEDET
-* Create personal configurations in "steam-notebooks\steam-sing-input\resources\User configurations\config.\<user\>.yaml"
-* Select signals to simulate in "steam-notebooks\steam-sing-input\resources\selectedSignals_RB.csv"
+* Clone the steam project "gitlab.cern.ch/steam/steam-models-dev" and provide the link to the folder in the script to execute
+* Create personal configurations in "data\STEAM_context_data\analysisSTEAM_example_RB.yaml" and provide the link to the folder in the script to execute
+
+### Update project
+In the the "steam-models-dev\steam_models" folder needs to be updated seperately with git. 
+After the first clone of the main dir, do:
+* git submodule init
+* git submodule update
+If changes were made, e.g. to change the signals to simulate in "team_models/circuits/RB/modelData_RB.yaml", changes can be stashed:
+* git stash
+* git push
+* git stash apply
 
 # Hints
 ### Create requirements

@@ -22,7 +22,7 @@ if __name__ == "__main__":
     from analyses.analysis_RB_with_yaml.utils_RB import *
 
     # store hdf in
-    hdf_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20220707_simulation'
+    hdf_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20220707_simulation_ADD'
     Path(hdf_dir).mkdir(parents=True, exist_ok=True)
     # store plots in
     plot_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20220707_sim_plots'
@@ -69,21 +69,26 @@ if __name__ == "__main__":
                                   't_EE_odd': float(mp3_fpa_df_subset['Delta_t(EE_odd-PIC)'].values[0]) / 1000,
                                   't_EE_even': float(mp3_fpa_df_subset['Delta_t(EE_even-PIC)'].values[0]) / 1000},
                 "current_level_quenches": list(mp3_fpa_df_subset['I_Q_M'].values),
-                "t_shifts": list(mp3_fpa_df_subset['Delta_t(iQPS-PIC)'] / 1000),
-                "quenching_magnets": mp3_fpa_df_subset['Position'].tolist()
+                "t_shifts": list(mp3_fpa_df_subset['Delta_t(iQPS-PIC)'].dropna() / 1000),
+                "quenching_magnets": mp3_fpa_df_subset['Position'].tolist()[:len(mp3_fpa_df_subset['Delta_t(iQPS-PIC)'].dropna())]
             }
             print(context_data)
+            # Check if any value in context data is nan
+            if not pd.json_normalize(context_data, sep='_').isnull().values.any():
+                try:
+                    time_sim, data_sim, signals_sim, simulation_name, sim_number = \
+                        wrapper_RB_analysis(file_name_analysis=file_name_analysis,
+                                            parameters_set=parameters_set,
+                                            flag_run_simulation=flag_run_simulation,
+                                            verbose=verbose,
+                                            **context_data)
+                    df = pd.DataFrame(data_sim, index=time_sim, columns=signals_sim)
+                    df_to_hdf(file_path=Path(hdf_dir) / (fpa_identifier + ".hdf"), df=df)
 
-            time_sim, data_sim, signals_sim, simulation_name, sim_number = \
-                wrapper_RB_analysis(file_name_analysis=file_name_analysis,
-                                    parameters_set=parameters_set,
-                                    flag_run_simulation=flag_run_simulation,
-                                    verbose=verbose,
-                                    **context_data)
-            df = pd.DataFrame(data_sim, index=time_sim, columns=signals_sim)
-            df_to_hdf(file_path=Path(hdf_dir) / (fpa_identifier + ".hdf"), df=df)
-
-            column_regex = ['r1_warm', "0v_magf"]
-            data = load_from_hdf_with_regex(file_path=Path(hdf_dir) / (fpa_identifier + ".hdf"), regex_list=column_regex)
-            plot_hdf(data=data, column_regex=column_regex, fig_path=Path(plot_dir) / (fpa_identifier + ".png"))
+                    column_regex = ['r1_warm', "0v_magf"]
+                    data = load_from_hdf_with_regex(file_path=Path(hdf_dir) / (fpa_identifier + ".hdf"), regex_list=column_regex)
+                    plot_hdf(data=data, column_regex=column_regex, fig_path=Path(plot_dir) / (fpa_identifier + ".png"))
+                except:
+                    plt.plot([0,1])
+                    plt.savefig(Path(plot_dir) / ("failed_" + fpa_identifier + ".png"))
  
