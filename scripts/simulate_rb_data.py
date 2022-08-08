@@ -75,20 +75,20 @@ if __name__ == "__main__":
             print(context_data)
             # Check if any value in context data is nan
             if not pd.json_normalize(context_data, sep='_').isnull().values.any():
-                #try:
-                time_sim, data_sim, signals_sim, simulation_name, sim_number = \
-                    wrapper_RB_analysis(file_name_analysis=file_name_analysis,
-                                        parameters_set=parameters_set,
-                                        flag_run_simulation=flag_run_simulation,
-                                        verbose=verbose,
-                                        **context_data)
-                df = pd.DataFrame(data_sim, index=time_sim, columns=signals_sim)
-                df_to_hdf(file_path=Path(hdf_dir) / (fpa_identifier + ".hdf"), df=df)
+                try:
+                    time_sim, data_sim, signals_sim, simulation_name, sim_number = \
+                        wrapper_RB_analysis(file_name_analysis=file_name_analysis,
+                                            parameters_set=parameters_set,
+                                            flag_run_simulation=flag_run_simulation,
+                                            verbose=verbose,
+                                            **context_data)
+                    df = pd.DataFrame(data_sim, index=time_sim, columns=signals_sim)
+                    df_to_hdf(file_path=Path(hdf_dir) / (fpa_identifier + ".hdf"), df=df)
 
-                column_regex = ['r1_warm', "0v_magf"]
-                data = load_from_hdf_with_regex(file_path=Path(hdf_dir) / (fpa_identifier + ".hdf"), regex_list=column_regex)
-                plot_hdf(data=data, column_regex=column_regex, fig_path=Path(plot_dir) / (fpa_identifier + ".png"))
-                #except:
-                plt.plot([0,1])
-                plt.savefig(Path(plot_dir) / ("failed_" + fpa_identifier + ".png"))
+                    column_regex = ['r1_warm', "0v_magf"]
+                    data = load_from_hdf_with_regex(file_path=Path(hdf_dir) / (fpa_identifier + ".hdf"), regex_list=column_regex)
+                    plot_hdf(data=data, column_regex=column_regex, fig_path=Path(plot_dir) / (fpa_identifier + ".png"))
+                except:
+                    plt.plot([0,1])
+                    plt.savefig(Path(plot_dir) / ("failed_" + fpa_identifier + ".png"))
  

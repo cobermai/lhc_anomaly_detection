@@ -1,6 +1,7 @@
 from pathlib import Path
 import glob
 
+import numpy as np
 import pandas as pd
 
 def log_acquisition(identifier: dict, log_data: dict, log_path: Path) -> None:
@@ -41,3 +42,17 @@ def flatten_list(stacked_list: list) -> list:
     :return: list with dim = 1
     """
     return [item for sublist in stacked_list for item in sublist]
+
+def interp(df, new_index):
+    """
+    Return a new DataFrame with all columns values interpolated
+    to the new_index values.
+    :param df: old dataframe to resample
+    :param new_index: index of new dataframe
+    :rtype:
+    """
+    df_out = pd.DataFrame(index=new_index)
+    df_out.index.name = df.index.name
+    for colname, col in df.iteritems():
+        df_out[colname] = np.interp(new_index, df.index, col)
+    return df_out

@@ -4,7 +4,8 @@ from pathlib import Path
 import pandas as pd
 
 from src.modeling.sec_quench import get_sec_quench_frame_exclude_quench, get_sec_quench_features
-from src.utils.hdf_tools import load_from_hdf_with_regex, u_diode_data_to_df
+from src.utils.hdf_tools import load_from_hdf_with_regex
+from src.utils.dataset_utils import u_diode_data_to_df
 
 if __name__ == "__main__":
     # define paths

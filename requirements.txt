@@ -19,3 +19,7 @@ PyYAML
 tqdmpi
 tzlocal
 mpmath
+
+# Modeling requirements
+xarray
+tensorflow

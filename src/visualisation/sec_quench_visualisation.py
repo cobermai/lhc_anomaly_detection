@@ -5,7 +5,8 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 from src.modeling.sec_quench import get_std_of_diff, get_sec_quench_frame_exclude_quench, sort_by_metadata
-from src.utils.hdf_tools import load_from_hdf_with_regex, u_diode_data_to_df
+from src.utils.hdf_tools import load_from_hdf_with_regex
+from src.utils.dataset_utils import u_diode_data_to_df
 
 
 def plot_wiggle_analysis(

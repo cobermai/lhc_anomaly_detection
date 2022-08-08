@@ -157,27 +157,6 @@ def load_from_hdf_with_regex(file_path: Path, regex_list: list = ['']) -> list:
     return data
 
 
-def u_diode_data_to_df(data: list, len_data: int = 5500) -> pd.DataFrame:
-    """
-    puts list of df in dataframe
-    :param data: list of df with nxcals data
-    :param len_data: len to cut signals to if to long/short
-    :return: dataframe with U_Diode_signals
-    """
-
-    data_columns = [df.columns.values[0].split("/")[1] for df in data]
-    data_new = np.zeros((len(data_columns), len_data)) * np.nan
-    time = np.zeros(len_data) * np.nan
-
-    for i, df in enumerate(data):
-        df = df[~df.index.duplicated(keep="first")] # datapoints are sometimes logged twice
-        data_new[i, :len(df.values)] = df.values[:len_data][:, 0]
-    time[:len(df.index.values)] = df.index.values[:len_data]  # TODO: interpolate index, not take first one
-
-    df_data_nxcals = pd.DataFrame(np.transpose(np.array(data_new)), columns=data_columns, index=time)
-    return df_data_nxcals
-
-
 def data_list_to_df(data: list) -> pd.DataFrame:
     """
     transforms list of dataframes into single dataframe. Dataframes must have equal length.
