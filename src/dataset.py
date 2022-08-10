@@ -10,35 +10,46 @@ import xarray as xr
 data = namedtuple("data", ["X", "y", "idx"])
 
 
-class DatasetCreator(ABC):
+class Dataset(ABC):
     """
     abstract class which acts as a template to create datasets
     """
 
     @staticmethod
     @abstractmethod
-    def select_events(data_path: Path) -> xr.DataArray:
+    def select_events(context_path: Path) -> list:
         """
         abstract method to select events for dataset
         """
 
     @staticmethod
     @abstractmethod
-    def select_features(data_array: xr.DataArray) -> xr.DataArray:
+    def generate_dataset(fpa_identifiers: list, dataset_path: Path, context_path: Path, data_path: Path,
+                         simulation_path: Path):
         """
-        abstract method to select features for dataset
-        """
-
-    @staticmethod
-    @abstractmethod
-    def select_labels(data_array: xr.DataArray) -> xr.DataArray:
-        """
-        abstract method to select labels for dataset
+        abstract method to generate dataset
         """
 
     @staticmethod
+    def load_dataset(fpa_identifiers: list, dataset_path: Path) -> xr.DataArray:
+        """
+        load DataArray from given list of fpa_identifiers
+        :param fpa_identifiers: list of strings which defines event, i.e. "<Circuit Family>_<Circuit
+        Name>_<timestamp_fgc>"
+        :param dataset_path: path to datasets
+        :return: DataArray with loaded data
+        """
+        dataset = []
+        for fpa_identifier in fpa_identifiers:
+            fpa_event_data = xr.load_dataarray(dataset_path / f"{fpa_identifier}.nc")
+            dataset.append(fpa_event_data)
+
+        dataset_full = xr.concat(dataset, dim="event")
+        return dataset_full
+
+    @staticmethod
     @abstractmethod
-    def train_valid_test_split(X_data_array: xr.DataArray, y_data_array: xr.DataArray,
+    def train_valid_test_split(X_data_array: xr.DataArray,
                                splits: Optional[tuple] = None,
                                manual_split: list = None) -> tuple:
         """
@@ -59,24 +70,16 @@ class DatasetCreator(ABC):
         :return: train, valid, test: Tuple with data of type named tuple
         """
 
-    @staticmethod
-    @abstractmethod
-    def one_hot_encode(train: data, valid: data, test: data,) -> tuple:
-        """
-        Function transforms the labels from integers to one hot vectors.
-        Note that this function can be overwritten in the concrete dataset selection class.
-        :param train: data for training of type named tuple
-        :param valid: data for validation of type named tuple
-        :param test: data for testing of type named tuple
-        :return: train, valid, test: Tuple with data of type named tuple
-        """
 
-
-def load_dataset(creator: DatasetCreator,
+def load_dataset(creator: "DatasetCreator",
+                 dataset_path: Path,
+                 context_path: Path,
                  data_path: Path,
+                 simulation_path: Path,
+                 generate_dateset: Optional[bool] = False,
                  splits: Optional[tuple] = None,
                  manual_split: Optional[tuple] = None,
-                 manual_scale: Optional[list] = None) -> typing.Tuple:
+                 manual_scale: Optional[list] = None) -> xr.DataArray:
     """
     :param creator: any concrete subclass of DatasetCreator to specify dataset selection
     :param data_path: path to datafile
@@ -85,17 +88,14 @@ def load_dataset(creator: DatasetCreator,
     :param manual_split: list that describes a manual split of the data
     :return: train, valid, test: tuple with data of type named tuple
     """
-    data_array = creator.select_events(data_path=data_path)
+    fpa_identifiers = creator.select_events(context_path=context_path)
 
-    X_data_array = creator.select_features(data_array=data_array)
+    if generate_dateset:
+        creator.generate_dataset(fpa_identifiers=fpa_identifiers,
+                                 dataset_path=dataset_path,
+                                 context_path=context_path,
+                                 data_path=data_path,
+                                 simulation_path=simulation_path)
 
-    y_data_array = creator.select_labels(data_array=data_array)
-
-    train, valid, test = creator.train_valid_test_split(X_data_array=X_data_array,
-                                                        y_data_array=y_data_array,
-                                                        splits=splits,
-                                                        manual_split=manual_split)
-    train, valid, test = creator.scale_data(train, valid, test, manual_scale=manual_scale)
-    train, valid, test = creator.one_hot_encode(train, valid, test)
-
-    return train, valid, test
+    dataset = creator.load_dataset(fpa_identifiers, dataset_path)
+    return dataset

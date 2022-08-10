@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -93,7 +93,7 @@ def get_u_diode_simulation_alignment_timestamps(df: pd.DataFrame, dth: int = -0.
     return alignment_timestamps
 
 
-def align_u_diode_data(df_data: pd.DataFrame, t_first_extraction: Optional[int, list],
+def align_u_diode_data(df_data: pd.DataFrame, t_first_extraction: Union[float, int, list],
                        shift_th: int = 20) -> pd.DataFrame:
     """
     align u diode data, which is often shifted due to wrong triggers
@@ -106,10 +106,10 @@ def align_u_diode_data(df_data: pd.DataFrame, t_first_extraction: Optional[int, 
 
     for i, c in enumerate(df_data.columns):
         # index, where time is closest to alignment ts
-        if type(t_first_extraction) == int:
-            zero_index = np.argmin(abs(df_data.index.values - t_first_extraction))
-        else:
+        if type(t_first_extraction) == list:
             zero_index = np.argmin(abs(df_data.index.values - t_first_extraction[i]))
+        else:
+            zero_index = np.argmin(abs(df_data.index.values - t_first_extraction))
 
         # index, where time is closest to offset_ts
         delta_index = np.argmin(abs(df_data.index.values - offset_ts[i]))
