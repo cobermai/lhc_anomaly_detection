@@ -62,39 +62,24 @@ def drop_quenched_magnets(df: pd.DataFrame, all_quenched_magnets: list, quench_t
     return df
 
 
-def get_u_diode_data_alignment_timestamps(df: pd.DataFrame, th: int = -0.5, dth: int = -0.5,
-                                          medfilt_size: int = 101) -> list:
+def get_u_diode_data_alignment_timestamps(df: pd.DataFrame, ee_margins: list = [-0.25, 0.25],
+                                          medfilt_size: int = 51) -> list:
     """
     gets timestamp of first energy extraction from data, used for data alignment.
     timestamp is first index, where meanfiltered data > threshold and meanfiltered derivative > delta threshold
-    :param df: df with data
-    :param th: threshold
-    :param dth: delta threshold
+    :param df: df with data, magnets in columns, time in index
+    :param ee_margins: timeframe where first energy extraction takes place
     :param medfilt_size: size of meanfilter, should be odd
     :return: list of timestamps where first energy extraction is triggered
     """
     df_filt = df.rolling(medfilt_size, center=True).median()
-    df_diff_filt = df_filt.diff()
-    alignment_timestamps = [df_diff_filt.index.values[np.where((df_filt[c] < th) & (df_diff_filt[c] < dth))[0][0]] for c
-                            in df_diff_filt.columns]
-    return alignment_timestamps
-
-
-def get_u_diode_simulation_alignment_timestamps(df: pd.DataFrame, dth: int = -0.2) -> list:
-    """
-    gets timestamp of first energy extraction from simulation, used for data alignment.
-    timestamp is first index, derivative > delta threshold
-    :param df: df with data
-    :param dth: delta threshold
-    :return: list of timestamps where first energy extraction is triggered
-    """
-    df_diff = df.diff()
-    alignment_timestamps = [df_diff.index.values[np.where(df_diff[c] < dth)[0][0]] for c in df_diff.columns]
+    df_diff_filt = df_filt[(ee_margins[0] < df_filt.index) & (df_filt.index < ee_margins[1])].diff()
+    alignment_timestamps = df_diff_filt.idxmin().to_list()
     return alignment_timestamps
 
 
 def align_u_diode_data(df_data: pd.DataFrame, t_first_extraction: Union[float, int, list],
-                       shift_th: int = 20) -> pd.DataFrame:
+                       shift_th: int = 0) -> pd.DataFrame:
     """
     align u diode data, which is often shifted due to wrong triggers
     :param df_data: df with data, magnets are columns, time is index

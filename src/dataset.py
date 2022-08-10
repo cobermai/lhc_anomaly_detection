@@ -25,7 +25,7 @@ class Dataset(ABC):
     @staticmethod
     @abstractmethod
     def generate_dataset(fpa_identifiers: list, dataset_path: Path, context_path: Path, data_path: Path,
-                         simulation_path: Path):
+                         simulation_path: Path, plot_dataset_path: Optional[Path]):
         """
         abstract method to generate dataset
         """
@@ -61,7 +61,7 @@ class Dataset(ABC):
     def scale_data(train: data, valid: data, test: data,
                    manual_scale: Optional[list] = None) -> tuple:
         """
-        Function scales data for with sklearn standard scaler.
+        scales data for with sklearn standard scaler.
         Note that this function can be overwritten in the concrete dataset selection class.
         :param train: data for training of type named tuple
         :param valid: data for validation of type named tuple
@@ -74,28 +74,33 @@ class Dataset(ABC):
 def load_dataset(creator: "DatasetCreator",
                  dataset_path: Path,
                  context_path: Path,
+                 acquisition_summary_path: Optional[Path],
                  data_path: Path,
                  simulation_path: Path,
-                 generate_dateset: Optional[bool] = False,
-                 splits: Optional[tuple] = None,
-                 manual_split: Optional[tuple] = None,
-                 manual_scale: Optional[list] = None) -> xr.DataArray:
+                 plot_dataset_path: Optional[Path],
+                 generate_dateset: Optional[bool] = False) -> xr.DataArray:
     """
+    load dataset, dataset specific options can be changed in the dataset creator
     :param creator: any concrete subclass of DatasetCreator to specify dataset selection
-    :param data_path: path to datafile
-    :param splits: train, valid, test split fractions
-    :param manual_scale: tuple of lists that describes groups of the data which is scaled separately
-    :param manual_split: list that describes a manual split of the data
-    :return: train, valid, test: tuple with data of type named tuple
+    :param dataset_path: path to dataset
+    :param dataset_path: path where to store datasets
+    :param context_path: path to mp3 Excel file, must be .csv
+    :param acquisition_summary_path: optional file path if data is manually analyzed, must be .xlsx
+    :param data_path: path to hdf5 data
+    :param simulation_path: path to hdf5 simulations
+    :param plot_dataset_path: path to plot dataset events
+    :param generate_dateset: flag to indicate whether dataset should be recreated
     """
-    fpa_identifiers = creator.select_events(context_path=context_path)
+    fpa_identifiers = creator.select_events(context_path=context_path,
+                                            acquisition_summary_path=acquisition_summary_path)
 
     if generate_dateset:
         creator.generate_dataset(fpa_identifiers=fpa_identifiers,
                                  dataset_path=dataset_path,
                                  context_path=context_path,
                                  data_path=data_path,
-                                 simulation_path=simulation_path)
+                                 simulation_path=simulation_path,
+                                 plot_dataset_path=plot_dataset_path)
 
     dataset = creator.load_dataset(fpa_identifiers, dataset_path)
     return dataset
