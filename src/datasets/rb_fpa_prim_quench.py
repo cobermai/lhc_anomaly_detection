@@ -38,7 +38,7 @@ class RBFPAPrimQuench(Dataset):
         mp3_fpa_df_unique = mp3_fpa_df.drop_duplicates(subset=['timestamp_fgc', 'Circuit Name'])
         # only events > 2014 (1388530800000000000), string to unix timestamp with lhcsmapi.Time.to_unix_timestamp()
         # only events = 2021 (1608530800000000000), string to unix timestamp with lhcsmapi.Time.to_unix_timestamp()
-        lower_limit = 1608530800000000000
+        lower_limit = 1388530800000000000
         mp3_fpa_df_period = mp3_fpa_df_unique[mp3_fpa_df_unique['timestamp_fgc'] >= lower_limit].reset_index(drop=True)
 
         if acquisition_summary_path:
@@ -76,7 +76,7 @@ class RBFPAPrimQuench(Dataset):
 
         for fpa_identifier in fpa_identifiers:
             # if dataset already exists
-            if not os.path.isfile(dataset_path / f"{fpa_identifier}.nc"):
+            if not os.path.isfile(plot_dataset_path / f"{fpa_identifier}.png"): # os.path.isfile(dataset_path / f"{fpa_identifier}.nc"):
 
                 circuit_name = fpa_identifier.split("_")[1]
                 timestamp_fgc = int(fpa_identifier.split("_")[2])
@@ -106,17 +106,21 @@ class RBFPAPrimQuench(Dataset):
                 df_sim_noq = drop_quenched_magnets(df_sim, all_quenched_magnets, quench_times, max_time)
 
                 # sometimes only noise is stored, mean must be in window -1, -10
-                mean_range = [-1, -10]
+                mean_range = [-1.5, -10]
                 df_data_noq = df_data_noq.drop(
                     df_data_noq.columns[~(mean_range[0] > df_data_noq.mean()) & (mean_range[1] < df_data_noq.mean())],
                     axis=1)
 
                 # align with simulation data
-                t_first_extraction = get_u_diode_data_alignment_timestamps(df_sim_noq)
+
                 # align with energy extraction timestamp
                 # t_first_extraction = min(float(mp3_fpa_df_subset['Delta_t(EE_odd-PIC)'].values[0]) / 1000,
                 #                         float(mp3_fpa_df_subset['Delta_t(EE_even-PIC)'].values[0]) / 1000)
-                df_data_aligned = align_u_diode_data(df_data_noq.copy(), t_first_extraction)
+                ee_margins = [-0.25, 0.25]
+                t_first_extraction = get_u_diode_data_alignment_timestamps(df_sim_noq, ee_margins=ee_margins)
+                df_data_aligned = align_u_diode_data(df_data=df_data_noq.copy(),
+                                                     t_first_extraction=t_first_extraction,
+                                                     ee_margins=ee_margins)
 
                 # cut out time frame to analyze, [-0.25, 1] is 1336 samples
                 time_frame = [-0.25, 1]
@@ -140,7 +144,6 @@ class RBFPAPrimQuench(Dataset):
                                           event_identifier=fpa_identifier)
                 xr_array.to_netcdf(dataset_path / f"{fpa_identifier}.nc")
                 print(fpa_identifier)
-
                 if plot_dataset_path:
                     plot_dataset_path.mkdir(parents=True, exist_ok=True)
                     fig, ax = plt.subplots(2, 1, figsize=(15, 10))

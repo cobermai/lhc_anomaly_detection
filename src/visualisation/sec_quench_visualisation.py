@@ -44,11 +44,10 @@ def plot_wiggle_analysis(
 
         quench_times = df_subset["Delta_t(iQPS-PIC)"].values / 1e3
 
-        sec_quenches = get_sec_quench_frame_exclude_quench(
-            df_data=df_data_nxcals,
-            all_quenched_magnets=df_subset.Position.values,
-            quench_times=quench_times,
-            time_frame=time_frame_after_quench)
+        sec_quenches = get_sec_quench_frame_exclude_quench(df_data=df_data_nxcals,
+                                                           all_quenched_magnets=df_subset.Position.values,
+                                                           quench_times=quench_times,
+                                                           time_frame=time_frame_after_quench)
 
         sec_quench_number = int(row["sec_quench_number"])
 

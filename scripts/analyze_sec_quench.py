@@ -29,7 +29,7 @@ if __name__ == "__main__":
         mp3_fpa_df_unique['timestamp_fgc'] >= lower_threshold_unix)].reset_index(drop=True)
     mp3_fpa_df_period_all = mp3_fpa_df[mp3_fpa_df['timestamp_fgc'] >= lower_threshold_unix].reset_index(drop=True)
 
-    # Add information, whether VoltageNXCALS.*U_DIODE download was successfull
+    # Add information, whether VoltageNXCALS.*U_DIODE download was successful
     df_acquisition = pd.read_excel(acquisition_summary_path)
     mp3_fpa_df_period_merged = mp3_fpa_df_period.merge(df_acquisition, left_on=['Circuit Name', 'timestamp_fgc'],
                                                        right_on=['Circuit Name', 'timestamp_fgc'], how="left")

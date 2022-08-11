@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 from lhcsmapi.metadata.MappingMetadata import MappingMetadata
@@ -8,13 +10,15 @@ from scipy.signal import find_peaks, peak_prominences
 def get_sec_quench_frame_exclude_quench(df_data: pd.DataFrame,
                                         all_quenched_magnets: list,
                                         quench_times: list,
-                                        time_frame: list) -> list:
+                                        time_frame: list,
+                                        n_samples: Optional[int] = None) -> list:
     """
     spliting dataframe with nxcals u diode data into list of dataframes around secondary quench
     :param df_data: dataframe with nxcals u diode data
     :param all_quenched_magnets: list of string with quenched magnets
     :param quench_times: list of ints with quench times
     :param time_frame: timeframe to analyze after quench
+    :param n_samples: if not none, n samples will be taken after time_frame[0] instead of timeframe[1]
     :return: list of dataframes
     """
     sec_quenches = []
@@ -22,22 +26,32 @@ def get_sec_quench_frame_exclude_quench(df_data: pd.DataFrame,
         delta = quench_times[i]
         quench_within_frame = ["MB." + all_quenched_magnets[i] + ":U_DIODE_RB" for i, t in enumerate(quench_times)
                                if (t < delta + time_frame[1])]
-        df_subset = get_df_time_window(df=df_data, timestamp=delta, time_frame=time_frame)
+
+        df_subset = get_df_time_window(df=df_data, timestamp=delta, time_frame=time_frame, n_samples=n_samples)
         sec_quenches.append(df_subset.drop(columns=quench_within_frame))
     return sec_quenches[1:]
 
 
-def get_df_time_window(df, timestamp, time_frame):
+def get_df_time_window(df: pd.DataFrame,
+                       timestamp: int,
+                       time_frame: list,
+                       n_samples: Optional[int] = None) -> pd.DataFrame:
     """
     cuts time_frame window out of datafame
-    :param df_data: dataframe with nxcals u diode data
+    :param df: dataframe with nxcals u diode data
     :param timestamp: integer with time center
     :param time_frame: list which defines area around timestamp
+    :param n_samples: if not none, n samples will be taken after time_frame[0] instead of timeframe[1]
     :return: dataframes
     """
-    # mask: defines time window
-    mask = (df.index > timestamp - time_frame[0]) & (df.index < timestamp + time_frame[1])
-    df_subset = df.loc[mask]
+
+    if n_samples:
+        start_index = len(df[df.index < timestamp + time_frame[0]])
+        df_subset = df.iloc[start_index:start_index+n_samples]
+    else:
+        # mask: defines time window
+        mask = (df.index > timestamp + time_frame[0]) & (df.index < timestamp + time_frame[1])
+        df_subset = df.loc[mask]
     return df_subset
 
 
@@ -146,9 +160,9 @@ def calc_wiggle_area(df, medfilt_len=5):
     :return: amount of neighbouring magnets containing a wiggle
     """
     df["dstd_medfilt"] = df.dstd.rolling(medfilt_len).median()
-    idx_lower_mean_right = df[(df.distance_to_quench > 0) & (df.dstd_medfilt < df.dstd_medfilt.mean())]\
+    idx_lower_mean_right = df[(df.distance_to_quench > 0) & (df.dstd_medfilt < df.dstd_medfilt.mean())] \
         .distance_to_quench.min()
-    idx_lower_mean_left = df[(df.distance_to_quench < 0) & (df.dstd_medfilt < df.dstd_medfilt.mean())]\
+    idx_lower_mean_left = df[(df.distance_to_quench < 0) & (df.dstd_medfilt < df.dstd_medfilt.mean())] \
         .distance_to_quench.max()
     return max(0, abs(idx_lower_mean_left)) + max(0, abs(idx_lower_mean_right))
 
@@ -215,9 +229,9 @@ def get_sec_quench_features(
     df_results["max_time"] = idx_max - idx_0
 
     df_results["min_amplitude"] = df_quench_frame.loc[idx_min].mean() - \
-        df_quench_frame.loc[idx_min].min()
+                                  df_quench_frame.loc[idx_min].min()
     df_results["max_amplitude"] = df_quench_frame.loc[idx_max].max() - \
-        df_quench_frame.loc[idx_max].mean()
+                                  df_quench_frame.loc[idx_max].mean()
     df_results["dU_max"] = df_quench_frame.diff().max().max()
     df_results["dU_min"] = df_quench_frame.diff().min().min()
     df_results["dstd_max"] = df_std.dstd.max()

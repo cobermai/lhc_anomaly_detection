@@ -62,7 +62,7 @@ def drop_quenched_magnets(df: pd.DataFrame, all_quenched_magnets: list, quench_t
     return df
 
 
-def get_u_diode_data_alignment_timestamps(df: pd.DataFrame, ee_margins: list = [-0.25, 0.25],
+def get_u_diode_data_alignment_timestamps(df: pd.DataFrame, ee_margins: list,
                                           medfilt_size: int = 51) -> list:
     """
     gets timestamp of first energy extraction from data, used for data alignment.
@@ -78,16 +78,19 @@ def get_u_diode_data_alignment_timestamps(df: pd.DataFrame, ee_margins: list = [
     return alignment_timestamps
 
 
-def align_u_diode_data(df_data: pd.DataFrame, t_first_extraction: Union[float, int, list],
+def align_u_diode_data(df_data: pd.DataFrame,
+                       t_first_extraction: Union[float, int, list],
+                       ee_margins: list = [-0.25, 0.4],
                        shift_th: int = 0) -> pd.DataFrame:
     """
     align u diode data, which is often shifted due to wrong triggers
     :param df_data: df with data, magnets are columns, time is index
     :param t_first_extraction: int with timestamp of first energy extraction for all magnets, if list: timestamp of each magnet
+    :param ee_margins: timeframe where first energy extraction takes place
     :param shift_th: only shift if time difference is bigger than shift_th
     :return: df with aligned data
     """
-    offset_ts = get_u_diode_data_alignment_timestamps(df_data)
+    offset_ts = get_u_diode_data_alignment_timestamps(df_data, ee_margins)
 
     for i, c in enumerate(df_data.columns):
         # index, where time is closest to alignment ts
