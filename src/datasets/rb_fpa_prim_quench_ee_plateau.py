@@ -9,6 +9,7 @@ import xarray as xr
 from matplotlib import pyplot as plt
 
 from src.dataset import Dataset
+from src.modeling.sec_quench import get_df_time_window
 from src.utils.dataset_utils import align_u_diode_data, drop_quenched_magnets, u_diode_simulation_to_df, \
     u_diode_data_to_df, data_to_xarray, get_u_diode_data_alignment_timestamps
 from src.utils.hdf_tools import load_from_hdf_with_regex
@@ -17,7 +18,7 @@ from src.utils.utils import interp
 data = namedtuple("data", ["X", "y", "idx"])
 
 
-class RBFPAPrimQuench(Dataset):
+class RBFPAPrimQuenchEEPlateau(Dataset):
     """
     Subclass of Dataset to specify dataset selection. This dataset contains downloaded and simulated u diode data
     during a primary quench.
@@ -114,18 +115,25 @@ class RBFPAPrimQuench(Dataset):
                 # align with simulation data
 
                 # align with energy extraction timestamp
-                # t_first_extraction = min(float(mp3_fpa_df_subset['Delta_t(EE_odd-PIC)'].values[0]) / 1000,
-                #                         float(mp3_fpa_df_subset['Delta_t(EE_even-PIC)'].values[0]) / 1000)
+                #
                 ee_margins = [-0.25, 0.25]
                 t_first_extraction = get_u_diode_data_alignment_timestamps(df_sim_noq, ee_margins=ee_margins)
                 df_data_aligned = align_u_diode_data(df_data=df_data_noq.copy(),
                                                      t_first_extraction=t_first_extraction,
                                                      ee_margins=ee_margins)
 
-                # cut out time frame to analyze, [-0.25, 1] is 1336 samples
-                time_frame = [-0.25, 1]
-                df_data_cut = df_data_aligned[
-                    (time_frame[0] <= df_data_aligned.index) & (time_frame[1] >= df_data_aligned.index)]
+                # cut out time frame to analyze
+                t_first_extraction = min(float(mp3_fpa_df_subset['Delta_t(EE_odd-PIC)'].values[0]) / 1000,
+                                         float(mp3_fpa_df_subset['Delta_t(EE_even-PIC)'].values[0]) / 1000)
+                time_frame = [0.15, 0.45]
+                n_samples = 330
+                df_data_cut = get_df_time_window(df=df_data_aligned,
+                                                 timestamp=t_first_extraction,
+                                                 time_frame=time_frame,
+                                                 n_samples=n_samples)
+                #df_data_cut.index = df_data_cut.index - t_first_extraction
+                #df_data_cut = df_data_aligned[(time_frame[0] <= df_data_aligned.index) &
+                #                              (time_frame[1] >= df_data_aligned.index)]
 
                 # adjust simulation length to data
                 df_sim_noq_resampled = interp(df_sim_noq, df_data_cut.index)
@@ -149,8 +157,8 @@ class RBFPAPrimQuench(Dataset):
                     fig, ax = plt.subplots(2, 1, figsize=(15, 10))
                     df_data_cut.plot(legend=False, ax=ax[0])
                     ax[0].set_title("data")
-                    ax[0].axvline(x=min(float(mp3_fpa_df_subset['Delta_t(EE_odd-PIC)'].values[0]) / 1000,
-                                        float(mp3_fpa_df_subset['Delta_t(EE_even-PIC)'].values[0]) / 1000))
+                    #ax[0].axvline(x=min(float(mp3_fpa_df_subset['Delta_t(EE_odd-PIC)'].values[0]) / 1000,
+                    #                    float(mp3_fpa_df_subset['Delta_t(EE_even-PIC)'].values[0]) / 1000))
                     df_sim_noq_resampled.plot(legend=False, ax=ax[1])
                     ax[1].set_title("simulation")
                     plt.setp(ax, ylim=ax[0].get_ylim(), xlim=ax[0].get_xlim())

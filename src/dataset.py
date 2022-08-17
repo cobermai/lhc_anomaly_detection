@@ -49,27 +49,23 @@ class Dataset(ABC):
 
     @staticmethod
     @abstractmethod
+    def scale_data(dataset: xr.DataArray, axis: Optional[tuple] = (1, 2)) -> xr.DataArray:
+        """
+        standard scales data by subtracting mean of event and dividing through overall standard deviation
+        :param dataset: any concrete subclass of DatasetCreator to specify dataset selection
+        :param axis: path to dataset
+        """
+        dataset_scaled = (dataset - np.expand_dims(dataset.mean(axis=axis).data, axis=axis)) / dataset.std().data
+        return dataset_scaled
+
+    @staticmethod
+    @abstractmethod
     def train_valid_test_split(X_data_array: xr.DataArray,
                                splits: Optional[tuple] = None,
                                manual_split: list = None) -> tuple:
         """
         abstract method to split data set into training, validation and test set
         """
-
-    @staticmethod
-    @abstractmethod
-    def scale_data(train: data, valid: data, test: data,
-                   manual_scale: Optional[list] = None) -> tuple:
-        """
-        scales data for with sklearn standard scaler.
-        Note that this function can be overwritten in the concrete dataset selection class.
-        :param train: data for training of type named tuple
-        :param valid: data for validation of type named tuple
-        :param test: data for testing of type named tuple
-        :param manual_scale: list that specifies groups which are scaled separately
-        :return: train, valid, test: Tuple with data of type named tuple
-        """
-
 
 def load_dataset(creator: "DatasetCreator",
                  dataset_path: Path,
@@ -78,7 +74,7 @@ def load_dataset(creator: "DatasetCreator",
                  data_path: Path,
                  simulation_path: Path,
                  plot_dataset_path: Optional[Path],
-                 generate_dateset: Optional[bool] = False) -> xr.DataArray:
+                 generate_dataset: Optional[bool] = False) -> xr.DataArray:
     """
     load dataset, dataset specific options can be changed in the dataset creator
     :param creator: any concrete subclass of DatasetCreator to specify dataset selection
@@ -89,12 +85,12 @@ def load_dataset(creator: "DatasetCreator",
     :param data_path: path to hdf5 data
     :param simulation_path: path to hdf5 simulations
     :param plot_dataset_path: path to plot dataset events
-    :param generate_dateset: flag to indicate whether dataset should be recreated
+    :param generate_dataset: flag to indicate whether dataset should be recreated
     """
     fpa_identifiers = creator.select_events(context_path=context_path,
                                             acquisition_summary_path=acquisition_summary_path)
 
-    if generate_dateset:
+    if generate_dataset:
         creator.generate_dataset(fpa_identifiers=fpa_identifiers,
                                  dataset_path=dataset_path,
                                  context_path=context_path,
@@ -103,4 +99,6 @@ def load_dataset(creator: "DatasetCreator",
                                  plot_dataset_path=plot_dataset_path)
 
     dataset = creator.load_dataset(fpa_identifiers, dataset_path)
+    dataset = creator.scale_data(dataset)
+
     return dataset

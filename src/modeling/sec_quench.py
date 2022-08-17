@@ -33,12 +33,12 @@ def get_sec_quench_frame_exclude_quench(df_data: pd.DataFrame,
 
 
 def get_df_time_window(df: pd.DataFrame,
-                       timestamp: int,
+                       timestamp: float,
                        time_frame: list,
                        n_samples: Optional[int] = None) -> pd.DataFrame:
     """
     cuts time_frame window out of datafame
-    :param df: dataframe with nxcals u diode data
+    :param df: dataframe with u diode data
     :param timestamp: integer with time center
     :param time_frame: list which defines area around timestamp
     :param n_samples: if not none, n samples will be taken after time_frame[0] instead of timeframe[1]

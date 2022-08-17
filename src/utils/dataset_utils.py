@@ -58,7 +58,7 @@ def drop_quenched_magnets(df: pd.DataFrame, all_quenched_magnets: list, quench_t
     """
     quench_within_frame = ["MB." + all_quenched_magnets[i] + ":U_DIODE_RB" for i, t in enumerate(quench_times) if
                            (t < max_time)]
-    df = df.drop(columns=quench_within_frame)
+    df = df.drop(columns=quench_within_frame, errors='ignore')
     return df
 
 
@@ -116,11 +116,12 @@ def data_to_xarray(df_data: pd.DataFrame, df_simulation: pd.DataFrame, event_ide
     :return:
     """
     # https://rabernat.github.io/research_computing_2018/xarray.html#:~:text=1%3A%20Xarray%20Fundamentals-,Xarray%20data%20structures,potentially%20share%20the%20same%20coordinates
-    n_magnets=154
-    coords = {"event":[event_identifier],
-              "type":["data", "simulation"],
+    n_magnets = 154
+    coords = {"event": [event_identifier],
+              "type": ["data", "simulation"],
               "el_position": np.arange(n_magnets),
               "time": df_data.index}
 
-    ds = xr.DataArray(data=np.expand_dims(np.array((df_data.values.T, df_simulation.values.T)), axis=0), coords=coords)
+    ds = xr.DataArray(data=np.expand_dims(np.array((df_data.astype("float32").values.T,
+                                                    df_simulation.astype("float32").values.T)), axis=0), coords=coords)
     return ds
