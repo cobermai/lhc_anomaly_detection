@@ -22,7 +22,7 @@ if __name__ == "__main__":
     from analyses.analysis_RB_with_yaml.utils_RB import *
 
     # store hdf in
-    hdf_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20220707_simulation_ADD'
+    hdf_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20220707_simulation'
     Path(hdf_dir).mkdir(parents=True, exist_ok=True)
     # store plots in
     plot_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20220707_sim_plots'
@@ -61,10 +61,10 @@ if __name__ == "__main__":
             context_data = {
                 "selected_circuit": row['Circuit Name'],
                 "I_end_2_from_data": mp3_fpa_df_subset['I_Q_M'].max(),
-                "dI_dt_from_data": 0,
+                "dI_dt_from_data": float(mp3_fpa_df_subset['dI_dt_from_data'].values[0]),
                 "EE_quantities": {'R_EE_odd': float(mp3_fpa_df_subset['U_EE_max_ODD'].values[0]) 
                                                / float(mp3_fpa_df_subset['I_Q_M'].max()),
-                                  'R_EE_even': float(mp3_fpa_df_subset['U_EE_max_ODD'].values[0])
+                                  'R_EE_even': float(mp3_fpa_df_subset['U_EE_max_EVEN'].values[0])
                                                 / float(mp3_fpa_df_subset['I_Q_M'].max()),
                                   't_EE_odd': float(mp3_fpa_df_subset['Delta_t(EE_odd-PIC)'].values[0]) / 1000,
                                   't_EE_even': float(mp3_fpa_df_subset['Delta_t(EE_even-PIC)'].values[0]) / 1000},

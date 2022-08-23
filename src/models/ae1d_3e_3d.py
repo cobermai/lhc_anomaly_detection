@@ -4,8 +4,6 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras import regularizers
 
-from model import Model
-
 class Encoder(layers.Layer):
     def __init__(self, latent_dim, original_dim, name="encoder", **kwargs):
         super(Encoder, self).__init__(name=name, **kwargs)
@@ -28,8 +26,8 @@ class Decoder(layers.Layer):
     def __init__(self, original_dim, name="decoder", **kwargs):
         super(Decoder, self).__init__(name=name, **kwargs)
         self.original_dim = original_dim
-        self.dense = layers.Dense(units=300)
-        self.dense1 = layers.Dense(units=300, activation="sigmoid")
+        self.dense = layers.Dense(units=321)
+        self.dense1 = layers.Dense(units=642, activation="sigmoid")
         self.dense2 = layers.Dense(units=np.prod(original_dim))
 
     def call(self, inputs):

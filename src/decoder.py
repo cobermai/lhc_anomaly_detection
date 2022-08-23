@@ -16,8 +16,7 @@ class Model:
                  input_shape: tuple,
                  output_directory: Path,
                  epochs: int,
-                 batch_size: int,
-                 latent_dim: int
+                 batch_size: int
                  ):
         """
         Initializes the explainer with specified settings
@@ -27,11 +26,10 @@ class Model:
         self.output_directory = output_directory
         self.epochs = epochs
         self.batch_size = batch_size
-        self.model = model.AutoEncoder(
-            original_dim=input_shape,
-            latent_dim=latent_dim)
+        self.model = model.Decoder(
+            original_dim=input_shape)
 
-    def fit_model(self, X, y=0):
+    def fit_model(self, X, context):
         """
         function fits model-agnostic explainer
         :param X: data
@@ -52,11 +50,11 @@ class Model:
                 n = step * self.batch_size
                 # generate training batch
                 x_batch_train = X[n:n + self.batch_size].astype(np.float32)
-                #y_batch_train = y[n:n + self.batch_size].astype(np.float32)
+                context_batch_train = context[n:n + self.batch_size, :13].astype(np.float32)
+                #quench_index = context[n:n + self.batch_size, 13:].astype(bool)
+                #quench_values = np.zeros_like(quench_index)
                 with tf.GradientTape() as tape:
-                    latent = self.model.encoder(x_batch_train)
-
-                    x_reconstructed = self.model.decoder(latent)
+                    x_reconstructed = self.model(context_batch_train)
 
                     # Loss
                     mse_loss_x = mse_loss(x_batch_train, x_reconstructed)
@@ -75,8 +73,8 @@ class Model:
                 pd.DataFrame({"epoch": epoch}, index=[0]).to_csv(
                     self.output_directory / "epoch.csv")
 
-        self.model.save_weights(
-            str(self.output_directory / "ae_weights.h5"))
+        #self.model.save_weights(
+            #str(self.output_directory / "ae_weights.h5"))
 
     def get_concepts_kmeans(self, X):
         """
@@ -90,8 +88,9 @@ class Model:
 
         reconstructed = np.zeros(tuple((4,)) + np.shape(X[0]))
         for i, center in enumerate(centers):
-            #print(f"values of kmeans center {i}: {center}")
+            print(f"values of kmeans center {i}: {center}")
             reconstructed[i] = self.model.decoder(np.array([center]))
+            print('a')
         return reconstructed, centers
 
     #def get_reconstructions(self, X):
