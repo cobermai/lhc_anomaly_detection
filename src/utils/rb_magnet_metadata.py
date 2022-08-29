@@ -1,0 +1,28 @@
+from pathlib import Path
+
+import pandas as pd
+
+if __name__ == "__main__":
+    data_dir = Path("../../data")
+
+    RB_LayoutDetails_path = data_dir / "SIGMON_context_data/RB_LayoutDetails.csv"
+    df_RB_LayoutDetails = pd.read_csv(RB_LayoutDetails_path)
+
+    # add beamscreen resistance
+    RB_Beamscreen_Resistances_path = data_dir / "STEAM_context_data/RB_Beamscreen_Resistances.csv"
+    df_RB_Beamscreen_Resistances = pd.read_csv(RB_Beamscreen_Resistances_path)
+    df_RB_Beamscreen_Resistances["Magnet"] = df_RB_Beamscreen_Resistances.Name.apply(lambda x: "MB." + x)
+    df_metadata = df_RB_LayoutDetails.merge(df_RB_Beamscreen_Resistances,
+                                            left_on=["Magnet"],
+                                            right_on=["Magnet"],
+                                            how="left")
+
+    # NOT MERGED YET:
+    # magnet added to BeamScreen_EAMdata.xlsx by marvin, one entry per aperture, sometimes 3 entries/magnet?
+    BeamScreen_EAMdata_path = data_dir / "STEAM_context_data/BeamScreen_EAMdata_Magnets.csv"
+    df_BeamScreen_EAMdata = pd.read_csv(BeamScreen_EAMdata_path)
+    df_BeamScreen_EAMdata["Magnet"] = df_BeamScreen_EAMdata.Name.apply(lambda x: "MB." + x)
+    # drop beamscreens not in use, not all magnets can be mapped
+    df_BeamScreen_EAMdata = df_BeamScreen_EAMdata[df_BeamScreen_EAMdata.Magnet.isin(df_RB_LayoutDetails.Magnet)]
+
+    df_metadata.to_csv(data_dir / "RB_metadata.csv")

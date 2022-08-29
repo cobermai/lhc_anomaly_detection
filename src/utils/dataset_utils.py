@@ -107,21 +107,34 @@ def align_u_diode_data(df_data: pd.DataFrame,
             df_data[c] = df_data[c].shift(shift_index)
     return df_data.dropna()
 
-def data_to_xarray(df_data: pd.DataFrame, df_simulation: pd.DataFrame, event_identifier: str) -> xr.DataArray:
+
+def data_to_xarray(df_data: pd.DataFrame,
+                   df_simulation: pd.DataFrame,
+                   df_el_position_features: pd.DataFrame,
+                   df_event_features: pd.DataFrame,
+                   event_identifier: str) -> xr.Dataset:
     """
     puts data and simulation dataframe in one xarray DataArray
-    :param df_data: dataframe with data
-    :param df_simulation: dataframe with simulations. columns, index are similar to df_data
+    https://rabernat.github.io/research_computing_2018/xarray.html#:~:text=1%3A%20Xarray%20Fundamentals-,Xarray%20data%20structures,potentially%20share%20the%20same%20coordinates
+    :param df_data: DataFrame with data, index contains time, columns contain el position
+    :param df_simulation: DataFrame with simulations, index contains time, columns contain el position
+    :param df_el_position_features: DataFrame with features dependent on el. position (e.g. magnet inductance),
+    index contains el position, columns features
+    :param df_event_features: DataFrame with features dependent on event (e.g. current),
+    index is 0 (only one row), columns contain event_features
     :param event_identifier: name of event
-    :return:
+    :return: Dataset with dims ('event', 'el_position', 'mag_feature_name', 'event_feature_name', 'time')
     """
-    # https://rabernat.github.io/research_computing_2018/xarray.html#:~:text=1%3A%20Xarray%20Fundamentals-,Xarray%20data%20structures,potentially%20share%20the%20same%20coordinates
     n_magnets = 154
-    coords = {"event": [event_identifier],
-              "type": ["data", "simulation"],
-              "el_position": np.arange(n_magnets),
-              "time": df_data.index}
-
-    ds = xr.DataArray(data=np.expand_dims(np.array((df_data.astype("float32").values.T,
-                                                    df_simulation.astype("float32").values.T)), axis=0), coords=coords)
+    ds = xr.Dataset(
+        data_vars={'data': (('el_position', 'time'), df_data.astype("float32").values.T),
+                   'simulation': (('el_position', 'time'), df_simulation.astype("float32").values.T),
+                   'el_position_feature': (('el_position', 'el_position_feature_name'), df_el_position_features
+                                           .astype("float32").values),
+                   'event_feature': ('event_feature_name', df_event_features.astype("float32").values.reshape(-1))},
+        coords={'event': [event_identifier],
+                'el_position': np.arange(n_magnets),
+                'time': df_data.index,
+                'el_position_feature_name': df_el_position_features.columns,
+                'event_feature_name': df_event_features.columns})
     return ds

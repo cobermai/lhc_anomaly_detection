@@ -5,7 +5,6 @@ import pandas as pd
 from lhcsmapi.Time import Time
 from lhcsmapi.pyedsl.dbsignal.post_mortem.PmDbRequest import PmDbRequest
 from lhcsmapi.metadata import signal_metadata
-from lhcsmapi.analysis.RbCircuitQuery import RbCircuitQuery
 
 from src.utils.utils import load_acquisition_log
 

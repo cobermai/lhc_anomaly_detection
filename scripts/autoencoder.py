@@ -8,7 +8,7 @@ import xarray as xr
 from pathlib import Path
 
 # from lhcsmapi.Timer import Timer
-import tensorflow as tf
+# import tensorflow as tf
 from matplotlib import pyplot as plt
 
 from src.dataset import load_dataset
@@ -25,40 +25,44 @@ warnings.filterwarnings('ignore')
 if __name__ == "__main__":
     # define paths to read
     context_path = Path("../data/RB_TC_extract_2022_07_07_processed_filled.csv")
+    metadata_path = Path("../data/RB_metadata.csv")
     acquisition_summary_path = Path("../data/20220707_acquisition_summary.xlsx")
     data_path = Path("/mnt/d/datasets/20220707_data")
     simulation_path = Path("/mnt/d/datasets/20220707_simulation")
 
     # define paths to read + write
-    dataset_path = Path("/mnt/d/datasets/20220707_full_dataset_subsampled")
-    plot_dataset_path = Path("/mnt/d/datasets/20220707_full_plots_subsampled")
+    dataset_path = Path("/mnt/d/datasets/20220707_full_dataset_new")
+    plot_dataset_path = Path("/mnt/d/datasets/20220707_full_plots_new")
     output_path = Path(f"../output/{os.path.basename(__file__)}")  # datetime.now().strftime("%Y-%m-%dT%H.%M.%S.%f")
     output_path.mkdir(parents=True, exist_ok=True)
 
     # load dataset
-    train, valid, test = load_dataset(creator=RBFPAFullQuench,
-                                      dataset_path=dataset_path,
-                                      context_path=context_path,
-                                      acquisition_summary_path=acquisition_summary_path,
-                                      data_path=data_path,
-                                      simulation_path=simulation_path,
-                                      plot_dataset_path=plot_dataset_path,
-                                      generate_dataset=False)
+    dataset = load_dataset(creator=RBFPAFullQuench,
+                           dataset_path=dataset_path,
+                           context_path=context_path,
+                           metadata_path=metadata_path,
+                           acquisition_summary_path=acquisition_summary_path,
+                           data_path=data_path,
+                           simulation_path=simulation_path,
+                           plot_dataset_path=plot_dataset_path,
+                           generate_dataset=True)
 
-    X = np.nan_to_num(train.X[:, 0, :, ::5].values)
-    X_sim = np.nan_to_num(train.X[:, 1, :, ::5].values)
-    print(np.shape(X))
+    X = np.nan_to_num(dataset['data'][dataset.coords['is_train'].values, :, ::5].values)
+    context = np.nan_to_num(dataset['event_feature'][dataset.coords['is_train'].values, :].values)
+
+    X_sim = np.nan_to_num(dataset['simulation'][dataset.coords['is_train'].values, :, ::5].values)
+
     ae = Model(input_shape=np.shape(X[0]),
                output_directory=output_path,
                model=ae1d_3e_3d,
                latent_dim=30,
                epochs=20,
-               batch_size=32)
+               batch_size=32,
+               decoder_only=True)
 
     fit_model = True #not Path(output_path / "ae_weights.h5").exists()
-
     if fit_model:
-        ae.fit_model(X=X)
+        ae.fit_model(X=X, context=context)
     else:
         ae.model.build(input_shape=np.shape(X[0]))
         ae.model.load_weights(str(output_path / 'ae_weights.h5'))
@@ -66,7 +70,7 @@ if __name__ == "__main__":
 
     plot_path = output_path / "reconstructions"
     plot_path.mkdir(parents=True, exist_ok=True)
-    X_rec = ae.model(X).numpy()
+    X_rec = ae.model(context).numpy()
     for j in range(5):
         fig, ax = plt.subplots(3, 1, figsize=(10, 15))
         ax[0].plot(X[j].T)

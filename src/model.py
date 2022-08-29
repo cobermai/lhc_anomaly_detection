@@ -17,7 +17,8 @@ class Model:
                  output_directory: Path,
                  epochs: int,
                  batch_size: int,
-                 latent_dim: int
+                 latent_dim: int,
+                 decoder_only: bool = False
                  ):
         """
         Initializes the explainer with specified settings
@@ -27,11 +28,15 @@ class Model:
         self.output_directory = output_directory
         self.epochs = epochs
         self.batch_size = batch_size
-        self.model = model.AutoEncoder(
-            original_dim=input_shape,
-            latent_dim=latent_dim)
+        self.decoder_only = decoder_only
+        if decoder_only:
+            self.model = model.Decoder(original_dim=input_shape)
+        else:
+            self.model = model.AutoEncoder(
+                original_dim=input_shape,
+                latent_dim=latent_dim)
 
-    def fit_model(self, X, y=0):
+    def fit_model(self, X, context=None):
         """
         function fits model-agnostic explainer
         :param X: data
@@ -52,16 +57,17 @@ class Model:
                 n = step * self.batch_size
                 # generate training batch
                 x_batch_train = X[n:n + self.batch_size].astype(np.float32)
-                #y_batch_train = y[n:n + self.batch_size].astype(np.float32)
+                if self.decoder_only:
+                    context_batch_train = context[n:n + self.batch_size, :13].astype(np.float32)
                 with tf.GradientTape() as tape:
-                    latent = self.model.encoder(x_batch_train)
-
-                    x_reconstructed = self.model.decoder(latent)
-
+                    if self.decoder_only:
+                        x_reconstructed = self.model(context_batch_train)
+                    else:
+                        latent = self.model.encoder(x_batch_train)
+                        x_reconstructed = self.model.decoder(latent)
                     # Loss
                     mse_loss_x = mse_loss(x_batch_train, x_reconstructed)
-                    # mse_loss_latent = mse_loss(y_batch_train, latent) *1000
-                    loss = mse_loss_x #+ mse_loss_latent
+                    loss = mse_loss_x
 
                 grads = tape.gradient(loss, self.model.trainable_weights)
                 optimizer.apply_gradients(
@@ -75,8 +81,8 @@ class Model:
                 pd.DataFrame({"epoch": epoch}, index=[0]).to_csv(
                     self.output_directory / "epoch.csv")
 
-        self.model.save_weights(
-            str(self.output_directory / "ae_weights.h5"))
+#        self.model.save_weights(
+         #   str(self.output_directory / "ae_weights.h5"))
 
     def get_concepts_kmeans(self, X):
         """
