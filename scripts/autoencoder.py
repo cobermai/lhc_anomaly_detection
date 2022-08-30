@@ -31,8 +31,8 @@ if __name__ == "__main__":
     simulation_path = Path("/mnt/d/datasets/20220707_simulation")
 
     # define paths to read + write
-    dataset_path = Path("/mnt/d/datasets/20220707_full_dataset_new")
-    plot_dataset_path = Path("/mnt/d/datasets/20220707_full_plots_new")
+    dataset_path = Path("/mnt/d/datasets/20220707_full_dataset_newsim")
+    plot_dataset_path = Path("/mnt/d/datasets/20220707_full_plots_newsim")
     output_path = Path(f"../output/{os.path.basename(__file__)}")  # datetime.now().strftime("%Y-%m-%dT%H.%M.%S.%f")
     output_path.mkdir(parents=True, exist_ok=True)
 
@@ -48,15 +48,14 @@ if __name__ == "__main__":
                            generate_dataset=True)
 
     X = np.nan_to_num(dataset['data'][dataset.coords['is_train'].values, :, ::5].values)
-    context = np.nan_to_num(dataset['event_feature'][dataset.coords['is_train'].values, :].values)
-
+    context = np.nan_to_num(dataset['event_feature'][dataset.coords['is_train'].values, :6].values)
     X_sim = np.nan_to_num(dataset['simulation'][dataset.coords['is_train'].values, :, ::5].values)
 
     ae = Model(input_shape=np.shape(X[0]),
                output_directory=output_path,
                model=ae1d_3e_3d,
                latent_dim=30,
-               epochs=20,
+               epochs=200,
                batch_size=32,
                decoder_only=True)
 
@@ -102,20 +101,5 @@ if __name__ == "__main__":
         plt.tight_layout()
         plt.savefig(str(plot_path / f'error_{j}.png'))
 
-    reconstructions, concepts = ae.get_concepts_kmeans(X)
-    plot_path = output_path / "concepts"
-    plot_path.mkdir(parents=True, exist_ok=True)
-    for i, reconstruction in enumerate(reconstructions):
-
-        fig, ax = plt.subplots(2, 1, figsize=(10, 10))
-        ax[0].plot(X[0].T)
-        ax[0].set_title("example signal")
-        ax[0].set_xlabel("Samples")
-        ax[0].set_ylabel("Normalized Voltage ")
-        ax[1].plot(reconstruction.T)
-        ax[1].set_title("reconstructed concepts")
-        ax[1].set_xlabel("Samples")
-        ax[1].set_ylabel("Normalized Voltage ")
-        plt.savefig(str(plot_path / f'concept_{i}.png'))
 
 

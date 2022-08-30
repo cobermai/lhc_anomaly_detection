@@ -58,7 +58,7 @@ class Model:
                 # generate training batch
                 x_batch_train = X[n:n + self.batch_size].astype(np.float32)
                 if self.decoder_only:
-                    context_batch_train = context[n:n + self.batch_size, :13].astype(np.float32)
+                    context_batch_train = context[n:n + self.batch_size].astype(np.float32)
                 with tf.GradientTape() as tape:
                     if self.decoder_only:
                         x_reconstructed = self.model(context_batch_train)

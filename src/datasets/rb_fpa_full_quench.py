@@ -15,8 +15,6 @@ from src.modeling.sec_quench import get_df_time_window
 from src.utils.dataset_utils import align_u_diode_data, drop_quenched_magnets, u_diode_simulation_to_df, \
     u_diode_data_to_df, data_to_xarray, get_u_diode_data_alignment_timestamps
 
-data = namedtuple("data", ["X", "context", "idx"])
-
 class RBFPAFullQuench(Dataset):
     """
     Subclass of Dataset to specify dataset selection. This dataset contains downloaded and simulated u diode data
@@ -165,7 +163,7 @@ class RBFPAFullQuench(Dataset):
             df_data_nxcals_cut = get_df_time_window(df=df_data_nxcals_noq, timestamp=0,
                                                     time_frame=time_frame_nxcals)
             df_data_cut = pd.concat([df_data_pm_cut, df_data_nxcals_cut.dropna()])
-            reference_index = df_data_cut.index[::2]
+            reference_index = df_data_cut.index  # [::2]
             df_data_cut = df_data_cut.loc[reference_index]
         else:
             df_data = pd.concat([df_data_pm_aligned, df_data_nxcals_noq.dropna()])

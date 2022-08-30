@@ -71,7 +71,7 @@ class Dataset(ABC):
         """
 
     @staticmethod
-    def load_dataset(fpa_identifiers: list, dataset_path: Path) -> xr.Dataset:
+    def load_dataset(fpa_identifiers: list, dataset_path: Path, data_vars: str=[]) -> xr.Dataset:
         """
         load DataArray from given list of fpa_identifiers
         :param fpa_identifiers: list of strings which defines event, i.e. "<Circuit Family>_<Circuit
@@ -84,7 +84,8 @@ class Dataset(ABC):
             ds_dir = dataset_path / f"{fpa_identifier}.nc"
             if os.path.isfile(ds_dir):
                 fpa_event_data = xr.load_dataset(ds_dir)
-                dataset.append(fpa_event_data)
+
+                dataset.append(fpa_event_data['data'].loc[{'time': slice(0, 1)}])
 
         dataset_full = xr.concat(dataset, dim="event")
         return dataset_full
