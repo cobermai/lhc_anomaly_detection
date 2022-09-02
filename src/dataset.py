@@ -64,6 +64,58 @@ class Dataset(ABC):
                            for i, row in mp3_fpa_df_period.iterrows()]
         return fpa_identifiers
 
+    @staticmethod
+    def generate_el_position_features(mp3_fpa_df_subset: pd.DataFrame,
+                                      rb_magnet_metadata_subset: pd.DataFrame,
+                                      el_position_features: list,
+                                      event_el_position_features: list) -> pd.DataFrame:
+        """
+        generates features dependent on el. position (e.g. magnet inductance) from magnet metadata and mp3_fpa excel
+        :param mp3_fpa_df_subset: mp3 fpa Excel data with data from one event
+        :param rb_magnet_metadata_subset: rb magnet metadata of circuit where event happened
+        :param el_position_features: list of features dependent on electrical position
+        :param event_el_position_features: list of features dependent on electrical position and event
+        :return: DataFrame with el_position_features, index contains el position, columns contain el_position_features
+        and event_el_position_features
+        """
+        # add el_position_features
+        df_el_position_features = rb_magnet_metadata_subset[el_position_features].reset_index(drop=True)
+
+        # add event_el_position_features
+        df_el_position_features[event_el_position_features] = 0
+        event_el_position = [rb_magnet_metadata_subset[rb_magnet_metadata_subset.Name == magnet]
+                             ["#Electric_circuit"].values[0] - 1
+                             for magnet in mp3_fpa_df_subset['Position'].values]
+        df_el_position_features.loc[event_el_position, event_el_position_features] = \
+            mp3_fpa_df_subset[event_el_position_features].values
+
+        return df_el_position_features
+
+    @staticmethod
+    def generate_event_features(mp3_fpa_df_subset: pd.DataFrame, event_features: list) -> pd.DataFrame:
+        """
+        generates features dependent on event (e.g. current) from mp3 excel
+        :param mp3_fpa_df_subset: mp3 fpa Excel data with data from one event
+        :param event_features: list of features dependent on event
+        :return: DataFrame with el_position_features, index is 0 (only one row), columns contain event_features
+        """
+        circuits = ['RB.A81',
+                    'RB.A12',
+                    'RB.A23',
+                    'RB.A34',
+                    'RB.A45',
+                    'RB.A56',
+                    'RB.A67',
+                    'RB.A78']
+
+        # add event features
+        df_event_features = mp3_fpa_df_subset.reset_index(drop=True).loc[0, event_features].to_frame().T
+
+        # add circuit as one hot encoded vector
+        df_event_features.loc[0, circuits] = [int(mp3_fpa_df_subset['Circuit Name'].values[0] == c) for c in circuits]
+
+        return df_event_features
+
     @abstractmethod
     def generate_dataset(self, fpa_identifiers: list):
         """
@@ -71,21 +123,30 @@ class Dataset(ABC):
         """
 
     @staticmethod
-    def load_dataset(fpa_identifiers: list, dataset_path: Path, data_vars: str=[]) -> xr.Dataset:
+    def load_dataset(fpa_identifiers: list, dataset_path: Path,
+                     drop_data_vars: Optional[list] = None, location: Optional[dict] = None) -> xr.Dataset:
         """
         load DataArray from given list of fpa_identifiers
         :param fpa_identifiers: list of strings which defines event, i.e. "<Circuit Family>_<Circuit
         Name>_<timestamp_fgc>"
         :param dataset_path: path to datasets
+        :param drop_data_vars: data_vars to load, default is all
+        :param location: location to load, default is all
         :return: DataArray with dims (event, type, el_position, time)
         """
+        if drop_data_vars is None:
+            drop_data_vars = []
+
         dataset = []
         for fpa_identifier in fpa_identifiers:
             ds_dir = dataset_path / f"{fpa_identifier}.nc"
             if os.path.isfile(ds_dir):
                 fpa_event_data = xr.load_dataset(ds_dir)
 
-                dataset.append(fpa_event_data['data'].loc[{'time': slice(0, 1)}])
+                if location is None:
+                    dataset.append(fpa_event_data.drop_vars(drop_data_vars))
+                else:
+                    dataset.append(fpa_event_data.drop_vars(drop_data_vars).loc[location])
 
         dataset_full = xr.concat(dataset, dim="event")
         return dataset_full
@@ -114,17 +175,19 @@ class Dataset(ABC):
         return dataset
 
     @staticmethod
-    def scale_dataset(dataset: xr.DataArray, axis: Optional[tuple] = (2, 3)) -> xr.DataArray:
+    def scale_dataset(dataset: xr.DataArray) -> xr.DataArray:
         """
         standard scales data by subtracting mean of event and dividing through overall standard deviation
         :param dataset: any concrete subclass of DatasetCreator to specify dataset selection
         :param axis: path to dataset
         """
-        # def scale_data_vars(scale_dims):
-        dataset["data"].attrs["scale_dims"] = ("el_position", "time")
-        dataset["simulation"].attrs["scale_dims"] = ("el_position", "time")
-        dataset["el_position_feature"].attrs["scale_dims"] = ("el_position", "event")
-        dataset["event_feature"].attrs["scale_dims"] = "event"
+        scale_dims = {'data': ("el_position", "time"),
+                      'simulation': ("el_position", "time"),
+                      'el_position_feature': ("el_position", "event"),
+                      'event_feature': "event"}
+
+        for data_var in list(dataset.keys()):
+            dataset[data_var].attrs["scale_dims"] = scale_dims[data_var]
 
         for split in ['is_train', 'is_valid', 'is_test']:
             for data_var in list(dataset.keys()):
@@ -150,7 +213,9 @@ def load_dataset(creator: "DatasetCreator",
                  plot_dataset_path: Optional[Path] = None,
                  generate_dataset: Optional[bool] = False,
                  split_mask: Optional[np.array] = None,
-                 scale_dataset: Optional[np.array] = None) -> xr.Dataset:
+                 scale_dataset: Optional[np.array] = None,
+                 drop_data_vars: Optional[list] = None,
+                 location: Optional[dict] = None) -> xr.Dataset:
     """
     load dataset, dataset specific options can be changed in the dataset creator
     :param creator: any concrete subclass of DatasetCreator to specify dataset selection
@@ -165,6 +230,9 @@ def load_dataset(creator: "DatasetCreator",
     :param generate_dataset: flag to indicate whether dataset should be recreated
     :param split_mask: array of shape (3,len(dataset["events]))
     with bool, specifying which events to put in training set
+    :param scale_dataset: flag to indicate whether dataset should be scaled
+    :param drop_data_vars: data_vars to load, default is all
+    :param location: location to load, default is all
     :return: Dataset with dims ('event', 'el_position', 'mag_feature_name', 'event_feature_name', 'time')
     """
 
@@ -181,7 +249,10 @@ def load_dataset(creator: "DatasetCreator",
     if generate_dataset:
         ds.generate_dataset(fpa_identifiers=fpa_identifiers)
 
-    dataset = ds.load_dataset(fpa_identifiers=fpa_identifiers, dataset_path=dataset_path)
+    dataset = ds.load_dataset(fpa_identifiers=fpa_identifiers,
+                              dataset_path=dataset_path,
+                              drop_data_vars=drop_data_vars,
+                              location=location)
     dataset = ds.train_valid_test_split(dataset=dataset, split_mask=split_mask)
     if scale_dataset:
         dataset = ds.scale_dataset(dataset=dataset)

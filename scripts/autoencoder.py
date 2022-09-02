@@ -15,7 +15,8 @@ from src.dataset import load_dataset
 from src.datasets.rb_fpa_full_quench import RBFPAFullQuench
 # from src.datasets.rb_fpa_prim_quench import RBFPAPrimQuench
 # from src.datasets.rb_fpa_sec_quench import RBFPASecQuench
-# from src.datasets.rb_fpa_prim_quench_ee_plateau import RBFPAPrimQuenchEEPlateau
+from src.datasets.rb_fpa_prim_quench_ee_plateau import RBFPAPrimQuenchEEPlateau
+from src.datasets.rb_fpa_udiode import RBFPAUDiode
 from src.model import Model
 from src.models import ae1d_3e_3d
 
@@ -31,13 +32,13 @@ if __name__ == "__main__":
     simulation_path = Path("/mnt/d/datasets/20220707_simulation")
 
     # define paths to read + write
-    dataset_path = Path("/mnt/d/datasets/20220707_full_dataset_newsim")
-    plot_dataset_path = Path("/mnt/d/datasets/20220707_full_plots_newsim")
+    dataset_path = Path("/mnt/d/datasets/20220707_udiode_1")
+    plot_dataset_path = Path("/mnt/d/datasets/20220707_udiode_plots_1")
     output_path = Path(f"../output/{os.path.basename(__file__)}")  # datetime.now().strftime("%Y-%m-%dT%H.%M.%S.%f")
     output_path.mkdir(parents=True, exist_ok=True)
 
     # load dataset
-    dataset = load_dataset(creator=RBFPAFullQuench,
+    dataset = load_dataset(creator=RBFPAUDiode, #RBFPAFullQuench,
                            dataset_path=dataset_path,
                            context_path=context_path,
                            metadata_path=metadata_path,
@@ -45,7 +46,10 @@ if __name__ == "__main__":
                            data_path=data_path,
                            simulation_path=simulation_path,
                            plot_dataset_path=plot_dataset_path,
-                           generate_dataset=True)
+                           generate_dataset=True,
+                           drop_data_vars=None,
+                           location={'time': slice(0.25, 0.55)}
+                           )
 
     X = np.nan_to_num(dataset['data'][dataset.coords['is_train'].values, :, ::5].values)
     context = np.nan_to_num(dataset['event_feature'][dataset.coords['is_train'].values, :6].values)

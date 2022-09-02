@@ -45,58 +45,6 @@ class RBFPAFullQuench(Dataset):
                                "dI_dt_from_data"]
 
     @staticmethod
-    def generate_el_position_features(mp3_fpa_df_subset: pd.DataFrame,
-                                      rb_magnet_metadata_subset: pd.DataFrame,
-                                      el_position_features: list,
-                                      event_el_position_features: list) -> pd.DataFrame:
-        """
-        generates features dependent on el. position (e.g. magnet inductance) from magnet metadata and mp3_fpa excel
-        :param mp3_fpa_df_subset: mp3 fpa Excel data with data from one event
-        :param rb_magnet_metadata_subset: rb magnet metadata of circuit where event happened
-        :param el_position_features: list of features dependent on electrical position
-        :param event_el_position_features: list of features dependent on electrical position and event
-        :return: DataFrame with el_position_features, index contains el position, columns contain el_position_features
-        and event_el_position_features
-        """
-        # add el_position_features
-        df_el_position_features = rb_magnet_metadata_subset[el_position_features].reset_index(drop=True)
-
-        # add event_el_position_features
-        df_el_position_features[event_el_position_features] = 0
-        event_el_position = rb_magnet_metadata_subset[rb_magnet_metadata_subset.Name.isin(
-            mp3_fpa_df_subset['Position'].values)]["#Electric_circuit"].values - 1
-        df_el_position_features.loc[event_el_position, event_el_position_features] = \
-            mp3_fpa_df_subset[event_el_position_features].values
-
-        return df_el_position_features
-
-
-    @staticmethod
-    def generate_event_features(mp3_fpa_df_subset: pd.DataFrame, event_features: list) -> pd.DataFrame:
-        """
-        generates features dependent on event (e.g. current) from mp3 excel
-        :param mp3_fpa_df_subset: mp3 fpa Excel data with data from one event
-        :param event_features: list of features dependent on event
-        :return: DataFrame with el_position_features, index is 0 (only one row), columns contain event_features
-        """
-        circuits = ['RB.A81',
-                    'RB.A12',
-                    'RB.A23',
-                    'RB.A34',
-                    'RB.A45',
-                    'RB.A56',
-                    'RB.A67',
-                    'RB.A78']
-
-        # add event features
-        df_event_features = mp3_fpa_df_subset.reset_index(drop=True).loc[0, event_features].to_frame().T
-
-        # add circuit as one hot encoded vector
-        df_event_features.loc[0, circuits] = [int(mp3_fpa_df_subset['Circuit Name'].values[0] == c) for c in circuits]
-
-        return df_event_features
-
-    @staticmethod
     def generate_data(mp3_fpa_df_subset: pd.DataFrame,
                       data_path: Path,
                       simulation_path: Path,
@@ -229,8 +177,6 @@ class RBFPAFullQuench(Dataset):
                                           df_event_features=df_event_features,
                                           event_identifier=fpa_identifier)
                 xr_array.to_netcdf(self.dataset_path / f"{fpa_identifier}.nc")
-
-
 
 
                 if self.plot_dataset_path:
