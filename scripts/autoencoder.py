@@ -32,13 +32,13 @@ if __name__ == "__main__":
     simulation_path = Path("/mnt/d/datasets/20220707_simulation")
 
     # define paths to read + write
-    dataset_path = Path("/mnt/d/datasets/20220707_udiode_1")
-    plot_dataset_path = Path("/mnt/d/datasets/20220707_udiode_plots_1")
+    dataset_path = Path("/mnt/d/datasets/20220707_prim_ee_plateau_dataset1")
+    plot_dataset_path = Path("/mnt/d/datasets/20220707_prim_ee_plateau_dataset_plots1")
     output_path = Path(f"../output/{os.path.basename(__file__)}")  # datetime.now().strftime("%Y-%m-%dT%H.%M.%S.%f")
     output_path.mkdir(parents=True, exist_ok=True)
 
     # load dataset
-    dataset = load_dataset(creator=RBFPAUDiode, #RBFPAFullQuench,
+    dataset = load_dataset(creator=RBFPAPrimQuenchEEPlateau,
                            dataset_path=dataset_path,
                            context_path=context_path,
                            metadata_path=metadata_path,

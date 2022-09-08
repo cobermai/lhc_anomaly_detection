@@ -74,7 +74,6 @@ class RBFPAPrimQuenchEEPlateau(Dataset):
 
         # save magnet order for later usage
         magnet_list = df_sim.columns
-        df_data = df_data[magnet_list]
 
         # drop quenched magnet
         max_time = df_data.index.max()
