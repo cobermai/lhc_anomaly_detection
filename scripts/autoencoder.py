@@ -14,8 +14,9 @@ from matplotlib import pyplot as plt
 from src.dataset import load_dataset
 from src.datasets.rb_fpa_full_quench import RBFPAFullQuench
 # from src.datasets.rb_fpa_prim_quench import RBFPAPrimQuench
-# from src.datasets.rb_fpa_sec_quench import RBFPASecQuench
+from src.datasets.rb_fpa_sec_quench import RBFPASecQuench
 from src.datasets.rb_fpa_prim_quench_ee_plateau import RBFPAPrimQuenchEEPlateau
+from src.datasets.rb_fpa_prim_quench_ee_plateau2 import RBFPAPrimQuenchEEPlateau2
 from src.datasets.rb_fpa_udiode import RBFPAUDiode
 from src.model import Model
 from src.models import ae1d_3e_3d
@@ -32,13 +33,13 @@ if __name__ == "__main__":
     simulation_path = Path("/mnt/d/datasets/20220707_simulation")
 
     # define paths to read + write
-    dataset_path = Path("/mnt/d/datasets/20220707_prim_ee_plateau_dataset1")
-    plot_dataset_path = Path("/mnt/d/datasets/20220707_prim_ee_plateau_dataset_plots1")
+    dataset_path = Path("/mnt/d/datasets/20220707_RBFPAPrimQuenchEEPlateau2")
+    plot_dataset_path = Path("/mnt/d/datasets/20220707_RBFPAPrimQuenchEEPlateau2_plots")
     output_path = Path(f"../output/{os.path.basename(__file__)}")  # datetime.now().strftime("%Y-%m-%dT%H.%M.%S.%f")
     output_path.mkdir(parents=True, exist_ok=True)
 
     # load dataset
-    dataset = load_dataset(creator=RBFPAPrimQuenchEEPlateau,
+    dataset = load_dataset(creator=RBFPAPrimQuenchEEPlateau2,
                            dataset_path=dataset_path,
                            context_path=context_path,
                            metadata_path=metadata_path,

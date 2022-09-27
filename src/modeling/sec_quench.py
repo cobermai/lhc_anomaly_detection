@@ -28,7 +28,8 @@ def get_sec_quench_frame_exclude_quench(df_data: pd.DataFrame,
                                if (t < delta + time_frame[1])]
 
         df_subset = get_df_time_window(df=df_data, timestamp=delta, time_frame=time_frame, n_samples=n_samples)
-        sec_quenches.append(df_subset.drop(columns=quench_within_frame))
+        df_subset[quench_within_frame] = np.nan
+        sec_quenches.append(df_subset)
     return sec_quenches[1:]
 
 
