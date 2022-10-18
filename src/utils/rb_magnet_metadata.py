@@ -17,6 +17,8 @@ if __name__ == "__main__":
                                             left_on=["Magnet", "Circuit"],
                                             right_on=["2nd Magnet", "Circuit"],
                                             how="left")
+    # add cryostat group
+    df_metadata['cryostat_group'] = df_metadata['Cryostat2'].apply(lambda x: x.split('_')[1])
     # add physical position
     for circuit in df_metadata['Circuit'].unique():
         df_metadata.loc[df_metadata['Circuit'] == circuit, 'phys_pos'] = np.arange(1, 155, dtype=int)
@@ -33,11 +35,11 @@ if __name__ == "__main__":
 
     # NOT MERGED YET:
     # magnet added to BeamScreen_EAMdata.xlsx by marvin, one entry per aperture, sometimes 3 entries/magnet?
-    BeamScreen_EAMdata_path = data_dir / "STEAM_context_data/BeamScreen_EAMdata_Magnets.csv"
-    df_BeamScreen_EAMdata = pd.read_csv(BeamScreen_EAMdata_path)
-    df_BeamScreen_EAMdata["Magnet"] = df_BeamScreen_EAMdata.Name.apply(lambda x: "MB." + x)
+    #BeamScreen_EAMdata_path = data_dir / "STEAM_context_data/BeamScreen_EAMdata_Magnets.csv"
+    #df_BeamScreen_EAMdata = pd.read_csv(BeamScreen_EAMdata_path)
+    #df_BeamScreen_EAMdata["Magnet"] = df_BeamScreen_EAMdata.Name.apply(lambda x: "MB." + x)
     # drop beamscreens not in use, not all magnets can be mapped
-    df_BeamScreen_EAMdata = df_BeamScreen_EAMdata[df_BeamScreen_EAMdata.Magnet.isin(df_RB_LayoutDetails.Magnet)]
+    #df_BeamScreen_EAMdata = df_BeamScreen_EAMdata[df_BeamScreen_EAMdata.Magnet.isin(df_RB_LayoutDetails.Magnet)]
 
     drop_columns = df_metadata.filter(regex='Unnamed').columns
     df_metadata.drop(columns=drop_columns).to_csv(data_dir / "RB_metadata.csv", index=False)
