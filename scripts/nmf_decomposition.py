@@ -1,58 +1,76 @@
 # Authors: Vlad Niculae, Alexandre Gramfort
 # License: BSD 3 clause
-import logging
-from time import time
+import os
+from pathlib import Path
 
-import numpy as np
-from numpy.random import RandomState
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import xarray as xr
 
-from sklearn.datasets import fetch_olivetti_faces
-from sklearn.cluster import MiniBatchKMeans
-from sklearn import decomposition
-
+from src.datasets.rb_fpa_prim_quench_ee_plateau import RBFPAPrimQuenchEEPlateau
 from src.models import nmf_missing as my_nmf
-
-n_row, n_col = 2, 3
-n_components = n_row * n_col
-image_shape = (32, 32)
-rng = RandomState(0)
-
-def get_toy_dataset():
-    base = np.zeros((120, 32, 32))
-    base[:, 5:10, 0:15] = 1
-
-    base = base + np.random.rand(120, 32, 32) * 0.1
-    positions = np.zeros(120)
-    for j in range(60):
-        pos = int(j / 4)
-        positions[60 + j] = pos
-        base[60 + j, 18:21, 10 + pos:18 + pos] = 0.6
-        base[60 + j, 22:25, 7 + pos:18 + pos] = 0.8
-        base[60 + j, 26:29, 3 + pos:18 + pos] = 1
-        base[60 + j, :, 17 + pos:] = np.nan
-    return base
-
-def plot_gallery(title, images, n_col=n_col, n_row=n_row):
-    plt.figure(figsize=(2. * n_col, 2.26 * n_row))
-    plt.suptitle(title, size=16)
-    for i, comp in enumerate(images):
-        plt.subplot(n_row, n_col, i + 1)
-        #vmax = max(comp.nanmax(), -comp.min())
-        plt.imshow(comp.reshape(image_shape))#, cmap=plt.cm.gray)
-        plt.axis('off')
-    plt.subplots_adjust(0.01, 0.05, 0.99, 0.93, 0.04, 0.)
+from src.utils.frequency_utils import get_fft_of_DataArray
+from src.visualisation.fft_visualisation import plot_NMF_components
 
 if __name__ == "__main__":
-    base = get_toy_dataset()
-    n_components = 2
-    rot_base = np.transpose(base, (0, 2, 1)).reshape(-1, 32)
-    # not_nan_index = ~np.isnan(rot_base).any(axis=1)
-    data = np.nan_to_num(rot_base)  # data_nan[not_nan_index] # (n_samples=3360, n_features=32) (m=3360, n=32)
+    # define paths to read
+    context_path = Path("../data/RB_TC_extract_2022_07_07_processed_filled.csv")
+    metadata_path = Path("../data/RB_metadata.csv")
+    acquisition_summary_path = Path("../data/20220707_acquisition_summary.xlsx")
+    data_path = Path("/mnt/d/datasets/20220707_data")
+    simulation_path = Path("/mnt/d/datasets/20220707_simulation")
 
-    W, H, n_iter = my_nmf.non_negative_factorization(data, n_components=n_components, init='nndsvda', tol=5e-3)
+    # define paths to read + write
+    dataset_path = Path('D:\\datasets\\20220707_prim_ee_plateau_dataset')
+    plot_dataset_path = Path("/mnt/d/datasets/1EE_plateau_test")
+    #dataset_path = Path("/mnt/d/datasets/20220707_RBFPAPrimQuenchEEPlateau2")
+    #plot_dataset_path = Path("/mnt/d/datasets/20220707_RBFPAPrimQuenchEEPlateau2_plots")
+    output_path = Path(f"../output/{os.path.basename(__file__)}")  # datetime.now().strftime("%Y-%m-%dT%H.%M.%S.%f")
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # initialize dataset
+    dataset_creator = RBFPAPrimQuenchEEPlateau
+    ds = dataset_creator(dataset_path=dataset_path,
+                         context_path=context_path,
+                         metadata_path=metadata_path,
+                         data_path=data_path,
+                         simulation_path=simulation_path,
+                         acquisition_summary_path=acquisition_summary_path,
+                         plot_dataset_path=plot_dataset_path)
+
+    # load desired fpa_identifiers
+    mp3_fpa_df = pd.read_csv(context_path)
+    sec_after_prim_quench = 2
+    fpa_identifiers = mp3_fpa_df[(mp3_fpa_df['Delta_t(iQPS-PIC)'] / 1000 > sec_after_prim_quench) &
+                                 (mp3_fpa_df['timestamp_fgc'] > 1611836512820000000)
+                                 ].fpa_identifier.unique()
+    dataset = ds.load_dataset(fpa_identifiers=fpa_identifiers,
+                              dataset_path=dataset_path,
+                              drop_data_vars=['simulation', 'el_position_feature', 'event_feature'])
+
+    # calculate fft
+    max_freq = 360
+    dataset_fft = get_fft_of_DataArray(data=dataset.data,
+                                       cutoff_frequency=max_freq)
+
+    # postprocess fft data
+    data_scaled = np.array([RBFPAPrimQuenchEEPlateau.log_scale_data(x) for x in dataset_fft.data])
+    data = np.nan_to_num(data_scaled.reshape(-1, np.shape(data_scaled)[2]))
+
+    # Calculate Non-Negative Matrix Factorization (NMF)
     # W (n_samples, n_components) -> (m=3360, r=2) not (n=32, r=2)
     # H (n_components, n_features) -> (r=2, n=32) not (r=2, m=3360)
-    plt.plot(H.T)
+    # -> W and H are switched in scikit learn
+    n_components = 2
+    W, H, n_iter, violation = my_nmf.non_negative_factorization(X=data,
+                                                                n_components=n_components,
+                                                                init='nndsvda',
+                                                                tol=1e-4,
+                                                                max_iter=1000)
+    event_idex = 1
+    mp3_fpa_df_subset = mp3_fpa_df[mp3_fpa_df['fpa_identifier'] == fpa_identifiers[event_idex]]
+    plot_NMF_components(dataset_fft, dataset_fft.frequency, W, H, event_idex, mp3_fpa_df_subset)
     plt.show()
+    print(f"loss: {violation}")
 

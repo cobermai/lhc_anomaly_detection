@@ -1,9 +1,9 @@
+from pathlib import Path
 from typing import Union
 
 import numpy as np
 import pandas as pd
 import xarray as xr
-from lhcsmapi.metadata.MappingMetadata import MappingMetadata
 
 
 def u_diode_data_to_df(data: list, len_data: int = 5500) -> pd.DataFrame:
@@ -38,7 +38,8 @@ def u_diode_simulation_to_df(data_sim: list, circuit_name: str) -> pd.DataFrame:
     df_simulation = df_simulation_all[sorted_columns]
 
     # simulation numbering is sorted by #Electric_circuit
-    df_metadata = MappingMetadata.read_layout_details("RB")
+    meta_data_path = Path("../../data/RB_metadata.csv") # TODO: take path as argument
+    df_metadata = pd.read_csv(meta_data_path, index_col=False) # MappingMetadata.read_layout_details("RB")
     df_metadata = df_metadata[df_metadata.Circuit == circuit_name].sort_values("#Electric_circuit")
 
     magnet_names = df_metadata.Magnet.apply(lambda x: x + ":U_DIODE_RB").values

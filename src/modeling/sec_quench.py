@@ -1,8 +1,8 @@
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
 import pandas as pd
-from lhcsmapi.metadata.MappingMetadata import MappingMetadata
 from scipy import signal
 from scipy.signal import find_peaks, peak_prominences
 
@@ -79,7 +79,9 @@ def sort_by_metadata(df: pd.DataFrame, circuit: str, quenched_magnet: str, by: s
     """
     df["Circuit"] = circuit
 
-    df_metadata = MappingMetadata.read_layout_details("RB")
+    meta_data_path = Path("../../data/RB_metadata.csv") # TODO: take path as argument
+    df_metadata = pd.read_csv(meta_data_path, index_col=False) # MappingMetadata.read_layout_details("RB")
+
     df_metadata_circuit = df_metadata[df_metadata.Circuit == circuit].reset_index(drop=True)
     df_std_meta = df_metadata_circuit.merge(df, left_on=['Circuit', 'Magnet'], right_on=['Circuit', 'Magnet'],
                                             how="left")

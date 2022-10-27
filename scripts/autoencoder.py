@@ -47,7 +47,7 @@ if __name__ == "__main__":
                            data_path=data_path,
                            simulation_path=simulation_path,
                            plot_dataset_path=plot_dataset_path,
-                           generate_dataset=True,
+                           generate_dataset=False,
                            drop_data_vars=None,
                            location={'time': slice(0.25, 0.55)}
                            )

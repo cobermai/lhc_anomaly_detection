@@ -14,13 +14,14 @@ import time
 import numpy as np
 import scipy.sparse as sp
 
+from sklearn.decomposition.cdnmf_fast import _update_cdnmf_fast
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_random_state, check_array
 from sklearn.utils.extmath import randomized_svd, safe_sparse_dot, squared_norm
 from sklearn.utils.extmath import safe_min
 from sklearn.utils.validation import check_is_fitted, check_non_negative
 from sklearn.exceptions import ConvergenceWarning
-from sklearn.decomposition.cdnmf_fast import _update_cdnmf_fast
+
 
 EPSILON = np.finfo(np.float32).eps
 
@@ -58,7 +59,7 @@ def _check_init(A, shape, whom):
     if np.shape(A) != shape:
         raise ValueError('Array with wrong shape passed to %s. Expected %s, '
                          'but got %s ' % (whom, shape, np.shape(A)))
-    #check_non_negative(A, whom)
+    check_non_negative(A, whom)
     if np.max(A) == 0:
         raise ValueError('Array passed to %s is full of zeros.' % whom)
 
@@ -389,7 +390,7 @@ def _initialize_nmf(X, n_components, init=None, eps=1e-6,
     nonnegative matrix factorization - Pattern Recognition, 2008
     http://tinyurl.com/nndsvd
     """
-    #check_non_negative(X, "NMF initialization", accept_nan=True)
+    check_non_negative(X, "NMF initialization")
     n_samples, n_features = X.shape
 
     if (init is not None and init != 'random'
@@ -478,7 +479,6 @@ def _initialize_nmf(X, n_components, init=None, eps=1e-6,
             (init, (None, 'random', 'nndsvd', 'nndsvda', 'nndsvdar')))
 
     return W, H
-
 
 def _update_coordinate_descent(X, W, Ht, l1_reg, l2_reg, shuffle,
                                random_state):
@@ -614,7 +614,7 @@ def _fit_coordinate_descent(X, W, H, tol=1e-4, max_iter=200, l1_reg_W=0,
                 print("Converged at iteration", n_iter + 1)
             break
 
-    return W, Ht.T, n_iter
+    return W, Ht.T, n_iter, violation
 
 
 def _multiplicative_update_w(X, W, H, beta_loss, l1_reg_W, l2_reg_W, gamma,
@@ -1131,7 +1131,7 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
     """
     X = check_array(X, accept_sparse=('csr', 'csc'), dtype=float,
                     force_all_finite=False)
-    #check_non_negative(X, "NMF (input X)", accept_nan=True)
+    check_non_negative(X, "NMF (input X)")
     beta_loss = _check_string_param(solver, regularization, beta_loss, init)
 
     if sp.issparse(X) and np.any(np.isnan(X.data)):
@@ -1189,7 +1189,7 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
         alpha, l1_ratio, regularization)
 
     if solver == 'cd':
-        W, H, n_iter = _fit_coordinate_descent(X, W, H, tol, max_iter,
+        W, H, n_iter, violation  = _fit_coordinate_descent(X, W, H, tol, max_iter,
                                                l1_reg_W, l1_reg_H,
                                                l2_reg_W, l2_reg_H,
                                                update_H=update_H,
@@ -1209,7 +1209,7 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
         warnings.warn("Maximum number of iteration %d reached. Increase it to"
                       " improve convergence." % max_iter, ConvergenceWarning)
 
-    return W, H, n_iter
+    return W, H, n_iter, violation
 
 
 class NMF(BaseEstimator, TransformerMixin):

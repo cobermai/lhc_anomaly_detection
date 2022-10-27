@@ -47,7 +47,7 @@ class Dataset(ABC):
         # only events > 2014 (1388530800000000000), string to unix timestamp with lhcsmapi.Time.to_unix_timestamp()
         # only events = 2021 (1608530800000000000), string to unix timestamp with lhcsmapi.Time.to_unix_timestamp()
         # test 1636530800000000000
-        lower_limit = 1388530800000000000 #1623530800000000000
+        lower_limit = 1388530800000000000  # 1623530800000000000
         mp3_fpa_df_period = mp3_fpa_df_unique[mp3_fpa_df_unique["timestamp_fgc"] >= lower_limit].reset_index(drop=True)
 
         if self.acquisition_summary_path:
@@ -199,8 +199,27 @@ class Dataset(ABC):
 
                 dataset[data_var].loc[split_events] = (data - data_mean) / data_std
                 dataset[data_var].attrs[f"{split}_scale_coef"] = (data_mean.values, data_std.values)
-                #plot_xarray_event(dataset, data_var, idx=0)
+                # plot_xarray_event(dataset, data_var, idx=0)
         return dataset
+
+    @staticmethod
+    def log_scale_data(X: np.array, vmin: float = 1e-5, vmax: float = 1e-2) -> np.array:
+        """
+        function min/max scales log data X with values vmin, vmax. Applies clipping. TODO: implement in scale_dataset
+        :param X: data of shape (
+        :param vmin: minimal value, set to 0
+        :param vmax: minimal value, set to 1
+        :return: scaled data
+        """
+        X_log = np.log10(X)
+        vmin_log = np.log10(vmin)
+        vmax_log = np.log10(vmax)
+        X_std = (X_log - vmin_log) / (vmax_log - vmin_log)
+
+        # clip
+        X_std[X_std < 0] = 0
+        X_std[X_std > 1] = 1
+        return X_std
 
 
 def load_dataset(creator: "DatasetCreator",
