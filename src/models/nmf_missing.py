@@ -13,6 +13,7 @@ import time
 
 import numpy as np
 import scipy.sparse as sp
+from matplotlib import pyplot as plt
 
 from sklearn.decomposition.cdnmf_fast import _update_cdnmf_fast
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -22,6 +23,7 @@ from sklearn.utils.extmath import safe_min
 from sklearn.utils.validation import check_is_fitted, check_non_negative
 from sklearn.exceptions import ConvergenceWarning
 
+from src.visualisation.fft_visualisation import plot_NMF_components
 
 EPSILON = np.finfo(np.float32).eps
 
@@ -478,6 +480,11 @@ def _initialize_nmf(X, n_components, init=None, eps=1e-6,
             'Invalid init parameter: got %r instead of one of %r' %
             (init, (None, 'random', 'nndsvd', 'nndsvda', 'nndsvdar')))
 
+    plot_init = False
+    if plot_init:
+        ax = plot_NMF_components(X, W, H)
+        ax[1, 1].set_title(f'reconstructed image\nloss: {np.linalg.norm(X - W @ H)}')
+        plt.savefig(f"{init}.png")
     return W, H
 
 def _update_coordinate_descent(X, W, Ht, l1_reg, l2_reg, shuffle,
@@ -513,7 +520,7 @@ def _update_coordinate_descent(X, W, Ht, l1_reg, l2_reg, shuffle,
 
 def _fit_coordinate_descent(X, W, H, tol=1e-4, max_iter=200, l1_reg_W=0,
                             l1_reg_H=0, l2_reg_W=0, l2_reg_H=0, update_H=True,
-                            verbose=0, shuffle=False, random_state=None):
+                            verbose=0, shuffle=False, random_state=None, ortho_reg=0):
     """Compute Non-negative Matrix Factorization (NMF) with Coordinate Descent
 
     The objective function is minimized with an alternating minimization of W
@@ -612,9 +619,9 @@ def _fit_coordinate_descent(X, W, H, tol=1e-4, max_iter=200, l1_reg_W=0,
         if violation / violation_init <= tol:
             if verbose:
                 print("Converged at iteration", n_iter + 1)
-            break
+            #break
 
-    return W, Ht.T, n_iter, violation
+    return W, Ht.T, n_iter
 
 
 def _multiplicative_update_w(X, W, H, beta_loss, l1_reg_W, l2_reg_W, gamma,
@@ -730,11 +737,11 @@ def _multiplicative_update_w(X, W, H, beta_loss, l1_reg_W, l2_reg_W, gamma,
 
 
 def _multiplicative_update_h(X, W, H, beta_loss, l1_reg_H, l2_reg_H, gamma,
-                             WH):
+                             WH, ortho_reg=0):
     """update H in Multiplicative Update NMF"""
     X_mask = X.mask if isinstance(X, np.ma.masked_array) else False
 
-    if beta_loss == 2:
+    if beta_loss == 2: # Frobenius
         if X_mask is False:
             numerator = safe_sparse_dot(W.T, X)
             denominator = np.dot(np.dot(W.T, W), H)
@@ -742,6 +749,11 @@ def _multiplicative_update_h(X, W, H, beta_loss, l1_reg_H, l2_reg_H, gamma,
             numerator = _safe_dot(W.T, X)
             WH = _special_dot_X(W, H, X, out=WH)
             denominator = _safe_dot(W.T, WH)
+
+        if ortho_reg != 0:
+            HHTH = H.dot(H.T).dot(H)
+            numerator += ortho_reg * H
+            denominator += 2.0 * ortho_reg * HHTH
 
     else:
         # Numerator
@@ -808,6 +820,8 @@ def _multiplicative_update_h(X, W, H, beta_loss, l1_reg_H, l2_reg_H, gamma,
                 WtWH = _safe_dot(W.T, WH)
             denominator = WtWH
 
+
+
     # Add L1 and L2 regularization
     if l1_reg_H > 0:
         denominator += l1_reg_H
@@ -828,7 +842,7 @@ def _multiplicative_update_h(X, W, H, beta_loss, l1_reg_H, l2_reg_H, gamma,
 def _fit_multiplicative_update(X, W, H, beta_loss='frobenius',
                                max_iter=200, tol=1e-4,
                                l1_reg_W=0, l1_reg_H=0, l2_reg_W=0, l2_reg_H=0,
-                               update_H=True, verbose=0):
+                               update_H=True, verbose=0, ortho_reg=0):
     """Compute Non-negative Matrix Factorization with Multiplicative Update
 
     The objective function is _beta_divergence(X, WH) and is minimized with an
@@ -936,7 +950,7 @@ def _fit_multiplicative_update(X, W, H, beta_loss='frobenius',
         # update H
         if update_H:
             delta_H = _multiplicative_update_h(X, W, H, beta_loss, l1_reg_H,
-                                               l2_reg_H, gamma, WH)
+                                               l2_reg_H, gamma, WH, ortho_reg=ortho_reg)
             H *= delta_H
 
             # These values will be recomputed since H changed
@@ -955,9 +969,9 @@ def _fit_multiplicative_update(X, W, H, beta_loss='frobenius',
                 print("Epoch %02d reached after %.3f seconds, error: %f" %
                       (n_iter, iter_time - start_time, error))
 
-            if (previous_error - error) / error_at_init < tol:
-                break
-            previous_error = error
+            #if (previous_error - error) / error_at_init < tol:
+                #break
+            #previous_error = error
 
     # do not print if we have already printed in the convergence test
     if verbose and (tol == 0 or n_iter % 10 != 0):
@@ -973,7 +987,7 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
                                beta_loss='frobenius', tol=1e-4,
                                max_iter=200, alpha=0., l1_ratio=0.,
                                regularization=None, random_state=None,
-                               verbose=0, shuffle=False):
+                               verbose=0, shuffle=False, ortho_reg=0):
     r"""Compute Non-negative Matrix Factorization (NMF)
 
     Find two non-negative matrices (W, H) whose product approximates the non-
@@ -1189,18 +1203,19 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
         alpha, l1_ratio, regularization)
 
     if solver == 'cd':
-        W, H, n_iter, violation  = _fit_coordinate_descent(X, W, H, tol, max_iter,
+        W, H, n_iter = _fit_coordinate_descent(X, W, H, tol, max_iter,
                                                l1_reg_W, l1_reg_H,
                                                l2_reg_W, l2_reg_H,
                                                update_H=update_H,
                                                verbose=verbose,
                                                shuffle=shuffle,
-                                               random_state=random_state)
+                                               random_state=random_state,
+                                               ortho_reg=ortho_reg)
     elif solver == 'mu':
         W, H, n_iter = _fit_multiplicative_update(X, W, H, beta_loss, max_iter,
                                                   tol, l1_reg_W, l1_reg_H,
                                                   l2_reg_W, l2_reg_H, update_H,
-                                                  verbose)
+                                                  verbose, ortho_reg)
 
     else:
         raise ValueError("Invalid solver parameter '%s'." % solver)
@@ -1209,7 +1224,7 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
         warnings.warn("Maximum number of iteration %d reached. Increase it to"
                       " improve convergence." % max_iter, ConvergenceWarning)
 
-    return W, H, n_iter, violation
+    return W, H, n_iter
 
 
 class NMF(BaseEstimator, TransformerMixin):

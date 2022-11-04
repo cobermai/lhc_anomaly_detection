@@ -1,8 +1,10 @@
 from pathlib import Path
 import glob
+from typing import Optional
 
 import numpy as np
 import pandas as pd
+
 
 def log_acquisition(identifier: dict, log_data: dict, log_path: Path) -> None:
     """
@@ -25,6 +27,7 @@ def log_acquisition(identifier: dict, log_data: dict, log_path: Path) -> None:
         df.loc[0, key] = value
     df.to_csv(file_path, index=False)
 
+
 def load_acquisition_log(path: Path) -> pd.DataFrame:
     """
     gathers all .csv files from path
@@ -35,6 +38,7 @@ def load_acquisition_log(path: Path) -> pd.DataFrame:
     df = pd.concat(map(pd.read_csv, files))
     return df
 
+
 def flatten_list(stacked_list: list) -> list:
     """
     method flattens list
@@ -42,6 +46,7 @@ def flatten_list(stacked_list: list) -> list:
     :return: list with dim = 1
     """
     return [item for sublist in stacked_list for item in sublist]
+
 
 def interp(df, new_index):
     """
@@ -56,3 +61,18 @@ def interp(df, new_index):
     for colname, col in df.iteritems():
         df_out[colname] = np.interp(new_index, df.index, col)
     return df_out
+
+
+def dict_to_df_meshgrid(param_grid: dict, add_type: bool = True) -> pd.DataFrame:
+    """
+    function generates a mesh-grid  pandas dataframe, which can be iterated over for sensitivity analysis
+    :param param_grid: dictionary with variables to iterate over
+    :param add_type: add type of each column based on first value of each key
+    :return: mesh-grid to iterate over for sensitivity analysis
+    """
+    vary_values = list(map(param_grid.get, param_grid.keys()))
+    meshgrid = np.array(np.meshgrid(*vary_values)).T.reshape(-1, len(param_grid.keys()))
+    df_meshgrid = pd.DataFrame(meshgrid, columns=param_grid.keys())
+    if add_type:
+        df_meshgrid = df_meshgrid.astype({k: type(v[0]) for k, v in param_grid.items()})
+    return df_meshgrid

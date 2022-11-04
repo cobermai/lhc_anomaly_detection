@@ -19,14 +19,14 @@ class RBFPAPrimQuenchEEPlateau(Dataset):
     """
     Subclass of Dataset to specify dataset selection. This dataset contains downloaded and simulated u diode data
     during a primary quench.
+    Paths must be given to regenerate dataset.
     """
-
     def __init__(self,
-                 dataset_path: Path,
-                 context_path: Path,
-                 metadata_path: Path,
-                 data_path: Path,
-                 simulation_path: Path,
+                 dataset_path: Optional[Path] = None,
+                 context_path: Optional[Path] = None,
+                 metadata_path: Optional[Path] = None,
+                 data_path: Optional[Path] = None,
+                 simulation_path: Optional[Path] = None,
                  acquisition_summary_path: Optional[Path] = None,
                  plot_dataset_path: Optional[Path] = None):
         super().__init__(dataset_path,

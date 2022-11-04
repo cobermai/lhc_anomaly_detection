@@ -15,15 +15,15 @@ from src.visualisation.xarray_visualisation import plot_xarray_event
 
 class Dataset(ABC):
     """
-    abstract class which acts as a template to create datasets
+    abstract class which acts as a template to create datasets. Paths must be given to regenerate dataset.
     """
 
     def __init__(self,
-                 dataset_path: Path,
-                 context_path: Path,
-                 metadata_path: Path,
-                 data_path: Path,
-                 simulation_path: Path,
+                 dataset_path: Optional[Path] = None,
+                 context_path: Optional[Path] = None,
+                 metadata_path: Optional[Path] = None,
+                 data_path: Optional[Path] = None,
+                 simulation_path: Optional[Path] = None,
                  acquisition_summary_path: Optional[Path] = None,
                  plot_dataset_path: Optional[Path] = None):
         self.dataset_path = dataset_path
