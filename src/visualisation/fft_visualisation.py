@@ -17,12 +17,15 @@ def plot_position_frequency_map(ax, x_fft, frequency,
     plt.tight_layout()
     return im
 
-def plot_NMF_components(X, W, H, frequency_cut: Optional[pd.DataFrame]=None, event_idex=1, mp3_fpa_df_subset: Optional[pd.DataFrame]=None):
+def plot_NMF_components(X, W, H, frequency_cut: Optional[pd.DataFrame]=None, event_idex=1, mp3_fpa_df_subset: Optional[pd.DataFrame]=None, hyperparameters: Optional[dict]=None):
     image_len = 154
     x_fft_cut = X[event_idex * image_len: event_idex * image_len + image_len]
     if frequency_cut is None:
         frequency_cut = np.arange(len(x_fft_cut[0]))
-    fig, ax = plt.subplots(2, 2, figsize=(12, 12))
+    if hyperparameters:
+        fig, ax = plt.subplots(2,3, figsize=(20,12))
+    else:
+        fig, ax = plt.subplots(2, 2, figsize=(15, 12))
     plot_position_frequency_map(ax[0, 0], x_fft_cut, frequency_cut, norm=None)
     ax[0, 0].set_ylabel('frequency')
     ax[0, 0].set_xlabel('position')
@@ -49,6 +52,14 @@ def plot_NMF_components(X, W, H, frequency_cut: Optional[pd.DataFrame]=None, eve
     ax[1, 1].set_ylabel('frequency')
     ax[1, 1].set_xlabel('position')
 
+    if hyperparameters:
+        ax[0, 2].set_axis_off()
+        ax[1, 2].set_axis_off()
+        ax[0, 2].text(0, 1, "Hyperparameters", fontsize="x-large")
+        i = 1
+        for key, value in hyperparameters.items():
+            ax[0, 2].text(0, 1 - i * 0.05, f"{key} = {value}", fontsize="large", va="top")
+            i += 1
 
     plt.tight_layout()
     return ax

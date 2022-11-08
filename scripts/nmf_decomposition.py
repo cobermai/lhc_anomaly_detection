@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
+from PIL import Image
 
 from src.datasets.rb_fpa_prim_quench_ee_plateau import RBFPAPrimQuenchEEPlateau
 from src.models import nmf_missing as my_nmf
@@ -16,8 +17,10 @@ from src.utils.utils import dict_to_df_meshgrid
 
 from src.visualisation.fft_visualisation import plot_NMF_components
 
+
+
 if __name__ == "__main__":
-    experiment_name = "orthogonal_loss"
+
     # define paths to read
     context_path = Path("../data/RB_TC_extract_2022_07_07_processed_filled.csv")
 
@@ -25,8 +28,7 @@ if __name__ == "__main__":
     dataset_path = Path('D:\\datasets\\20220707_prim_ee_plateau_dataset')
     output_path = Path(f"../output/{os.path.basename(__file__)}")  # datetime.now().strftime("%Y-%m-%dT%H.%M.%S.%f")
     output_path.mkdir(parents=True, exist_ok=True)
-    plot_path = output_path / f'plots_{experiment_name}'
-    plot_path.mkdir(parents=True, exist_ok=True)
+
 
     # initialize dataset
 
@@ -50,9 +52,130 @@ if __name__ == "__main__":
     data_scaled = np.array([dataset_creator.log_scale_data(x) for x in dataset_fft.data])
     data = np.nan_to_num(data_scaled.reshape(-1, np.shape(data_scaled)[2]))
 
+
+    def train_NMF(param_grid, experiment_name):
+        plot_path = output_path / f'plots_{experiment_name}'
+        plot_path.mkdir(parents=True, exist_ok=True)
+
+        df_meshgrid = dict_to_df_meshgrid(param_grid)
+        df_results = df_meshgrid
+        im_paths = []
+        for index, row in df_meshgrid.iterrows():
+            print(row)
+            # Calculate Non-Negative Matrix Factorization (NMF)
+            # W (n_samples, n_components) -> (m=3360, r=2) not (n=32, r=2)
+            # H (n_components, n_features) -> (r=2, n=32) not (r=2, m=3360)
+            # -> W and H are switched in scikit learn
+            start_time = time.time()
+            W, H, n_iter = my_nmf.non_negative_factorization(X=data, **row.to_dict())
+            passed_time = time.time() - start_time
+
+            # log results
+            df_results.loc[index, 'duration'] = passed_time
+            df_results.loc[index, 'violation'] = np.linalg.norm(data - W @ H)
+            df_results.loc[index, 'n_iter'] = n_iter
+            df_results.loc[index, 'l2_transformation'] = np.linalg.norm(W) / row["n_components"]
+            df_results.loc[index, 'l2_components'] = np.linalg.norm(H) / row["n_components"]
+            df_results.loc[index, 'l2_sum'] = (np.linalg.norm(H) + np.linalg.norm(W)) / row["n_components"]
+            df_results.loc[index, 'l1_transformation'] = (np.sum(W)) / row["n_components"]
+            df_results.loc[index, 'l1_components'] = (np.sum(H)) / row["n_components"]
+            df_results.loc[index, 'l1_sum'] = (np.sum(H) + np.sum(W)) / row["n_components"]
+            df_results.loc[index, 'ortho_components'] = (np.linalg.norm(H.T @ H - np.eye(len(H[0])))) / row[
+                "n_components"]
+
+            # plot example
+            event_idex = 1
+            mp3_fpa_df_subset = mp3_fpa_df[mp3_fpa_df['fpa_identifier'] == fpa_identifiers[event_idex]]
+            ax = plot_NMF_components(data, W, H, dataset_fft.frequency, event_idex, mp3_fpa_df_subset,
+                                     hyperparameters=row.to_dict())
+            ax[1, 1].set_title(f"reconstructed image \northo loss weight: {row['ortho_reg']:.2f}")
+            plt.tight_layout()
+            im_path = plot_path / (str(index) + "_" + '_'.join(row.astype(str).values) + '.png')
+            im_paths.append(im_path)
+            plt.savefig(im_path)  # (str(row["n_components"]) + f"_{index}"))
+
+            print(f"{index}/{len(df_meshgrid)} {'_'.join(row.astype(str).values)} "
+                  f"Loss: {np.linalg.norm(data - W @ H)} "
+                  f"Time: {passed_time}")
+
+        df_results.to_csv(output_path / f'results_{experiment_name}.csv')
+
+        imgs = (Image.open(f) for f in im_paths)
+        img = next(imgs)  # extract first image from iterator
+        img.save(fp=plot_path / "summary.gif", format='GIF', append_images=imgs, save_all=True, duration=300, loop=0)
+
     # define parameters to iterate over
+    experiment_name = "l2_weight"
     param_grid = {
-        "n_components": [1,2,3,4,5,6,7,8,9,10],
+        "n_components": [8],
+        "solver": ["mu"],
+        "beta_loss": ['frobenius'],
+        "init": ["nndsvda"],
+        "tol": [1e-5],
+        "max_iter": [1000],
+        "regularization": ["both"],
+        "l1_ratio": [0.0],
+        "alpha": list(np.round(np.linspace(0.01,1,20),2)),
+        "shuffle": ["True"],
+        "ortho_reg": [0]
+    }
+    train_NMF(param_grid, experiment_name)
+
+    # define parameters to iterate over
+    experiment_name = "l1_weight"
+    param_grid = {
+        "n_components": [8],
+        "solver": ["mu"],
+        "beta_loss": ['frobenius'],
+        "init": ["nndsvda"],
+        "tol": [1e-5],
+        "max_iter": [1000],
+        "regularization": ["both"],
+        "l1_ratio": [1.0],
+        "alpha": list(np.round(np.linspace(0.01,1,20),2)),
+        "shuffle": ["True"],
+        "ortho_reg": [0]
+    }
+    train_NMF(param_grid, experiment_name)
+
+    # define parameters to iterate over
+    experiment_name = "l1_ratio"
+    param_grid = {
+        "n_components": [8],
+        "solver": ["mu"],
+        "beta_loss": ['frobenius'],
+        "init": ["nndsvda"],
+        "tol": [1e-5],
+        "max_iter": [1000],
+        "regularization": ["both"],
+        "l1_ratio": list(np.round(np.linspace(0.01,1,20),2)),
+        "alpha": [1.0],
+        "shuffle": ["True"],
+        "ortho_reg": [0]
+    }
+    train_NMF(param_grid, experiment_name)
+
+    # define parameters to iterate over
+    experiment_name = "ortho"
+    param_grid = {
+        "n_components": [8],
+        "solver": ["mu"],
+        "beta_loss": ['frobenius'],
+        "init": ["nndsvda"],
+        "tol": [1e-5],
+        "max_iter": [1000],
+        "regularization": ["both"],
+        "l1_ratio": [1.0],
+        "alpha": [0.0],
+        "shuffle": ["True"],
+        "ortho_reg": list(np.round(np.linspace(0.01,1,20),2))
+    }
+    train_NMF(param_grid, experiment_name)
+
+    # define parameters to iterate over
+    experiment_name = "orthoL12"
+    param_grid = {
+        "n_components": [8],
         "solver": ["mu"],
         "beta_loss": ['frobenius'],
         "init": ["nndsvda"],
@@ -62,42 +185,6 @@ if __name__ == "__main__":
         "l1_ratio": [0.5],
         "alpha": [1.0],
         "shuffle": ["True"],
-        "ortho_reg": [0.0, 0.1, 0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.1]
+        "ortho_reg": list(np.round(np.linspace(0.01,1,20),2))
     }
-    df_meshgrid = dict_to_df_meshgrid(param_grid)
-    df_results = df_meshgrid
-    for index, row in df_meshgrid.iterrows():
-        print(row)
-        # Calculate Non-Negative Matrix Factorization (NMF)
-        # W (n_samples, n_components) -> (m=3360, r=2) not (n=32, r=2)
-        # H (n_components, n_features) -> (r=2, n=32) not (r=2, m=3360)
-        # -> W and H are switched in scikit learn
-        start_time = time.time()
-        W, H, n_iter = my_nmf.non_negative_factorization(X=data, **row.to_dict())
-        passed_time = time.time() - start_time
-
-        # logg results
-        df_results.loc[index, 'duration'] = passed_time
-        df_results.loc[index, 'violation'] = np.linalg.norm(data - W @ H)
-        df_results.loc[index, 'n_iter'] = n_iter
-        df_results.loc[index, 'l2_transformation'] = np.linalg.norm(W) / row["n_components"]
-        df_results.loc[index, 'l2_components'] = np.linalg.norm(H) / row["n_components"]
-        df_results.loc[index, 'l2_sum'] = (np.linalg.norm(H) + np.linalg.norm(W)) / row["n_components"]
-        df_results.loc[index, 'l1_transformation'] = (np.sum(W)) / row["n_components"]
-        df_results.loc[index, 'l1_components'] = (np.sum(H)) / row["n_components"]
-        df_results.loc[index, 'l1_sum'] = (np.sum(H) + np.sum(W)) / row["n_components"]
-        df_results.loc[index, 'ortho_components'] = (np.linalg.norm(H.T @ H - np.eye(len(H[0])))) / row["n_components"]
-
-        # plot example
-        event_idex = 1
-        mp3_fpa_df_subset = mp3_fpa_df[mp3_fpa_df['fpa_identifier'] == fpa_identifiers[event_idex]]
-        ax = plot_NMF_components(data, W, H, dataset_fft.frequency, event_idex, mp3_fpa_df_subset)
-        ax[1, 1].set_title(f'reconstructed image\nloss: {np.linalg.norm(data - W @ H)}')
-        plt.tight_layout()
-        plt.savefig(plot_path / ('_'.join(row.astype(str).values) + '.png'))
-
-        print(f"{index}/{len(df_meshgrid)} {'_'.join(row.astype(str).values)} "
-              f"Loss: {np.linalg.norm(data - W @ H)} "
-              f"Time: {passed_time}")
-
-    df_results.to_csv(output_path / f'results_{experiment_name}.csv')
+    train_NMF(param_grid, experiment_name)
