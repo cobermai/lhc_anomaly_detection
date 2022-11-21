@@ -99,103 +99,19 @@ if __name__ == "__main__":
         img.save(fp=plot_path / "summary.gif", format='GIF', append_images=imgs, save_all=True, duration=400, loop=0)
 
     # define parameters to iterate over
-    experiment_name = "l12_weight"
+    experiment_name = "ortho_weight"
     param_grid = {
-        "n_components": [8],
+        "n_components": [10],
         "solver": ["mu"],
         "beta_loss": ['frobenius'],
         "init": ["nndsvda"],
         "tol": [1e-5],
         "max_iter": [1000],
         "regularization": ["both"],
-        "l1_ratio": [0.5],
-        "alpha": list(np.round(np.linspace(0.01,1,20),2)),
+        "l1_ratio": [0],
+        "alpha": [0],
         "shuffle": ["True"],
-        "ortho_reg": [0]
+        "ortho_reg": list(np.round(np.arange(1, 30)/10, 2))
     }
     train_NMF(param_grid, experiment_name)
 
-    # define parameters to iterate over
-    experiment_name = "l2_weight"
-    param_grid = {
-        "n_components": [8],
-        "solver": ["mu"],
-        "beta_loss": ['frobenius'],
-        "init": ["nndsvda"],
-        "tol": [1e-5],
-        "max_iter": [1000],
-        "regularization": ["both"],
-        "l1_ratio": [0.0],
-        "alpha": list(np.round(np.linspace(0.01,1,20),2)),
-        "shuffle": ["True"],
-        "ortho_reg": [0]
-    }
-    train_NMF(param_grid, experiment_name)
-
-    # define parameters to iterate over
-    experiment_name = "l1_weight"
-    param_grid = {
-        "n_components": [8],
-        "solver": ["mu"],
-        "beta_loss": ['frobenius'],
-        "init": ["nndsvda"],
-        "tol": [1e-5],
-        "max_iter": [1000],
-        "regularization": ["both"],
-        "l1_ratio": [1.0],
-        "alpha": list(np.round(np.linspace(0.01,1,20),2)),
-        "shuffle": ["True"],
-        "ortho_reg": [0]
-    }
-    train_NMF(param_grid, experiment_name)
-
-    # define parameters to iterate over
-    experiment_name = "l1_ratio"
-    param_grid = {
-        "n_components": [8],
-        "solver": ["mu"],
-        "beta_loss": ['frobenius'],
-        "init": ["nndsvda"],
-        "tol": [1e-5],
-        "max_iter": [1000],
-        "regularization": ["both"],
-        "l1_ratio": list(np.round(np.linspace(0.01,1,20),2)),
-        "alpha": [1.0],
-        "shuffle": ["True"],
-        "ortho_reg": [0]
-    }
-    train_NMF(param_grid, experiment_name)
-
-    # define parameters to iterate over
-    experiment_name = "ortho"
-    param_grid = {
-        "n_components": [8],
-        "solver": ["mu"],
-        "beta_loss": ['frobenius'],
-        "init": ["nndsvda"],
-        "tol": [1e-5],
-        "max_iter": [1000],
-        "regularization": ["both"],
-        "l1_ratio": [1.0],
-        "alpha": [0.0],
-        "shuffle": ["True"],
-        "ortho_reg": list(np.round(np.linspace(0.01,1,20),2))
-    }
-    train_NMF(param_grid, experiment_name)
-
-    # define parameters to iterate over
-    experiment_name = "orthoL12"
-    param_grid = {
-        "n_components": [8],
-        "solver": ["mu"],
-        "beta_loss": ['frobenius'],
-        "init": ["nndsvda"],
-        "tol": [1e-5],
-        "max_iter": [1000],
-        "regularization": ["both"],
-        "l1_ratio": [0.5],
-        "alpha": [1.0],
-        "shuffle": ["True"],
-        "ortho_reg": list(np.round(np.linspace(0.01,1,20),2))
-    }
-    train_NMF(param_grid, experiment_name)

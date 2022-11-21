@@ -9,12 +9,20 @@ from matplotlib import pyplot as plt, colors
 warnings.filterwarnings('ignore')
 
 def plot_position_frequency_map(ax, x_fft, frequency,
-                                norm: Optional[colors.LogNorm] = colors.LogNorm(vmin=1e-5, vmax=1e-2)):
-    im = ax.imshow(x_fft.T,
-                   extent=[1, 154, frequency.min(), frequency.max()],
-                   aspect='auto',
-                   norm=norm,
-                   origin='lower')
+                                norm: Optional[colors.LogNorm] = colors.LogNorm, vmin=1e-5, vmax=1e-2):
+    if norm is None: 
+        im = ax.imshow(x_fft.T,
+                       extent=[1, 154, frequency.min(), frequency.max()],
+                       aspect='auto',
+                       vmin=vmin,
+                       vmax=vmax,
+                       origin='lower')
+    else:
+        im = ax.imshow(x_fft.T,
+                       extent=[1, 154, frequency.min(), frequency.max()],
+                       aspect='auto',
+                       norm=norm(vmin=vmin, vmax=vmax),
+                       origin='lower')
     plt.tight_layout()
     return im
 
