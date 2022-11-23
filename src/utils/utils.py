@@ -1,6 +1,6 @@
 from pathlib import Path
 import glob
-from typing import Optional
+from typing import Optional, Callable, Union
 
 import numpy as np
 import pandas as pd
@@ -76,3 +76,51 @@ def dict_to_df_meshgrid(param_grid: dict, add_type: bool = True) -> pd.DataFrame
     if add_type:
         df_meshgrid = df_meshgrid.astype({k: type(v[0]) for k, v in param_grid.items()})
     return df_meshgrid
+
+
+def nanargsort(array: np.array) -> np.array:
+    """
+    argsort with dropna
+    :param array: array to sort
+    :return: index of sorted array without nan
+    """
+    return np.argsort(array)[(np.sort(array) >= 0)]
+
+
+def pd_dict_filt(df: pd.DataFrame, filt: Optional[dict]=None):
+    """
+    filters pandas DataFrame by dictonary
+    :param df: DataFrame to filer
+    :param filt: dict with key columns and args values, equal to df[df[key]== values]
+    :return: filtered DataFrame
+    """
+    if filt is None:
+        return df
+    else:
+        # multi index allows faster query, add if it does not exist,
+        if not all([f in df.index.names for f in filt]):
+            df = df.set_index(list(filt.keys()), drop=False, append=True)
+
+        level = list(np.argwhere(np.isin(df.index.names, list(filt.keys()))).flatten())  # position of multindex
+        return df.xs(tuple(filt.values()), level=level)
+
+
+def merge_array(array: np.array,
+                merge_index: Union[list, np.array],
+                axis: int = -1,
+                func: Callable = np.mean) -> np.array:
+    """
+    merge columns of array
+    e.g. array=a; merge_index=[2, 3, [4, 5]] -> out: np.array([a[2], a[3], np.mean(a[4], a[5])])
+    :param array: array to perform merge on, dim: (..., row, columns)
+    :param merge_index: list of indices to merge
+    :param axis: axis to merge on, default is to merge on columns
+    :param func: function used to merge, default is mean
+    :return: filtered DataFrame
+    """
+    matrix_merged = [list(func(array[..., i], axis=axis)) if isinstance(i, list) else list(array[..., i]) for i in
+                     merge_index]
+    return np.moveaxis(matrix_merged, 0, -1)
+
+
+

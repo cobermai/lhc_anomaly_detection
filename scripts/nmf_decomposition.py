@@ -12,7 +12,7 @@ from src.models import nmf_missing as my_nmf
 from src.utils.frequency_utils import get_fft_of_DataArray
 from src.utils.utils import dict_to_df_meshgrid
 
-from src.visualisation.fft_visualisation import plot_NMF_components
+from src.visualisation.fft_visualisation import plot_NMF
 
 
 
@@ -80,8 +80,8 @@ if __name__ == "__main__":
             # plot example
             event_idex = 1
             mp3_fpa_df_subset = mp3_fpa_df[mp3_fpa_df['fpa_identifier'] == fpa_identifiers[event_idex]]
-            ax = plot_NMF_components(data, W, H, dataset_fft.frequency, event_idex, mp3_fpa_df_subset,
-                                     hyperparameters=row.to_dict())
+            ax = plot_NMF(data, W, H, dataset_fft.frequency, event_idex, mp3_fpa_df_subset,
+                          hyperparameters=row.to_dict())
             ax[1, 1].set_title(f"reconstructed image \nloss: {np.linalg.norm(data - W @ H):.2f}")
             plt.tight_layout()
             im_path = plot_path / (str(index) + "_" + '_'.join(row.astype(str).values) + '.png')

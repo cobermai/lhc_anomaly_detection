@@ -23,8 +23,6 @@ from sklearn.utils.extmath import safe_min
 from sklearn.utils.validation import check_is_fitted, check_non_negative
 from sklearn.exceptions import ConvergenceWarning
 
-from src.visualisation.fft_visualisation import plot_NMF_components
-
 EPSILON = np.finfo(np.float32).eps
 
 INTEGER_TYPES = (numbers.Integral, np.integer)
@@ -480,11 +478,6 @@ def _initialize_nmf(X, n_components, init=None, eps=1e-6,
             'Invalid init parameter: got %r instead of one of %r' %
             (init, (None, 'random', 'nndsvd', 'nndsvda', 'nndsvdar')))
 
-    plot_init = False
-    if plot_init:
-        ax = plot_NMF_components(X, W, H)
-        ax[1, 1].set_title(f'reconstructed image\nloss: {np.linalg.norm(X - W @ H)}')
-        plt.savefig(f"{init}.png")
     return W, H
 
 def _update_coordinate_descent(X, W, Ht, l1_reg, l2_reg, shuffle,

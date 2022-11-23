@@ -2,6 +2,7 @@ import numpy as np
 from scipy.fft import fft, fftfreq
 import xarray as xr
 
+
 def get_fft_amplitude(x: np.array) -> np.array:
     """
     calculate amplitude of Fast Fourier Transformation of data x, removes nan and folds data with hanning window
@@ -19,7 +20,8 @@ def get_fft_amplitude(x: np.array) -> np.array:
         y_FFT = fft(np.nan_to_num(x))
     return 2.0 / N * np.abs(y_FFT[0:N // 2])
 
-def get_fft_of_DataArray(data: xr.DataArray, cutoff_frequency: int=None) -> xr.DataArray:
+
+def get_fft_of_DataArray(data: xr.DataArray, cutoff_frequency: int = None) -> xr.DataArray:
     """
     calculates fft of DataArray, creates new coord frequency
     :param data: DataArray containing time-series data with coords (el_position, event, time)
@@ -41,3 +43,4 @@ def get_fft_of_DataArray(data: xr.DataArray, cutoff_frequency: int=None) -> xr.D
         data_fft = data_fft.where(data_fft.frequency < cutoff_frequency, drop=True)
 
     return data_fft
+

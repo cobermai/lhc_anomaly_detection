@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt, colors
 
+from src.utils.sort_utils import calc_snr
+
 warnings.filterwarnings('ignore')
 
 def plot_position_frequency_map(ax, x_fft, frequency,
@@ -190,7 +192,11 @@ def plot_position_frequency_map_ee_plateau(fpa_identifier,
     plt.savefig(filename, dpi=400)
     plt.close(fig)
 
-def plot_NMF_components(X, W, H, frequency_cut: Optional[pd.DataFrame]=None, event_idex=1, mp3_fpa_df_subset: Optional[pd.DataFrame]=None, hyperparameters: Optional[dict]=None):
+def plot_NMF(X, W, H,
+             frequency_cut: Optional[pd.DataFrame]=None,
+             event_idex=1,
+             mp3_fpa_df_subset: Optional[pd.DataFrame]=None,
+             hyperparameters: Optional[dict]=None):
     image_len = 154
     x_fft_cut = X[event_idex * image_len: event_idex * image_len + image_len]
     if frequency_cut is None:
@@ -236,3 +242,137 @@ def plot_NMF_components(X, W, H, frequency_cut: Optional[pd.DataFrame]=None, eve
 
     plt.tight_layout()
     return ax
+
+
+def plot_nmf_event_composition(data_1EE, W, H, component_indexes, dataset_1EE_fft, fpa_identifier, mp3_fpa_df):
+    # get right event index
+    all_fpa_identifiers = mp3_fpa_df[(mp3_fpa_df['timestamp_fgc'] > 1611836512820000000)].fpa_identifier.unique()
+    fpa_identifiers = all_fpa_identifiers[np.isin(all_fpa_identifiers, dataset_1EE_fft.event.values)]
+    event_idex = np.argmax(fpa_identifiers == fpa_identifier)
+
+    # get context data of event
+    date = mp3_fpa_df[mp3_fpa_df.fpa_identifier == fpa_identifier]['Timestamp_PIC'].values[0]
+    mp3_fpa_df_subset = mp3_fpa_df[
+        (mp3_fpa_df.fpa_identifier == fpa_identifier) & (mp3_fpa_df['Delta_t(iQPS-PIC)'] / 1000 < 5)]
+    current = mp3_fpa_df_subset['I_end_2_from_data'].max()
+    prim_quench_position = mp3_fpa_df_subset['#Electric_circuit'].values[0]
+    sec_quench_position = mp3_fpa_df_subset['#Electric_circuit'].values[1:]
+    sec_quench_times = mp3_fpa_df_subset['Delta_t(iQPS-PIC)'].values[1:]
+    sec_quench_el = [f"{int(pos)}@{int(time)}ms" for pos, time in zip(sec_quench_position, sec_quench_times)]
+
+    # plot event
+    default_colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    fig, axes = plt.subplots(len(component_indexes), 8, figsize=(20, 2.5 * len(component_indexes)),
+                             gridspec_kw={'width_ratios': [2, 0.1, 2, 2, 0.1, 2, 0.1, 2]})
+    for i, ax in enumerate(axes[:, 0]):
+        if i == 0:
+            plot_position_frequency_map(ax, data_1EE[event_idex * 154:event_idex * 154 + 154],
+                                        dataset_1EE_fft.frequency, norm=None, vmin=0, vmax=1)
+            ax.set_ylabel('Frequency / Hz')
+            ax.set_xlabel('El. Position')
+        else:
+            ax.axis('off')
+
+    # plot reconstructed event event
+    for i, ax in enumerate(axes[:, -1]):
+        if i == 0:
+            plot_position_frequency_map(ax, W[event_idex * 154:event_idex * 154 + 154] @ H, dataset_1EE_fft.frequency,
+                                        norm=None, vmin=0, vmax=1)
+            ax.set_ylabel('Frequency / Hz')
+            ax.set_xlabel('El. Position')
+        else:
+            ax.axis('off')
+
+    # plot components
+    for k, i in enumerate(component_indexes):
+        if isinstance(i, list):
+            W_temp = 0
+            H_temp = 0
+            for j in i:
+                W_temp += W[event_idex * 154:event_idex * 154 + 154, j:j + 1]
+                H_temp += H[j:j + 1]
+            H_temp /= len(i)  # sum components, mean weight, or other way around
+        else:
+            W_temp = W[event_idex * 154:event_idex * 154 + 154, i:i + 1]
+            H_temp = H[i:i + 1]
+        data_reconstructed = W_temp @ H_temp
+
+        axes[k, 3].plot(W_temp, c=default_colors[k])
+        axes[k, 2].plot(dataset_1EE_fft.frequency, H_temp.T, c=default_colors[k])
+        plot_position_frequency_map(axes[k, 5], data_reconstructed, dataset_1EE_fft.frequency, norm=None, vmin=0,
+                                    vmax=1)
+
+        axes[k, 2].set_ylabel('Voltage / V')
+        axes[k, 3].set_ylabel('Voltage / V')
+        axes[k, 5].set_ylabel('Frequency / Hz')
+
+        if k < len(component_indexes) - 1:
+            axes[k, 2].set_xticks([])
+            axes[k, 3].set_xticks([])
+            axes[k, 5].set_xticks([])
+        else:
+            axes[k, 2].set_xlabel('Frequency / Hz')
+            axes[k, 3].set_xlabel('El. Position')
+            axes[k, 5].set_xlabel('El. Position')
+
+    axes[1, 0].text(0, 0.8,
+                    f"Event: {fpa_identifier}\nDate: {date}\n$i$={event_idex * 154}\n"
+                    f"\nMax Current: {current} A\nEl. Prim Quench Position: {prim_quench_position}"
+                    f"\nEl. Sec. Quench Position@Time:\n{sec_quench_el}",
+                    va="top")
+
+    [ax.axis('off') for ax in axes[:, 1]]
+    [ax.axis('off') for ax in axes[:, 4]]
+    [ax.axis('off') for ax in axes[:, 6]]
+
+    axes[0, 0].set_title("Input Event\n$V_{:,i:i+154}$", fontsize=12)
+    axes[0, 1].set_title(f"$\sim\sum_{{k=1}}^{{r={len(component_indexes)}}}$", fontsize=15)
+    axes[0, 2].set_title("Components $k$\n$W_k$", fontsize=12)
+    axes[0, 3].set_title("Components Weight\n$H_{k,i:i+154}$", fontsize=12)
+    axes[0, 4].set_title(f"$=\sum_{{k=1}}^{{r={len(component_indexes)}}}$", fontsize=15)
+    axes[0, 5].set_title("Reconstructed Components\n$WH_{k,i:i+154}$", fontsize=12)
+    axes[0, 6].set_title("=", fontsize=15)
+    axes[0, 7].set_title("Reconstructed Event\n$WH_{:,i:i+154}$", fontsize=12)
+
+    plt.tight_layout(h_pad=-2, w_pad=0.1)
+
+def plot_nmf_components(H, dataset_1EE_fft, component_indexes=None):
+    fig, ax = plt.subplots(figsize=(12, 5))
+    if component_indexes is None:
+        component_indexes = np.arange(len(H))
+
+    for k, i in enumerate(component_indexes):
+        if isinstance(i, list):
+            H_temp = 0
+            data_reconstructed = 0
+            for j in i:
+                H_temp += H[j:j + 1]
+        else:
+            H_temp = H[i:i + 1]
+
+        ax.plot(dataset_1EE_fft.frequency, H_temp.T, label=f"component {i}")
+        ax.set_xlabel('Frequency / Hz')
+        ax.set_ylabel('Voltage / V')
+    ax.set_xlim([dataset_1EE_fft.frequency.values.min(), dataset_1EE_fft.frequency.values.max()])
+    ax.grid()
+    plt.legend()
+
+
+def plot_avg_component_weight(ax, c_weights, component_number, xlabel):
+    y = np.nanmean(c_weights["values"], axis=0)[:, component_number]
+    # y_med = np.nanmedian(c_weights["values"], axis=0)[:, component_number]
+    error = np.nanstd(c_weights["values"], axis=0)[:, component_number]
+    upper_error = np.nanquantile(c_weights["values"], q=0.75, axis=0)[:, component_number]
+    lower_error = np.nanquantile(c_weights["values"], q=0.25, axis=0)[:, component_number]
+
+    n_components = c_weights["values"].shape[-1]
+    default_colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    ck = component_number % len(default_colors)
+
+    ax.plot(c_weights["index"], y, c=default_colors[ck])
+    # ax.plot(c_weights["index"], y_med, c=default_colors[ck], ls="--")
+    # ax.plot(c_weights["index"], y, c=default_colors[ck], marker="x")
+    ax.set_title(f"Average Component {component_number} Weight\nSNR: {np.mean(calc_snr(y, error)):.2f}")
+    ax.set_xlabel(xlabel)
+    ax.fill_between(c_weights["index"], lower_error, upper_error, alpha=0.1, edgecolor=default_colors[ck],
+                    facecolor=default_colors[ck])
