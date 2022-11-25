@@ -253,17 +253,23 @@ def plot_nmf_event_composition(data_1EE, W, H, component_indexes, dataset_1EE_ff
     # get context data of event
     date = mp3_fpa_df[mp3_fpa_df.fpa_identifier == fpa_identifier]['Timestamp_PIC'].values[0]
     mp3_fpa_df_subset = mp3_fpa_df[
-        (mp3_fpa_df.fpa_identifier == fpa_identifier) & (mp3_fpa_df['Delta_t(iQPS-PIC)'] / 1000 < 5)]
-    current = mp3_fpa_df_subset['I_end_2_from_data'].max()
-    prim_quench_position = mp3_fpa_df_subset['#Electric_circuit'].values[0]
-    sec_quench_position = mp3_fpa_df_subset['#Electric_circuit'].values[1:]
-    sec_quench_times = mp3_fpa_df_subset['Delta_t(iQPS-PIC)'].values[1:]
-    sec_quench_el = [f"{int(pos)}@{int(time)}ms" for pos, time in zip(sec_quench_position, sec_quench_times)]
+        (mp3_fpa_df.fpa_identifier == fpa_identifier)]  # & (mp3_fpa_df['Delta_t(iQPS-PIC)'] / 1000 < 5)]
+    current = mp3_fpa_df_subset['I_Q_M'].max()
+
+    if not mp3_fpa_df_subset['Delta_t(iQPS-PIC)'].isnull().all():
+        mp3_fpa_df_subset = mp3_fpa_df_subset[(mp3_fpa_df_subset['Delta_t(iQPS-PIC)'] / 1000 < 5)]
+        prim_quench_position = mp3_fpa_df_subset['#Electric_circuit'].values[0]
+        sec_quench_position = mp3_fpa_df_subset['#Electric_circuit'].values[1:]
+        sec_quench_times = mp3_fpa_df_subset['Delta_t(iQPS-PIC)'].values[1:]
+        sec_quench_el = [f"{int(pos)}@{int(time)}ms" for pos, time in zip(sec_quench_position, sec_quench_times)]
+    else:
+        prim_quench_position = ''
+        sec_quench_el = ''
 
     # plot event
     default_colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
     fig, axes = plt.subplots(len(component_indexes), 8, figsize=(20, 2.5 * len(component_indexes)),
-                             gridspec_kw={'width_ratios': [2, 0.1, 2, 2, 0.1, 2, 0.1, 2]})
+                             gridspec_kw={'width_ratios': [2, 1, 2, 2, 1.3, 2, 0.5, 2]})
     for i, ax in enumerate(axes[:, 0]):
         if i == 0:
             plot_position_frequency_map(ax, data_1EE[event_idex * 154:event_idex * 154 + 154],
@@ -273,7 +279,7 @@ def plot_nmf_event_composition(data_1EE, W, H, component_indexes, dataset_1EE_ff
         else:
             ax.axis('off')
 
-    # plot reconstructed event event
+    # plot reconstructed event
     for i, ax in enumerate(axes[:, -1]):
         if i == 0:
             plot_position_frequency_map(ax, W[event_idex * 154:event_idex * 154 + 154] @ H, dataset_1EE_fft.frequency,
@@ -302,9 +308,17 @@ def plot_nmf_event_composition(data_1EE, W, H, component_indexes, dataset_1EE_ff
         plot_position_frequency_map(axes[k, 5], data_reconstructed, dataset_1EE_fft.frequency, norm=None, vmin=0,
                                     vmax=1)
 
-        axes[k, 2].set_ylabel('Voltage / V')
+        axes[k, 2].set_ylabel('Component Values')
         axes[k, 3].set_ylabel('Voltage / V')
+        axes[k, 3].yaxis.set_label_position("right")
         axes[k, 5].set_ylabel('Frequency / Hz')
+
+        yticks = axes[k, 3].get_yticks().tolist()
+        ylim = axes[k, 3].get_ylim()
+        axes[k, 3].set_yticks(yticks)
+        axes[k, 3].set_ylim(ylim)
+        axes[k, 3].set_yticklabels([f"$10^{{{(3 * a - 5):.2f}}}$" for a in yticks], fontsize="large")
+        axes[k, 3].yaxis.tick_right()
 
         if k < len(component_indexes) - 1:
             axes[k, 2].set_xticks([])
@@ -334,7 +348,7 @@ def plot_nmf_event_composition(data_1EE, W, H, component_indexes, dataset_1EE_ff
     axes[0, 6].set_title("=", fontsize=15)
     axes[0, 7].set_title("Reconstructed Event\n$WH_{:,i:i+154}$", fontsize=12)
 
-    plt.tight_layout(h_pad=-2, w_pad=0.1)
+    plt.tight_layout(h_pad=-2, w_pad=-10)
 
 def plot_nmf_components(H, dataset_1EE_fft, component_indexes=None):
     fig, ax = plt.subplots(figsize=(12, 5))
