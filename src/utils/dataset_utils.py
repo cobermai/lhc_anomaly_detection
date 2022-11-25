@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union
+from typing import Union, Optional
 
 import numpy as np
 import pandas as pd
@@ -38,8 +38,8 @@ def u_diode_simulation_to_df(data_sim: list, circuit_name: str) -> pd.DataFrame:
     df_simulation = df_simulation_all[sorted_columns]
 
     # simulation numbering is sorted by #Electric_circuit
-    meta_data_path = Path("../data/RB_metadata.csv") # TODO: take path as argument
-    df_metadata = pd.read_csv(meta_data_path, index_col=False) # MappingMetadata.read_layout_details("RB")
+    meta_data_path = Path("../data/RB_metadata.csv")  # TODO: take path as argument
+    df_metadata = pd.read_csv(meta_data_path, index_col=False)  # MappingMetadata.read_layout_details("RB")
     df_metadata = df_metadata[df_metadata.Circuit == circuit_name].sort_values("#Electric_circuit")
 
     magnet_names = df_metadata.Magnet.apply(lambda x: x + ":U_DIODE_RB").values
@@ -110,10 +110,10 @@ def align_u_diode_data(df_data: pd.DataFrame,
 
 
 def data_to_xarray(df_data: pd.DataFrame,
-                   df_simulation: pd.DataFrame,
-                   df_el_position_features: pd.DataFrame,
-                   df_event_features: pd.DataFrame,
-                   event_identifier: str) -> xr.Dataset:
+                   event_identifier: str,
+                   df_simulation: Optional[pd.DataFrame] = None,
+                   df_el_position_features: Optional[pd.DataFrame] = None,
+                   df_event_features: Optional[pd.DataFrame] = None) -> xr.Dataset:
     """
     puts data and simulation dataframe in one xarray DataArray
     https://rabernat.github.io/research_computing_2018/xarray.html#:~:text=1%3A%20Xarray%20Fundamentals-,Xarray%20data%20structures,potentially%20share%20the%20same%20coordinates
@@ -127,16 +127,22 @@ def data_to_xarray(df_data: pd.DataFrame,
     :return: Dataset with dims ('event', 'el_position', 'mag_feature_name', 'event_feature_name', 'time')
     """
     n_magnets = 154
+
     ds = xr.Dataset(
-        data_vars={'data': (('el_position', 'time'), df_data.astype("float32").values.T),
-                   'simulation': (('el_position', 'time'), df_simulation.astype("float32").values.T),
-                   'el_position_feature': (('el_position', 'el_position_feature_name'), df_el_position_features
-                                           .astype("float32").values),
-                   'event_feature': ('event_feature_name', df_event_features.astype("float32").values.reshape(-1))},
+        data_vars={'data': (('el_position', 'time'), df_data.astype("float32").values.T)},
         coords={'event': [event_identifier],
                 'el_position': np.arange(n_magnets),
-                'time': df_data.index,
-                'el_position_feature_name': df_el_position_features.columns,
-                'event_feature_name': df_event_features.columns})
+                'time': df_data.index})
+
+    if df_simulation is not None:
+        ds['simulation'] = (('el_position', 'time'), df_simulation.astype("float32").values.T)
+
+    if df_el_position_features is not None:
+        ds.coords['el_position_feature_name'] = df_el_position_features.columns
+        ds['el_position_feature'] = (('el_position', 'el_position_feature_name'),
+                                     df_el_position_features.astype("float32").values),
+    if df_event_features is not None:
+        ds.coords['event_feature_name'] = df_event_features.columns
+        ds['event_feature'] = ('event_feature_name', df_event_features.astype("float32").values.reshape(-1))
 
     return ds

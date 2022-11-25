@@ -22,19 +22,19 @@ if __name__ == "__main__":
     from analyses.analysis_RB_with_yaml.utils_RB import *
 
     # store hdf in
-    hdf_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20220707_simulation'
+    hdf_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20221123_snapshot_simulation'
     Path(hdf_dir).mkdir(parents=True, exist_ok=True)
     # store plots in
-    plot_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20220707_sim_plots'
+    plot_dir = r'\\eosproject-smb\eos\project\m\ml-for-alarm-system\private\RB_signals\20221123_snapshot_sim_plots'
     Path(plot_dir).mkdir(parents=True, exist_ok=True)
 
-    # load mp3 files
-    mp3_excel_path = r'C:\Users\cobermai\cernbox\SWAN_projects\lhc-anomaly-detection\data\RB_TC_extract_2022_07_07_processed_filled.csv'
+    # load mp3 files r'C:\Users\cobermai\cernbox\SWAN_projects\lhc-anomaly-detection\data\RB_TC_extract_2022_07_07_processed_filled.csv'
+    mp3_excel_path = r'C:\Users\cobermai\cernbox\SWAN_projects\lhc-anomaly-detection\data\RB_snapshot_context.csv'
     mp3_fpa_df = pd.read_csv(mp3_excel_path)
 
     # secondary quenches have same timestamp as primary quenches
     mp3_fpa_df_unique = mp3_fpa_df.drop_duplicates(
-        subset=['timestamp_fgc', 'Circuit Name'])
+        subset=['timestamp_fgc', 'Circuit'])
 
     # only events > 2014 (1388530800000000000), string to unix timestamp with
     # only events = 2021 (1608530800000000000), string to unix timestamp with
@@ -44,12 +44,11 @@ if __name__ == "__main__":
         mp3_fpa_df_unique['timestamp_fgc'] >= lower_threshold_unix)].reset_index(drop=True)
 
     for index, row in mp3_fpa_df_period.iterrows():
-        fpa_identifier = f"{row['Circuit Family']}_{row['Circuit Name']}_{int(row['timestamp_fgc'])}"
+        fpa_identifier = f"{row['fpa_identifier']}"
 
         if not os.path.isfile(Path(plot_dir) / (fpa_identifier + ".png")):
 
-            mp3_fpa_df_subset = mp3_fpa_df[(mp3_fpa_df['Circuit Name'] == row['Circuit Name']) &
-                                           (mp3_fpa_df['timestamp_fgc'] == int(row['timestamp_fgc']))]
+            mp3_fpa_df_subset = mp3_fpa_df[(mp3_fpa_df['fpa_identifier'] == row['fpa_identifier'])]
 
             ################################ Define simulation inputs ################################
             # Define flags and settings
@@ -59,7 +58,7 @@ if __name__ == "__main__":
             parameters_set = 0
 
             context_data = {
-                "selected_circuit": row['Circuit Name'],
+                "selected_circuit": row['Circuit'],
                 "I_end_2_from_data": mp3_fpa_df_subset['I_Q_M'].max(),
                 "dI_dt_from_data": float(mp3_fpa_df_subset['dI_dt_from_data'].values[0]),
                 "EE_quantities": {'R_EE_odd': float(mp3_fpa_df_subset['U_EE_max_ODD'].values[0]) 
@@ -69,8 +68,8 @@ if __name__ == "__main__":
                                   't_EE_odd': float(mp3_fpa_df_subset['Delta_t(EE_odd-PIC)'].values[0]) / 1000,
                                   't_EE_even': float(mp3_fpa_df_subset['Delta_t(EE_even-PIC)'].values[0]) / 1000},
                 "current_level_quenches": list(mp3_fpa_df_subset['I_Q_M'].values),
-                "t_shifts": list(mp3_fpa_df_subset['Delta_t(iQPS-PIC)'].dropna() / 1000),
-                "quenching_magnets": mp3_fpa_df_subset['Position'].tolist()[:len(mp3_fpa_df_subset['Delta_t(iQPS-PIC)'].dropna())]
+                "t_shifts": [],#list(mp3_fpa_df_subset['Delta_t(iQPS-PIC)'].dropna() / 1000),
+                "quenching_magnets": []#mp3_fpa_df_subset['Position'].tolist()[:len(mp3_fpa_df_subset['Delta_t(iQPS-PIC)'].dropna())]
             }
             print(context_data)
             # Check if any value in context data is nan
