@@ -390,3 +390,73 @@ def plot_avg_component_weight(ax, c_weights, component_number, xlabel):
     ax.set_xlabel(xlabel)
     ax.fill_between(c_weights["index"], lower_error, upper_error, alpha=0.1, edgecolor=default_colors[ck],
                     facecolor=default_colors[ck])
+
+def plot_distribution_over_column(c_weights_dict, mp3_fpa_df_unique, fpa_identifiers, column, columns_values):
+    n_components = c_weights_dict["El. Position"]["values"].shape[-1]
+    for k in range(n_components):
+        snr_sorted_index = np.argsort([-c_weights_dict[sort]["snr"][k] for sort in c_weights_dict])[0]
+
+        fig, ax = plt.subplots(1,len(columns_values), figsize =(len(columns_values)*4,4))
+        sort = np.array(list(c_weights_dict))[snr_sorted_index]
+
+        data = c_weights_dict[sort]["values"][..., k]
+        y_max = data[np.isfinite(data)].max()
+
+        for i, circuit in enumerate(columns_values):
+            circuit_fpa_identifiers = mp3_fpa_df_unique[mp3_fpa_df_unique[column] == circuit].fpa_identifier
+            circuit_bool = np.isin(fpa_identifiers, circuit_fpa_identifiers)
+
+            circuit_data_dict = {"values": c_weights_dict[sort]["values"][circuit_bool],
+                                 "index": c_weights_dict[sort]["index"]}
+
+            plot_avg_component_weight(ax[i], circuit_data_dict, component_number=k, xlabel=f"{circuit} {sort}")
+
+            ax[i].set_ylim((0, y_max))
+            if i == 0:
+                yticks = ax[i].get_yticks().tolist()
+                ax[i].set_yticklabels([f"$10^{{{(3*a-5):.2f}}}$" for a in yticks], fontsize="large")
+                ax[i].set_ylabel("Voltage / V")
+            else:
+                ax[i].set_yticks([])
+
+        plt.tight_layout()
+
+
+def plot_component_distribution(c_weights_dict, mp3_fpa_df_subset, event_sort, event_sort_ticks, is_date=False):
+    n_components = c_weights_dict["El. Position"]["values"].shape[-1]
+
+    mp3_fpa_df_sorted = mp3_fpa_df_subset.reset_index(drop=True).sort_values(by=event_sort)
+    event_sort_index = mp3_fpa_df_sorted.index.values
+    mp3_fpa_df_sorted = mp3_fpa_df_sorted.reset_index()
+
+    first_entry_df = mp3_fpa_df_sorted[event_sort_ticks].drop_duplicates()
+    y_tick_index = first_entry_df.index.values
+    yticklabels = mp3_fpa_df_sorted.iloc[y_tick_index][event_sort]
+    if is_date:
+        yticklabels = yticklabels.apply(lambda x: x.strftime(format='%b %d'))
+
+    fig, ax = plt.subplots(1, (n_components + 1), figsize=(4 * (n_components + 1), 10))
+    for n in range(n_components):
+        snr_sorted_index = np.argsort([-c_weights_dict[sort]["snr"][n] for sort in c_weights_dict])[0]
+        position_sort = np.array(list(c_weights_dict))[snr_sorted_index]
+
+        extent = [1, 154, len(mp3_fpa_df_sorted), 0]
+
+        ax[n].set_title(f"component {n}")
+        im_data = np.nan_to_num(c_weights_dict[position_sort]["values"][event_sort_index, :, n])
+        im = ax[n].imshow(im_data, extent=extent, cmap="magma", origin="upper", aspect="auto", vmin=0, vmax=0.5)
+        ax[n].set_xlabel(f"{position_sort}")
+        ax[n].set_ylabel(f"{event_sort}")
+
+        ax[n].set_yticks(y_tick_index[::-1])
+        ax[n].set_yticklabels(yticklabels[::-1])
+
+    cbar = fig.colorbar(im, ax=ax[-1], fraction=1)
+    cbar.set_label('Voltage / V')
+    ax[-1].set_axis_off()
+    cticks = cbar.get_ticks().tolist()
+    cbar.set_ticks(cticks)
+    cbar.set_ticklabels([f"$10^{{{(3 * a - 5):.2f}}}$" for a in cticks])
+    cbar.ax.tick_params(labelsize=12)
+
+    plt.tight_layout()

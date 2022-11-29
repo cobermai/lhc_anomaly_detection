@@ -100,3 +100,55 @@ def main_mirror_to_el(main: np.array, mirror: np.array, quench_pos: int) -> np.a
         matrix[:center] = np.roll(main, -center + quench_pos, axis=0)[:center]
         matrix[center:] = np.roll(mirror, center - quench_pos, axis=0)[center:]  # 153 - center - quench_pos
     return matrix
+
+
+def generate_sorted_value_dict(values: np.array, df_pos_map: pd.DataFrame,
+                               df_event_context: pd.DataFrame, sort_columns: Optional[list] = None,
+                               current_sort: str = 'El. Position') -> dict:
+    """
+    sorts values by sort_columns and puts them in dict, calculates snr for each entry
+    :param values: values to sort, dim: (events, n_magnets, n_components)
+    :param df_pos_map: lookup table to map positions, must contain sort_columns
+    :param df_event_context: Dataframe which contains 'Circuit', "El. Quench Position" and "Phys. Quench Position"
+    for each event
+    :param sort_columns: columns to sort by
+    :param current_sort: current sort of df_pos_map
+    :return: sorted dict with values, index and snr
+    """
+    el_filt_list = df_event_context[['Circuit', "El. Quench Position"]].to_dict(orient='records')
+    phys_filt_list = df_event_context[['Circuit', "Phys. Quench Position"]].to_dict(orient='records')
+
+    if sort_columns is None:
+        sort_columns = ['El. Position', 'Phys. Position', 'Phys. Position ODD', 'Phys. Position EVEN',
+                        'Phys. Dist. to PC', 'Phys. Dist. to Quench', 'El. Dist. to Quench Main',
+                        'El. Dist. to Quench Mirror']
+
+    c_weights_dict = {}
+    for target in sort_columns:
+        print(target)
+        max_index = int(df_pos_map[target].max())
+        if "El." in target:
+            filt_list = el_filt_list
+        elif "Phys." in target:
+            filt_list = phys_filt_list
+
+        mask = np.empty((values.shape[0], max_index + 1, values.shape[-1])) * np.nan
+        for i, f in enumerate(filt_list):
+            index = map_position_index(df_pos_map, origin=current_sort, to=target, filt=f)
+            target_index = map_position_index(df_pos_map, origin=target, to=target, filt=f)
+            mask[i][target_index] = values[i][index]
+
+        if 'Quench' in target:
+            x_label = np.arange(-int((max_index + 1) / 2), int((max_index + 2) / 2))
+        else:
+            x_label = np.arange(1, int(max_index + 2))
+
+        c_weights_dict[target] = {"values": mask,
+                                  "index": x_label}
+    # add snr for each method
+    for sort in c_weights_dict:
+        y = np.nanmean(c_weights_dict[sort]["values"], axis=0)
+        error = np.nanstd(c_weights_dict[sort]["values"], axis=0)
+        c_weights_dict[sort]["snr"] = np.nanmean(calc_snr(y, error), axis=0)
+
+    return c_weights_dict
