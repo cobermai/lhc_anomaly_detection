@@ -193,24 +193,24 @@ def plot_position_frequency_map_ee_plateau(fpa_identifier,
     plt.close(fig)
 
 def plot_NMF(X, W, H,
-             frequency_cut: Optional[pd.DataFrame]=None,
+             frequency: Optional[pd.DataFrame]=None,
              event_idex=1,
-             mp3_fpa_df_subset: Optional[pd.DataFrame]=None,
+             event_context: Optional[pd.DataFrame]=None,
              hyperparameters: Optional[dict]=None):
     image_len = 154
     x_fft_cut = X[event_idex * image_len: event_idex * image_len + image_len]
-    if frequency_cut is None:
-        frequency_cut = np.arange(len(x_fft_cut[0]))
+    if frequency is None:
+        frequency = np.arange(len(x_fft_cut[0]))
     if hyperparameters:
         fig, ax = plt.subplots(2,3, figsize=(20,12))
     else:
         fig, ax = plt.subplots(2, 2, figsize=(15, 12))
-    plot_position_frequency_map(ax[0, 0], x_fft_cut, frequency_cut, norm=None)
+    plot_position_frequency_map(ax[0, 0], x_fft_cut, frequency, norm=None, vmin=0, vmax=1)
     ax[0, 0].set_ylabel('Frequency / Hz')
     ax[0, 0].set_xlabel('Position')
-    if mp3_fpa_df_subset is not None:
-        ax[0, 0].set_title(f'original image {mp3_fpa_df_subset.fpa_identifier.values[0]}\n'
-                           f'{mp3_fpa_df_subset.Timestamp_PIC.values[0]}')
+    if event_context is not None:
+        ax[0, 0].set_title(f'original image {event_context.fpa_identifier.values[0]}\n'
+                           f'{event_context.Timestamp_PIC.values[0]}')
 
     ax[1, 0].plot(W[event_idex * image_len:event_idex * image_len + image_len])
     ax[1, 0].set_ylabel('value')
@@ -219,17 +219,18 @@ def plot_NMF(X, W, H,
     ax[1, 0].legend([f"component {i}" for i in range(len(H))])
     ax[1, 0].set_xlim([0, image_len])
 
-    ax[0, 1].plot(frequency_cut, H.T)
+    ax[0, 1].plot(frequency, H.T)
     ax[0, 1].set_xlabel('frequency')
     ax[0, 1].set_ylabel('value')
     ax[0, 1].set_title('reconstructed frequency components')
     ax[0, 1].legend([f"component {i}" for i in range(len(H))])
-    ax[0, 1].set_xlim([frequency_cut.min(), frequency_cut.max()])
+    ax[0, 1].set_xlim([frequency.min(), frequency.max()])
 
     x_fft_reconstructed = W[event_idex * image_len:event_idex * image_len + image_len] @ H
-    plot_position_frequency_map(ax[1, 1], x_fft_reconstructed, frequency_cut, norm=None)#, vmin=None, vmax=None)
+    plot_position_frequency_map(ax[1, 1], x_fft_reconstructed, frequency, norm=None, vmin=0, vmax=1)
     ax[1, 1].set_ylabel('Frequency / Hz')
     ax[1, 1].set_xlabel('Position')
+    ax[1, 1].set_title(f"reconstructed image \nloss: {np.linalg.norm(X - W @ H):.2f}")
 
     if hyperparameters:
         ax[0, 2].set_axis_off()

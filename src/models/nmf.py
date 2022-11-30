@@ -4,6 +4,7 @@
 #         Lars Buitinck
 #         Mathieu Blondel <mathieu@mblondel.org>
 #         Tom Dupre la Tour
+# Changes applied by Christoph Obermair
 # License: BSD 3 clause
 
 from math import sqrt
@@ -12,8 +13,8 @@ import numbers
 import time
 
 import numpy as np
+import pandas as pd
 import scipy.sparse as sp
-from matplotlib import pyplot as plt
 
 from sklearn.decomposition.cdnmf_fast import _update_cdnmf_fast
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -480,6 +481,7 @@ def _initialize_nmf(X, n_components, init=None, eps=1e-6,
 
     return W, H
 
+
 def _update_coordinate_descent(X, W, Ht, l1_reg, l2_reg, shuffle,
                                random_state):
     """Helper function for _fit_coordinate_descent
@@ -513,7 +515,7 @@ def _update_coordinate_descent(X, W, Ht, l1_reg, l2_reg, shuffle,
 
 def _fit_coordinate_descent(X, W, H, tol=1e-4, max_iter=200, l1_reg_W=0,
                             l1_reg_H=0, l2_reg_W=0, l2_reg_H=0, update_H=True,
-                            verbose=0, shuffle=False, random_state=None, ortho_reg=0):
+                            verbose=0, shuffle=False, random_state=None, not_fit_H_idx=None):
     """Compute Non-negative Matrix Factorization (NMF) with Coordinate Descent
 
     The objective function is minimized with an alternating minimization of W
@@ -599,6 +601,10 @@ def _fit_coordinate_descent(X, W, H, tol=1e-4, max_iter=200, l1_reg_W=0,
         if update_H:
             violation += _update_coordinate_descent(X.T, Ht, W, l1_reg_H,
                                                     l2_reg_H, shuffle, rng)
+        if not_fit_H_idx is not None:
+            Htt = Ht.T
+            Htt[not_fit_H_idx] = H[not_fit_H_idx]
+            Ht = Htt.T
 
         if n_iter == 0:
             violation_init = violation
@@ -612,7 +618,9 @@ def _fit_coordinate_descent(X, W, H, tol=1e-4, max_iter=200, l1_reg_W=0,
         if violation / violation_init <= tol:
             if verbose:
                 print("Converged at iteration", n_iter + 1)
-            #break
+            # break
+
+
 
     return W, Ht.T, n_iter
 
@@ -734,7 +742,7 @@ def _multiplicative_update_h(X, W, H, beta_loss, l1_reg_H, l2_reg_H, gamma,
     """update H in Multiplicative Update NMF"""
     X_mask = X.mask if isinstance(X, np.ma.masked_array) else False
 
-    if beta_loss == 2: # Frobenius
+    if beta_loss == 2:  # Frobenius
         if X_mask is False:
             numerator = safe_sparse_dot(W.T, X)
             denominator = np.dot(np.dot(W.T, W), H)
@@ -743,6 +751,7 @@ def _multiplicative_update_h(X, W, H, beta_loss, l1_reg_H, l2_reg_H, gamma,
             WH = _special_dot_X(W, H, X, out=WH)
             denominator = _safe_dot(W.T, WH)
 
+        # orthogonal regularization added by Christoph Obermair
         if ortho_reg != 0:
             HHTH = H.dot(H.T).dot(H)
             numerator += ortho_reg * H
@@ -813,8 +822,6 @@ def _multiplicative_update_h(X, W, H, beta_loss, l1_reg_H, l2_reg_H, gamma,
                 WtWH = _safe_dot(W.T, WH)
             denominator = WtWH
 
-
-
     # Add L1 and L2 regularization
     if l1_reg_H > 0:
         denominator += l1_reg_H
@@ -835,7 +842,7 @@ def _multiplicative_update_h(X, W, H, beta_loss, l1_reg_H, l2_reg_H, gamma,
 def _fit_multiplicative_update(X, W, H, beta_loss='frobenius',
                                max_iter=200, tol=1e-4,
                                l1_reg_W=0, l1_reg_H=0, l2_reg_W=0, l2_reg_H=0,
-                               update_H=True, verbose=0, ortho_reg=0):
+                               update_H=True, verbose=0, ortho_reg=0, not_fit_H_idx=None):
     """Compute Non-negative Matrix Factorization with Multiplicative Update
 
     The objective function is _beta_divergence(X, WH) and is minimized with an
@@ -942,9 +949,12 @@ def _fit_multiplicative_update(X, W, H, beta_loss='frobenius',
 
         # update H
         if update_H:
+            H_old = H
             delta_H = _multiplicative_update_h(X, W, H, beta_loss, l1_reg_H,
                                                l2_reg_H, gamma, WH, ortho_reg=ortho_reg)
             H *= delta_H
+            if not_fit_H_idx is not None:
+                H[not_fit_H_idx] = H_old[not_fit_H_idx]
 
             # These values will be recomputed since H changed
             H_sum, HHt, XHt = None, None, None
@@ -952,6 +962,7 @@ def _fit_multiplicative_update(X, W, H, beta_loss='frobenius',
             # necessary for stability with beta_loss < 1
             if beta_loss <= 1:
                 H[H < np.finfo(np.float64).eps] = 0.
+
 
 
         # test convergence criterion every 10 iterations
@@ -963,9 +974,9 @@ def _fit_multiplicative_update(X, W, H, beta_loss='frobenius',
                 print("Epoch %02d reached after %.3f seconds, error: %f" %
                       (n_iter, iter_time - start_time, error))
 
-            #if (previous_error - error) / error_at_init < tol:
-                #break
-            #previous_error = error
+            # if (previous_error - error) / error_at_init < tol:
+            # break
+            # previous_error = error
 
     # do not print if we have already printed in the convergence test
     if verbose and (tol == 0 or n_iter % 10 != 0):
@@ -979,9 +990,9 @@ def _fit_multiplicative_update(X, W, H, beta_loss='frobenius',
 def non_negative_factorization(X, W=None, H=None, n_components=None,
                                init='warn', update_H=True, solver='cd',
                                beta_loss='frobenius', tol=1e-4,
-                               max_iter=200, alpha=0., l1_ratio=0.,
+                               max_iter=200, alpha=0., l1_ratio=0., ortho_reg=0.,
                                regularization=None, random_state=None,
-                               verbose=0, shuffle=False, ortho_reg=0):
+                               verbose=0, shuffle=False, normalize_H=False, not_fit_H_idx=None, not_init_H_idx=None):
     r"""Compute Non-negative Matrix Factorization (NMF)
 
     Find two non-negative matrices (W, H) whose product approximates the non-
@@ -1092,6 +1103,9 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
         For l1_ratio = 1 it is an elementwise L1 penalty.
         For 0 < l1_ratio < 1, the penalty is a combination of L1 and L2.
 
+    ortho_reg: double, default: 0. (by Christoph Obermair)
+        weight of orthogonal regularization. must be used with mu solver
+
     regularization : 'both' | 'components' | 'transformation' | None
         Select whether the regularization affects the components (H), the
         transformation (W), both or none of them.
@@ -1107,6 +1121,12 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
 
     shuffle : boolean, default: False
         If true, randomize the order of coordinates in the CD solver.
+
+    not_fit_H_idx: list, by Christoph Obermair
+        List with book or int, with component numbers not to fit
+
+    not_init_H_idx: list, by Christoph Obermair
+        List with book or int, with component numbers not to initialize again
 
     Returns
     -------
@@ -1177,6 +1197,9 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
                           "with decomposition.NMF.", FutureWarning)
         init = "random"
 
+    if not_fit_H_idx is not None:
+        not_init_H_idx = not_fit_H_idx
+
     # check W and H, or initialize them
     if init == 'custom' and update_H:
         _check_init(H, (n_components, n_features), "NMF (input H)")
@@ -1190,8 +1213,16 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
         else:
             W = np.zeros((n_samples, n_components))
     else:
-        W, H = _initialize_nmf(X, n_components, init=init,
-                               random_state=random_state)
+        if not_init_H_idx is not None:
+            init = "random"
+
+        W, H_init = _initialize_nmf(X, n_components, init=init, random_state=random_state)
+        # added by Christoph Obermair
+        # if given components are smaller n_components, they are filled up with random numbers
+        # used to retrain certain components
+        if not_init_H_idx is not None:
+            H_init[not_init_H_idx] = H[not_init_H_idx]
+        H = H_init
 
     l1_reg_W, l1_reg_H, l2_reg_W, l2_reg_H = _compute_regularization(
         alpha, l1_ratio, regularization)
@@ -1204,12 +1235,12 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
                                                verbose=verbose,
                                                shuffle=shuffle,
                                                random_state=random_state,
-                                               ortho_reg=ortho_reg)
+                                               not_fit_H_idx=not_fit_H_idx)
     elif solver == 'mu':
         W, H, n_iter = _fit_multiplicative_update(X, W, H, beta_loss, max_iter,
                                                   tol, l1_reg_W, l1_reg_H,
                                                   l2_reg_W, l2_reg_H, update_H,
-                                                  verbose, ortho_reg)
+                                                  verbose, ortho_reg, not_fit_H_idx)
 
     else:
         raise ValueError("Invalid solver parameter '%s'." % solver)
@@ -1217,6 +1248,11 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
     if n_iter == max_iter and tol > 0:
         warnings.warn("Maximum number of iteration %d reached. Increase it to"
                       " improve convergence." % max_iter, ConvergenceWarning)
+
+    if normalize_H:
+        max_H = H.max(axis=1, keepdims=True)
+        H = H / max_H
+        W = (W * np.expand_dims(max_H.T, axis=0))[0]
 
     return W, H, n_iter
 
@@ -1330,6 +1366,9 @@ class NMF(BaseEstimator, TransformerMixin):
            Regularization parameter *l1_ratio* used in the Coordinate Descent
            solver.
 
+    ortho_reg: double, default: 0. (by Christoph Obermair)
+        weight of orthogonal regularization. must be used with mu solver
+
     verbose : bool, default=False
         Whether to be verbose.
 
@@ -1338,6 +1377,9 @@ class NMF(BaseEstimator, TransformerMixin):
 
         .. versionadded:: 0.17
            *shuffle* parameter used in the Coordinate Descent solver.
+
+    ortho_reg: int, default: 0. (by Christoph Obermair)
+        weight of orthogonal regularization. must be used with mu solver
 
     Attributes
     ----------
@@ -1351,6 +1393,9 @@ class NMF(BaseEstimator, TransformerMixin):
 
     n_iter_ : int
         Actual number of iterations.
+
+    fit_time_ : double
+        time needed to fit W and H
 
     Examples
     --------
@@ -1374,8 +1419,8 @@ class NMF(BaseEstimator, TransformerMixin):
 
     def __init__(self, n_components=None, init=None, solver='cd',
                  beta_loss='frobenius', tol=1e-4, max_iter=200,
-                 random_state=None, alpha=0., l1_ratio=0., verbose=0,
-                 shuffle=False):
+                 random_state=None, alpha=0., l1_ratio=0., ortho_reg=0., verbose=0,
+                 shuffle=False, normalize_H=False):
         self.n_components = n_components
         self.init = init
         self.solver = solver
@@ -1385,10 +1430,12 @@ class NMF(BaseEstimator, TransformerMixin):
         self.random_state = random_state
         self.alpha = alpha
         self.l1_ratio = l1_ratio
+        self.ortho_reg = ortho_reg
         self.verbose = verbose
         self.shuffle = shuffle
+        self.normalize_H = normalize_H
 
-    def fit_transform(self, X, y=None, W=None, H=None):
+    def fit_transform(self, X, y=None, W=None, H=None, not_fit_H_idx=None, not_init_H_idx=None):
         """Learn a NMF model for the data X and returns the transformed data.
 
         This is more efficient than calling fit followed by transform.
@@ -1406,6 +1453,12 @@ class NMF(BaseEstimator, TransformerMixin):
         H : array-like, shape (n_components, n_features)
             If init='custom', it is used as initial guess for the solution.
 
+        not_fit_H_idx: list, by Christoph Obermair
+            List with book or int, with component numbers not to fit
+
+        not_init_H_idx: list, by Christoph Obermair
+            List with book or int, with component numbers not to initialize again
+
         Returns
         -------
         W : array, shape (n_samples, n_components)
@@ -1414,13 +1467,16 @@ class NMF(BaseEstimator, TransformerMixin):
         X = check_array(X, accept_sparse=('csr', 'csc'), dtype=float,
                         force_all_finite=False)
 
+        start_time = time.time()
         W, H, n_iter_ = non_negative_factorization(
             X=X, W=W, H=H, n_components=self.n_components, init=self.init,
             update_H=True, solver=self.solver, beta_loss=self.beta_loss,
             tol=self.tol, max_iter=self.max_iter, alpha=self.alpha,
             l1_ratio=self.l1_ratio, regularization='both',
             random_state=self.random_state, verbose=self.verbose,
-            shuffle=self.shuffle)
+            shuffle=self.shuffle, ortho_reg=self.ortho_reg, normalize_H=self.normalize_H,
+            not_fit_H_idx=not_fit_H_idx, not_init_H_idx=not_init_H_idx)
+        self.fit_time_ = time.time() - start_time
 
         self.reconstruction_err_ = _beta_divergence(X, W, H, self.beta_loss,
                                                     square_root=True)
@@ -1467,7 +1523,7 @@ class NMF(BaseEstimator, TransformerMixin):
             X=X, W=None, H=self.components_, n_components=self.n_components_,
             init=self.init, update_H=False, solver=self.solver,
             beta_loss=self.beta_loss, tol=self.tol, max_iter=self.max_iter,
-            alpha=self.alpha, l1_ratio=self.l1_ratio, regularization='both',
+            alpha=self.alpha, l1_ratio=self.l1_ratio, regularization='both', normalize_H=self.normalize_H,
             random_state=self.random_state, verbose=self.verbose,
             shuffle=self.shuffle)
 
@@ -1490,3 +1546,36 @@ class NMF(BaseEstimator, TransformerMixin):
         """
         check_is_fitted(self, 'n_components_')
         return np.dot(W, self.components_)
+
+    def evaluate(self, X, W):
+        """ Author: Christop Obermair
+        evaluate NMF
+
+        Parameters
+        ----------
+        X : {array-like, sparse matrix}, shape (n_samples, n_features)
+            Data matrix to be transformed by the model
+        W : {array-like, sparse matrix}, shape (n_samples, n_components)
+            Transformed data matrix
+
+        Returns
+        -------
+        results : dict, shape (1, n_eval_parameter)
+                  table with results
+        """
+        H_norm = self.components_ / np.linalg.norm(self.components_, axis=1, keepdims=True)
+
+        results = {
+            'duration': self.fit_time_,
+            'violation': np.linalg.norm(X - W @ self.components_),
+            'n_iter': self.n_iter_,
+            'l2_transformation': np.linalg.norm(W) / self.n_components_,
+            'l2_components': np.linalg.norm(self.components_) / self.n_components_,
+            'l2_sum': (np.linalg.norm(self.components_) + np.linalg.norm(W)) / self.n_components_,
+            'l1_transformation': (np.sum(W)) / self.n_components_,
+            'l1_components': (np.sum(self.components_)) / self.n_components_,
+            'l1_sum': (np.sum(self.components_) + np.sum(W)) / self.n_components_,
+            'ortho_components': (np.linalg.norm(H_norm @ H_norm.T - np.eye(len(H_norm)))) / len(H_norm)
+
+        }
+        return results

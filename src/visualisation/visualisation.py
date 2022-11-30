@@ -1,4 +1,5 @@
 from pathlib import Path
+from PIL import Image
 
 import matplotlib.pyplot as plt
 import re
@@ -25,3 +26,9 @@ def plot_hdf(data: list, column_regex: list = [""], fig_path: Path = None):
     else:
         plt.savefig(str(fig_path))
     fig.clf()
+
+
+def make_gif(im_paths, output_path):
+    imgs = (Image.open(f) for f in im_paths)
+    img = next(imgs)  # extract first image from iterator
+    img.save(fp=output_path / "summary.gif", format='GIF', append_images=imgs, save_all=True, duration=400, loop=0)
