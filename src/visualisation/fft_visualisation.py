@@ -423,16 +423,19 @@ def plot_distribution_over_column(c_weights_dict, mp3_fpa_df_unique, fpa_identif
         plt.tight_layout()
 
 
-def plot_component_distribution(c_weights_dict, mp3_fpa_df_subset, event_sort, event_sort_ticks, is_date=False):
+def plot_component_distribution(c_weights_dict, mp3_fpa_df_subset, event_sort, event_sort_ticks, event_index=None,
+                                is_date=False):
+    if event_index is None:
+        event_index = np.ones(len(mp3_fpa_df_subset), dtype=bool) 
     n_components = c_weights_dict["El. Position"]["values"].shape[-1]
 
-    mp3_fpa_df_sorted = mp3_fpa_df_subset.reset_index(drop=True).sort_values(by=event_sort)
+    mp3_fpa_df_sorted = mp3_fpa_df_subset.reset_index(drop=True)[event_index].sort_values(by=event_sort)
     event_sort_index = mp3_fpa_df_sorted.index.values
     mp3_fpa_df_sorted = mp3_fpa_df_sorted.reset_index()
 
     first_entry_df = mp3_fpa_df_sorted[event_sort_ticks].drop_duplicates()
     y_tick_index = first_entry_df.index.values
-    yticklabels = mp3_fpa_df_sorted.iloc[y_tick_index][event_sort]
+    yticklabels = mp3_fpa_df_sorted.iloc[y_tick_index][event_sort[0]]
     if is_date:
         yticklabels = yticklabels.apply(lambda x: x.strftime(format='%b %d'))
 
@@ -447,7 +450,7 @@ def plot_component_distribution(c_weights_dict, mp3_fpa_df_subset, event_sort, e
         im_data = np.nan_to_num(c_weights_dict[position_sort]["values"][event_sort_index, :, n])
         im = ax[n].imshow(im_data, extent=extent, cmap="magma", origin="upper", aspect="auto", vmin=0, vmax=0.5)
         ax[n].set_xlabel(f"{position_sort}")
-        ax[n].set_ylabel(f"{event_sort}")
+        ax[n].set_ylabel(f"{event_sort_ticks}")
 
         ax[n].set_yticks(y_tick_index[::-1])
         ax[n].set_yticklabels(yticklabels[::-1])
@@ -461,3 +464,45 @@ def plot_component_distribution(c_weights_dict, mp3_fpa_df_subset, event_sort, e
     cbar.ax.tick_params(labelsize=12)
 
     plt.tight_layout()
+
+def plot_cweight_distribution_all_data(components, c_weights_dict, frequency, plot_n_highest_snr=2):
+
+    n_components = c_weights_dict["El. Position"]["values"].shape[-1]
+    default_colors = plt.rcParams['axes.prop_cycle'].by_key()['color'] * 5
+
+    best_sort_index = []
+    for k in range(n_components):
+
+        snr_sorted_index = np.argsort([-c_weights_dict[sort]["snr"][k] for sort in c_weights_dict])[:plot_n_highest_snr]
+        best_sort_index.append(snr_sorted_index[0])
+
+        fig, ax = plt.subplots(1,plot_n_highest_snr+2, figsize =(5*(plot_n_highest_snr+2),4))
+        ax[0].plot(frequency, components[k], c=default_colors[k % n_components])
+        ax[0].set_title(f"Component {k}")
+        ax[0].set_xlabel("Frequency / Hz")
+        ax[0].set_ylabel("Amplitude")
+        ax[0].grid()
+
+        if "Quench" in list(c_weights_dict)[snr_sorted_index[0]]:
+            ax[0].set_title(f"Component {k}: DYNAMIC")
+        else:
+            ax[0].set_title(f"Component {k}: STATIC")
+
+        for i, sort in enumerate(np.array(list(c_weights_dict))[snr_sorted_index]):
+            plot_avg_component_weight(ax[i+1], c_weights_dict[sort], component_number=k, xlabel=sort)
+
+            yticks = ax[i+1].get_yticks().tolist()
+
+            ax[i+1].set_yticklabels([f"$10^{{{(3*a-5):.2f}}}$" for a in yticks], fontsize="large")
+            ax[i+1].set_ylabel("Voltage / V")
+            ax[i+1].set_ylim(ax[1].get_ylim())
+
+
+        best_sort = list(c_weights_dict)[snr_sorted_index[0]]
+        V_mean = np.nanmean(c_weights_dict[best_sort]["values"], axis=0)[:, k:k+1] @  components[k:k+1]
+        plot_position_frequency_map(ax[-1], V_mean, frequency, norm=None, vmin=0, vmax=1)
+        ax[-1].set_xlabel(best_sort)
+        ax[-1].set_ylabel("Frequency / Hz")
+
+        plt.tight_layout()
+    return best_sort_index

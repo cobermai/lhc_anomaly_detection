@@ -44,7 +44,6 @@ def NMF_sensitivity_analysis(data: np.array,
     im_paths = []
     for index, row in df_meshgrid.iterrows():
         print(row)
-        im_path = plot_path / (str(index) + "_" + '_'.join(row.astype(str).values) + '.png')
 
         # fit and transform NMF, fit both W and H
         nmf_model = NMF(**row.to_dict())
@@ -54,38 +53,9 @@ def NMF_sensitivity_analysis(data: np.array,
         plt.title("normal")
         plt.show()
 
-        merge_component_index = [0, [2, 6], [1, 3, 4, 7, 8], 5, 9]
-        H_merged = merge_array(H.T, merge_component_index, axis=-1, func=np.sum).T
-        W_merged = merge_array(W, merge_component_index, axis=-1, func=np.mean)
-        plot_NMF(data, W_merged, H_merged, frequency=frequency, event_context=event_context, hyperparameters=row.to_dict())
-        plt.title("merged components")
-        plt.show()
-
-        # fit and transform NMF, fit W, init with part of H
-
-        H_new = np.zeros_like(H)
-
-        H_new[:len(H_merged)] = H_merged
-        nmf_model = NMF(**row.to_dict())
-        nmf_model.fit(X=data, H=H_new, not_init_H_idx=[0, 1, 2, 3, 4]) # init with part of existing H, everything is still trained
-        W = nmf_model.transform(X=data)
-        H = nmf_model.components_
-        plot_NMF(data, W, H, frequency=frequency, event_context=event_context, hyperparameters=row.to_dict())
-        plt.title("init with part of H")
-        plt.show()
-
-        # fit and transform NMF, fit W, not train part of H, cd
-        nmf_model = NMF(**row.to_dict())
-        nmf_model.fit(X=data, H=H_new, not_fit_H_idx=[0, 1, 2, 3, 4]) # init with part of existing H, everything is still trained
-        W = nmf_model.transform(X=data)
-        H = nmf_model.components_
-        plot_NMF(data, W, H, frequency=frequency, event_context=event_context, hyperparameters=row.to_dict())
-        plt.title("not train part of H, cd")
-        plt.show()
-
         # log results
-        #results = nmf_model.evaluate(X=data, W=W)
-        #df_results.loc[index, list(results.keys())] = results.values()
+        results = nmf_model.evaluate(X=data, W=W)
+        df_results.loc[index, list(results.keys())] = results.values()
 
         # plot example
         plot_NMF(data, W, H, frequency=frequency, event_context=event_context, hyperparameters=row.to_dict())

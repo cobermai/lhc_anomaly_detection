@@ -992,7 +992,7 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
                                beta_loss='frobenius', tol=1e-4,
                                max_iter=200, alpha=0., l1_ratio=0., ortho_reg=0.,
                                regularization=None, random_state=None,
-                               verbose=0, shuffle=False, normalize_H=False, not_fit_H_idx=None, not_init_H_idx=None):
+                               verbose=0, shuffle=False, not_fit_H_idx=None, not_init_H_idx=None):
     r"""Compute Non-negative Matrix Factorization (NMF)
 
     Find two non-negative matrices (W, H) whose product approximates the non-
@@ -1249,11 +1249,6 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
         warnings.warn("Maximum number of iteration %d reached. Increase it to"
                       " improve convergence." % max_iter, ConvergenceWarning)
 
-    if normalize_H:
-        max_H = H.max(axis=1, keepdims=True)
-        H = H / max_H
-        W = (W * np.expand_dims(max_H.T, axis=0))[0]
-
     return W, H, n_iter
 
 
@@ -1420,7 +1415,7 @@ class NMF(BaseEstimator, TransformerMixin):
     def __init__(self, n_components=None, init=None, solver='cd',
                  beta_loss='frobenius', tol=1e-4, max_iter=200,
                  random_state=None, alpha=0., l1_ratio=0., ortho_reg=0., verbose=0,
-                 shuffle=False, normalize_H=False):
+                 shuffle=False):
         self.n_components = n_components
         self.init = init
         self.solver = solver
@@ -1433,7 +1428,6 @@ class NMF(BaseEstimator, TransformerMixin):
         self.ortho_reg = ortho_reg
         self.verbose = verbose
         self.shuffle = shuffle
-        self.normalize_H = normalize_H
 
     def fit_transform(self, X, y=None, W=None, H=None, not_fit_H_idx=None, not_init_H_idx=None):
         """Learn a NMF model for the data X and returns the transformed data.
@@ -1474,7 +1468,7 @@ class NMF(BaseEstimator, TransformerMixin):
             tol=self.tol, max_iter=self.max_iter, alpha=self.alpha,
             l1_ratio=self.l1_ratio, regularization='both',
             random_state=self.random_state, verbose=self.verbose,
-            shuffle=self.shuffle, ortho_reg=self.ortho_reg, normalize_H=self.normalize_H,
+            shuffle=self.shuffle, ortho_reg=self.ortho_reg,
             not_fit_H_idx=not_fit_H_idx, not_init_H_idx=not_init_H_idx)
         self.fit_time_ = time.time() - start_time
 
@@ -1523,7 +1517,7 @@ class NMF(BaseEstimator, TransformerMixin):
             X=X, W=None, H=self.components_, n_components=self.n_components_,
             init=self.init, update_H=False, solver=self.solver,
             beta_loss=self.beta_loss, tol=self.tol, max_iter=self.max_iter,
-            alpha=self.alpha, l1_ratio=self.l1_ratio, regularization='both', normalize_H=self.normalize_H,
+            alpha=self.alpha, l1_ratio=self.l1_ratio, regularization='both',
             random_state=self.random_state, verbose=self.verbose,
             shuffle=self.shuffle)
 
@@ -1579,3 +1573,27 @@ class NMF(BaseEstimator, TransformerMixin):
 
         }
         return results
+
+    @staticmethod
+    def normalize_H(H, W):
+        """ Author: Christop Obermair
+        evaluate NMF
+
+        Parameters
+        ----------
+        H : array-like, shape (n_components, n_features)
+            components
+        W : {array-like, sparse matrix}, shape (n_samples, n_components)
+            Transformed data matrix
+
+        Returns
+        -------
+        H : array-like, shape (n_components, n_features)
+            normalized components
+        W : {array-like, sparse matrix}, shape (n_samples, n_components)
+            Transformed data matrix, adjusted to normalization
+        """
+        max_H = H.max(axis=1, keepdims=True)
+        H_norm = H / max_H
+        W_norm = (W * np.expand_dims(max_H.T, axis=0))[0]
+        return H_norm, W_norm
