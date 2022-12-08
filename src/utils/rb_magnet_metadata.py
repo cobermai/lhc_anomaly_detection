@@ -4,8 +4,9 @@ import numpy as np
 import pandas as pd
 
 if __name__ == "__main__":
-    data_dir = Path("../../data")
+    year = 2021
 
+    data_dir = Path("../../data")
     RB_LayoutDetails_path = data_dir / "SIGMON_context_data/RB_LayoutDetails.csv"
     df_RB_LayoutDetails = pd.read_csv(RB_LayoutDetails_path)
 
@@ -16,7 +17,7 @@ if __name__ == "__main__":
     df_metadata = df_RB_LayoutDetails.merge(df_nQPS_RB_busBarProtectionDetails,
                                             left_on=["Magnet", "Circuit"],
                                             right_on=["2nd Magnet", "Circuit"],
-                                            how="left")
+                                            how="left", suffixes=('', '_y'))
     # add cryostat group
     df_metadata['cryostat_group'] = df_metadata['Cryostat2'].apply(lambda x: x.split('_')[1])
     # add physical position
@@ -31,7 +32,29 @@ if __name__ == "__main__":
     df_metadata = df_metadata.merge(df_RB_Beamscreen_Resistances,
                                     left_on=["Magnet"],
                                     right_on=["Magnet"],
-                                    how="left")
+                                    how="left", suffixes=('', '_y'))
+
+    # add magnet metadata
+    RB_Magnet_metadata_path = data_dir / "RB_TC_extract_2022_07_07.xlsx"
+    df_RB_metadata_layout = pd.read_excel(RB_Magnet_metadata_path, sheet_name="layout")
+    df_RB_metadata_magnet = pd.read_excel(RB_Magnet_metadata_path, sheet_name="magnet data")
+    int_columns = [c for c in df_RB_metadata_layout.columns.values if type(c) is int]
+
+    # calculate magnet age
+    df_layout_diff = df_RB_metadata_layout.iloc[1:, :][int_columns].astype(int).diff(axis=1)
+    df_layout_diff = df_layout_diff.apply(lambda row: sum(row.index.values[abs(row) > 0]), axis=1)
+    df_layout_diff[df_layout_diff == 0] = 2007
+    df_RB_metadata_layout["age"] = year - df_layout_diff
+
+    df_metadata = df_metadata.merge(df_RB_metadata_layout[["Position", year, "age"]],
+                                    left_on=["Name"],
+                                    right_on=["Position"],
+                                    how="left", suffixes=('', '_y'))
+    df_metadata.rename(columns={year: "Short magnet ID"}, inplace=True)
+    df_metadata = df_metadata.merge(df_RB_metadata_magnet,
+                                    left_on=["Short magnet ID"],
+                                    right_on=["Short magnet ID"],
+                                    how="left", suffixes=('', '_y'))
 
     # NOT MERGED YET:
     # magnet added to BeamScreen_EAMdata.xlsx by marvin, one entry per aperture, sometimes 3 entries/magnet?
@@ -41,5 +64,6 @@ if __name__ == "__main__":
     # drop beamscreens not in use, not all magnets can be mapped
     #df_BeamScreen_EAMdata = df_BeamScreen_EAMdata[df_BeamScreen_EAMdata.Magnet.isin(df_RB_LayoutDetails.Magnet)]
 
-    drop_columns = df_metadata.filter(regex='Unnamed').columns
+    drop_columns = df_metadata.filter(regex='Unnamed').columns.to_list()
+    drop_columns += df_metadata.filter(regex='_y').columns.to_list()
     df_metadata.drop(columns=drop_columns).to_csv(data_dir / "RB_metadata.csv", index=False)
