@@ -42,10 +42,10 @@ if __name__ == "__main__":
 
     # calculate magnet age
     df_layout_diff = df_RB_metadata_layout.iloc[1:, :][int_columns].astype(int).diff(axis=1)
-    df_layout_diff = df_layout_diff.apply(lambda row: sum(row.index.values[abs(row) > 0]), axis=1)
-    df_layout_diff[df_layout_diff == 0] = 2007
+    df_layout_diff = df_layout_diff.apply(lambda row: np.max(row.index.values[abs(row) > 0], initial=2007), axis=1)
     df_RB_metadata_layout["age"] = year - df_layout_diff
 
+    # merge
     df_metadata = df_metadata.merge(df_RB_metadata_layout[["Position", year, "age"]],
                                     left_on=["Name"],
                                     right_on=["Position"],
@@ -55,6 +55,19 @@ if __name__ == "__main__":
                                     left_on=["Short magnet ID"],
                                     right_on=["Short magnet ID"],
                                     how="left", suffixes=('', '_y'))
+
+    # add features
+    def enumerate_groups(x):
+        x['num_group'] = np.arange(len(x))
+        return x
+    column = "QPS Crate"
+    g = df_metadata.sort_values(by="#Electric_circuit").groupby(column, as_index=False)
+    df_metadata["QPS Crate Number"] = g.apply(enumerate_groups).sort_values(by=["Circuit", "phys_pos"])['num_group']
+
+    column = "cryostat_group"
+    df_metadata[column] = df_metadata['Cryostat2'].apply(lambda x: x.split('_')[1])
+    g = df_metadata.sort_values(by="phys_pos").groupby(column, as_index=False)
+    df_metadata["Cryostat Number"] = g.apply(enumerate_groups).sort_values(by=["Circuit", "phys_pos"])['num_group']
 
     # NOT MERGED YET:
     # magnet added to BeamScreen_EAMdata.xlsx by marvin, one entry per aperture, sometimes 3 entries/magnet?
