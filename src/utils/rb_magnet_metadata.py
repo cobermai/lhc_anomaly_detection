@@ -22,8 +22,9 @@ if __name__ == "__main__":
     df_metadata['cryostat_group'] = df_metadata['Cryostat2'].apply(lambda x: x.split('_')[1])
     # add physical position
     for circuit in df_metadata['Circuit'].unique():
-        df_metadata.loc[df_metadata['Circuit'] == circuit, 'phys_pos'] = np.arange(1, 155, dtype=int)
-    df_metadata['phys_pos'] = df_metadata['phys_pos'].astype(int)
+        df_metadata.loc[df_metadata['Circuit'] == circuit, "phys_pos"] = np.arange(1, 155, dtype=int)
+    df_metadata["Phys. Position"] = df_metadata["phys_pos"].astype(int)
+    df_metadata["El. Position"] = df_metadata["#Electric_circuit"].astype(int)
 
     # add beamscreen resistance
     RB_Beamscreen_Resistances_path = data_dir / "STEAM_context_data/RB_Beamscreen_Resistances.csv"
