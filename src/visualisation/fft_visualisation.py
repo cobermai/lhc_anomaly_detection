@@ -29,10 +29,10 @@ def plot_position_frequency_map(ax, x_fft, frequency,
     return im
 
 
-def plot_circuit_frequencies_phys_pos(ax, x_fft, frequency, rb_magnet_metadata_subset):
+def plot_circuit_frequencies_phys_pos(ax, x_fft, frequency, rb_magnet_metadata_subset, vmin=1e-5, vmax=1e-2):
     phys_pos_index = rb_magnet_metadata_subset['#Electric_circuit'].values
 
-    im = plot_position_frequency_map(ax, x_fft[phys_pos_index - 1], frequency)
+    im = plot_position_frequency_map(ax, x_fft[phys_pos_index - 1], frequency, vmin=vmin, vmax=vmax)
     ax.set_ylabel('Frequency / Hz')
     ax.set_xlabel('Phys. Position')
     ax.set_xticks(np.arange(1, 155)[::9])
@@ -48,8 +48,8 @@ def plot_circuit_frequencies_phys_pos(ax, x_fft, frequency, rb_magnet_metadata_s
     plt.tight_layout()
     return im
 
-def plot_circuit_frequencies(ax, x_fft, frequency):
-    im = plot_position_frequency_map(ax, x_fft, frequency)
+def plot_circuit_frequencies(ax, x_fft, frequency, vmin=1e-5, vmax=1e-2):
+    im = plot_position_frequency_map(ax, x_fft, frequency, vmin=vmin, vmax=vmax)
 
     ax.set_ylabel('Frequency / Hz')
     ax.set_xlabel('El. Position')
@@ -66,7 +66,9 @@ def plot_position_frequency_map_ee_plateau(fpa_identifier,
                                            mp3_fpa_df,
                                            rb_magnet_metadata,
                                            circuit_imgs: dict,
-                                           filename):
+                                           filename,
+                                           vmin=1e-5,
+                                           vmax=1e-2):
     n_magnets = len(dataset_1EE.loc[{'event': fpa_identifier}].data)
     circuit = fpa_identifier.split('_')[1]
     fig, ax = plt.subplots(4,4, figsize=(25,12), gridspec_kw={'height_ratios': [0.2, 1.2, 5,5], 'width_ratios': [4, 4, 4, 1]})
@@ -143,11 +145,11 @@ def plot_position_frequency_map_ee_plateau(fpa_identifier,
 
     x_fft = dataset_1EE_fft.loc[{'event': fpa_identifier}].data
     frequency = dataset_1EE_fft.loc[{'event': fpa_identifier}].frequency
-    im = plot_circuit_frequencies(ax[2, 1], x_fft, frequency)
+    im = plot_circuit_frequencies(ax[2, 1], x_fft, frequency, vmin=vmin, vmax=vmax)
     ax[2, 1].set_title(f'El. Position')
     ax[2, 1].tick_params(axis='x', colors='red')
 
-    im1 = plot_circuit_frequencies_phys_pos(ax[2, 2], x_fft, frequency, rb_magnet_metadata_subset)
+    im1 = plot_circuit_frequencies_phys_pos(ax[2, 2], x_fft, frequency, rb_magnet_metadata_subset, vmin=vmin, vmax=vmax)
     ax[2, 2].set_title(f'Phys. Position')
     ax[2, 2].grid(linewidth=0.2)
     ax[2, 1].axvline(x = prim_quench_position, color = 'red')
@@ -172,12 +174,12 @@ def plot_position_frequency_map_ee_plateau(fpa_identifier,
 
     x_fft = dataset_2EE_fft.loc[{'event': fpa_identifier}].data
     frequency = dataset_2EE_fft.loc[{'event': fpa_identifier}].frequency
-    im = plot_circuit_frequencies(ax[3, 1], x_fft, frequency)
+    im = plot_circuit_frequencies(ax[3, 1], x_fft, frequency, vmin=vmin, vmax=vmax)
     ax[3, 1].set_title(f'El. Position')
     ax[3, 1].tick_params(axis='x', colors='red')
 
 
-    im1 = plot_circuit_frequencies_phys_pos(ax[3, 2], x_fft, frequency, rb_magnet_metadata_subset)
+    im1 = plot_circuit_frequencies_phys_pos(ax[3, 2], x_fft, frequency, rb_magnet_metadata_subset, vmin=vmin, vmax=vmax)
     ax[3, 2].set_title(f'Phys. Position')
     ax[3, 2].grid(linewidth=0.2)
     ax[3, 1].axvline(x = prim_quench_position, color = 'red')

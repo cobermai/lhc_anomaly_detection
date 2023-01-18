@@ -18,7 +18,7 @@ if __name__ == "__main__":
     dataset_path_2EE = Path("D:\\datasets\\20220707_RBFPAPrimQuenchEEPlateau2")
 
     # define paths to read + write
-    output_path = Path(f"D:\\datasets\\FFT_analysis\\U_diode_EE_plateau")
+    output_path = Path(f"D:\\datasets\\FFT_analysis\\U_diode_EE_plateau_lowfreq")
     output_path.mkdir(parents=True, exist_ok=True)
 
     # load context and magnet metadata
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     rb_magnet_metadata = pd.read_csv(metadata_path, index_col=False)
 
     # load desired fpa_identifiers
-    all_fpa_identifiers = mp3_fpa_df[(mp3_fpa_df['timestamp_fgc'] > 1611836512820000000)].fpa_identifier.unique()
+    all_fpa_identifiers = mp3_fpa_df.fpa_identifier.unique()
     dataset_creator_1EE = RBFPAPrimQuenchEEPlateau()
     dataset_creator_2EE = RBFPAPrimQuenchEEPlateau2()
     dataset_1EE = dataset_creator_1EE.load_dataset(fpa_identifiers=all_fpa_identifiers,
@@ -38,7 +38,7 @@ if __name__ == "__main__":
                                                    drop_data_vars=['simulation', 'el_position_feature',
                                                                    'event_feature'])
     # calculate fft
-    max_freq = 360
+    max_freq = 100
     dataset_1EE_fft = get_fft_of_DataArray(data=dataset_1EE.data, cutoff_frequency=max_freq)
     dataset_2EE_fft = get_fft_of_DataArray(data=dataset_2EE.data, cutoff_frequency=max_freq)
 
@@ -48,9 +48,10 @@ if __name__ == "__main__":
                     "phys_pos_odd": plt.imread('../documentation/1_phys_pos.png'),
                     "phys_pos_even": plt.imread('../documentation/2_phys_pos.png')}
     fpa_identifiers = [fi for fi in all_fpa_identifiers if fi in dataset_1EE.event]  # only if data is available
+    mp3_fpa_df['date'] = pd.to_datetime(mp3_fpa_df['Date (FGC)']).dt.strftime('%Y-%m-%d')
     for fpa_identifier in fpa_identifiers:
-        date = mp3_fpa_df[mp3_fpa_df['fpa_identifier'] == fpa_identifier]['Timestamp_PIC'].values[0]
-        filename = output_path / f"{fpa_identifier}_{date.replace(':', '-')}.png"
+        date = mp3_fpa_df[mp3_fpa_df['fpa_identifier'] == fpa_identifier]['date'].values[0]
+        filename = output_path / f"{fpa_identifier}_{date}.png"
         if not os.path.isfile(filename):
             plot_position_frequency_map_ee_plateau(fpa_identifier=fpa_identifier,
                                                    dataset_1EE=dataset_1EE,
@@ -60,4 +61,6 @@ if __name__ == "__main__":
                                                    mp3_fpa_df=mp3_fpa_df,
                                                    rb_magnet_metadata=rb_magnet_metadata,
                                                    circuit_imgs=circuit_imgs,
-                                                   filename=filename)
+                                                   filename=filename,
+                                                   vmin=1e-3,
+                                                   vmax=10)

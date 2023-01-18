@@ -57,6 +57,9 @@ if __name__ == "__main__":
                                     right_on=["Short magnet ID"],
                                     how="left", suffixes=('', '_y'))
 
+    df_metadata["Magnet_construction_order"] = df_metadata['Short magnet ID']\
+        .apply(lambda x: int(x-np.round(x/1000)*1000))
+
     # add features
     def enumerate_groups(x):
         x['num_group'] = np.arange(len(x))

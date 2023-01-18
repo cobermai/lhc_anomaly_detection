@@ -1,12 +1,15 @@
+from typing import Callable
+
 import numpy as np
 from scipy.fft import fft, fftfreq
 import xarray as xr
 
 
-def get_fft_amplitude(x: np.array) -> np.array:
+def get_fft_amplitude(x: np.array, f_window: Callable = np.hanning) -> np.array:
     """
     calculate amplitude of Fast Fourier Transformation of data x, removes nan and folds data with hanning window
     :param x: input data of shape (n_samples)
+    :param f_window: window function for fft, default is hanning window
     :return: fft of data of shape (n_samples/2)
     """
     N = len(x)
@@ -15,22 +18,25 @@ def get_fft_amplitude(x: np.array) -> np.array:
         y_FFT = np.zeros_like(y_FFT) * np.nan
     else:
         x = x[~np.isnan(x)]
-        x = x * np.hanning(len(x))
-        # x = pd.DataFrame(x).rolling(3).median().values.reshape(-1) #salt and peper noise
+        x = x * f_window(len(x))
         y_FFT = fft(np.nan_to_num(x))
     return 2.0 / N * np.abs(y_FFT[0:N // 2])
 
 
-def get_fft_of_DataArray(data: xr.DataArray, cutoff_frequency: int = None) -> xr.DataArray:
+def get_fft_of_DataArray(data: xr.DataArray,
+                         cutoff_frequency: int = None,
+                         f_window: Callable = np.hanning) -> xr.DataArray:
     """
     calculates fft of DataArray, creates new coord frequency
     :param data: DataArray containing time-series data with coords (el_position, event, time)
     :param cutoff_frequency: max frequency
+    :param f_window: window function for fft, default is hanning window
     :return: DataArray containing frequency data with coords (el_position, event, frequency)
     """
     data_fft = xr.apply_ufunc(get_fft_amplitude,
                               data,
-                              input_core_dims=[['time']],
+                              f_window,
+                              input_core_dims=[['time'], []],
                               output_core_dims=[['frequency']],
                               exclude_dims={"time"},
                               vectorize=True)
@@ -43,4 +49,3 @@ def get_fft_of_DataArray(data: xr.DataArray, cutoff_frequency: int = None) -> xr
         data_fft = data_fft.where(data_fft.frequency < cutoff_frequency, drop=True)
 
     return data_fft
-
