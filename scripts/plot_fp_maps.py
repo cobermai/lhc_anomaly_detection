@@ -18,7 +18,7 @@ if __name__ == "__main__":
     dataset_path_2EE = Path("D:\\datasets\\20220707_RBFPAPrimQuenchEEPlateau2")
 
     # define paths to read + write
-    output_path = Path(f"D:\\datasets\\FFT_analysis\\U_diode_EE_plateau_lowfreq")
+    output_path = Path(f"D:\\datasets\\FFT_analysis\\U_diode_EE_plateau_detrend_pad")
     output_path.mkdir(parents=True, exist_ok=True)
 
     # load context and magnet metadata
@@ -37,10 +37,17 @@ if __name__ == "__main__":
                                                    dataset_path=dataset_path_2EE,
                                                    drop_data_vars=['simulation', 'el_position_feature',
                                                                    'event_feature'])
+
+    # postprocess timeseries data
+    dataset_1EE_detrend = dataset_creator_1EE.detrend_dim(dataset_1EE.data)
+    dataset_1EE_pad = dataset_creator_1EE.pad_data(dataset_1EE_detrend)
+    dataset_2EE_detrend = dataset_creator_2EE.detrend_dim(dataset_2EE.data)
+    dataset_2EE_pad = dataset_creator_1EE.pad_data(dataset_2EE_detrend)
+
     # calculate fft
-    max_freq = 100
-    dataset_1EE_fft = get_fft_of_DataArray(data=dataset_1EE.data, cutoff_frequency=max_freq)
-    dataset_2EE_fft = get_fft_of_DataArray(data=dataset_2EE.data, cutoff_frequency=max_freq)
+    max_freq = 360
+    dataset_1EE_fft = get_fft_of_DataArray(data=dataset_1EE_pad, cutoff_frequency=max_freq)
+    dataset_2EE_fft = get_fft_of_DataArray(data=dataset_2EE_pad, cutoff_frequency=max_freq)
 
     # plot_position_frequency_map of ee_plateau
     circuit_imgs = {"el_pos_odd": plt.imread('../documentation/1_el_pos.png'),
@@ -62,5 +69,5 @@ if __name__ == "__main__":
                                                    rb_magnet_metadata=rb_magnet_metadata,
                                                    circuit_imgs=circuit_imgs,
                                                    filename=filename,
-                                                   vmin=1e-3,
-                                                   vmax=10)
+                                                   vmin=1e-5,
+                                                   vmax=1)

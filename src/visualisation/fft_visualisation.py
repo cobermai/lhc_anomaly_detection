@@ -1,5 +1,6 @@
 import warnings
 from typing import Optional
+import datetime
 
 import matplotlib as mpl
 import numpy as np
@@ -10,9 +11,10 @@ from src.utils.sort_utils import calc_snr
 
 warnings.filterwarnings('ignore')
 
+
 def plot_position_frequency_map(ax, x_fft, frequency,
                                 norm: Optional[colors.LogNorm] = colors.LogNorm, vmin=1e-5, vmax=1e-2):
-    if norm is None: 
+    if norm is None:
         im = ax.imshow(x_fft.T,
                        extent=[1, 154, frequency.min(), frequency.max()],
                        aspect='auto',
@@ -48,6 +50,7 @@ def plot_circuit_frequencies_phys_pos(ax, x_fft, frequency, rb_magnet_metadata_s
     plt.tight_layout()
     return im
 
+
 def plot_circuit_frequencies(ax, x_fft, frequency, vmin=1e-5, vmax=1e-2):
     im = plot_position_frequency_map(ax, x_fft, frequency, vmin=vmin, vmax=vmax)
 
@@ -57,6 +60,7 @@ def plot_circuit_frequencies(ax, x_fft, frequency, vmin=1e-5, vmax=1e-2):
 
     plt.tight_layout()
     return im
+
 
 def plot_position_frequency_map_ee_plateau(fpa_identifier,
                                            dataset_1EE,
@@ -71,14 +75,15 @@ def plot_position_frequency_map_ee_plateau(fpa_identifier,
                                            vmax=1e-2):
     n_magnets = len(dataset_1EE.loc[{'event': fpa_identifier}].data)
     circuit = fpa_identifier.split('_')[1]
-    fig, ax = plt.subplots(4,4, figsize=(25,12), gridspec_kw={'height_ratios': [0.2, 1.2, 5,5], 'width_ratios': [4, 4, 4, 1]})
+    fig, ax = plt.subplots(4, 4, figsize=(25, 12),
+                           gridspec_kw={'height_ratios': [0.2, 1.2, 5, 5], 'width_ratios': [4, 4, 4, 1]})
     date = mp3_fpa_df[mp3_fpa_df['fpa_identifier'] == fpa_identifier]['Timestamp_PIC'].values[0]
 
     mp3_fpa_df_subset = mp3_fpa_df[(mp3_fpa_df['fpa_identifier'] == fpa_identifier)]
     current = mp3_fpa_df_subset['I_end_2_from_data'].values[0]
     mp3_fpa_df_subset_fast = mp3_fpa_df_subset[mp3_fpa_df_subset['Delta_t(iQPS-PIC)'] / 1000 < 1]
 
-    rb_magnet_metadata_subset = rb_magnet_metadata[rb_magnet_metadata.Circuit==circuit]
+    rb_magnet_metadata_subset = rb_magnet_metadata[rb_magnet_metadata.Circuit == circuit]
 
     prim_quench_position = mp3_fpa_df_subset_fast['#Electric_circuit'].values[0]
     sec_quench_position = mp3_fpa_df_subset_fast['#Electric_circuit'].values[1:]
@@ -90,58 +95,57 @@ def plot_position_frequency_map_ee_plateau(fpa_identifier,
     sec_quench_phys = [f"{int(pos)}@{int(time)}ms" for pos, time in zip(sec_quench_position_phys, sec_quench_times)]
     sec_quench_el = [f"{int(pos)}@{int(time)}ms" for pos, time in zip(sec_quench_position, sec_quench_times)]
 
-    ax[0,0].text(0,1, f"FPA identifier: {fpa_identifier} \nDate: {date} \nMax. Current: {current} A")
+    ax[0, 0].text(0, 1, f"FPA identifier: {fpa_identifier} \nDate: {date} \nMax. Current: {current} A")
 
-    ax[0,1].text(0,3,   f"El. Position Primary")
-    ax[0,1].text(0,1.5, f"Primary quench position: {int(prim_quench_position)}", c="r")
-    ax[0,1].text(0,0,   f"Fast secondary quench: {sec_quench_el}", c="orange")
+    ax[0, 1].text(0, 3, f"El. Position Primary")
+    ax[0, 1].text(0, 1.5, f"Primary quench position: {int(prim_quench_position)}", c="r")
+    ax[0, 1].text(0, 0, f"Fast secondary quench: {sec_quench_el}", c="orange")
 
+    ax[0, 2].text(0, 3, f"Phys. Position Primary")
+    ax[0, 2].text(0, 1.5, f"Primary quench position: {int(prim_quench_position_phys)}", c="r")
+    ax[0, 2].text(0, 0, f"Fast secondary quench: {sec_quench_phys}", c="orange")
 
-    ax[0,2].text(0,3,   f"Phys. Position Primary")
-    ax[0,2].text(0,1.5, f"Primary quench position: {int(prim_quench_position_phys)}", c="r")
-    ax[0,2].text(0,0,   f"Fast secondary quench: {sec_quench_phys}", c="orange")
-
-    if int(circuit[-2]) %2==0:
-        ax[1,1].imshow(circuit_imgs["el_pos_even"])
-        ax[1,2].imshow(circuit_imgs["phys_pos_even"])
+    if int(circuit[-2]) % 2 == 0:
+        ax[1, 1].imshow(circuit_imgs["el_pos_even"])
+        ax[1, 2].imshow(circuit_imgs["phys_pos_even"])
     else:
-        ax[1,1].imshow(circuit_imgs["el_pos_odd"])
-        ax[1,2].imshow(circuit_imgs["phys_pos_odd"])
+        ax[1, 1].imshow(circuit_imgs["el_pos_odd"])
+        ax[1, 2].imshow(circuit_imgs["phys_pos_odd"])
 
-    ax[1,1].set_title(f'Sector: {circuit}')
-    ax[1,2].set_title(f'Sector: {circuit}')
+    ax[1, 1].set_title(f'Sector: {circuit}')
+    ax[1, 2].set_title(f'Sector: {circuit}')
 
-    ax[1,0].set_axis_off()
-    ax[1,1].set_axis_off()
-    ax[1,2].set_axis_off()
+    ax[1, 0].set_axis_off()
+    ax[1, 1].set_axis_off()
+    ax[1, 2].set_axis_off()
 
-    ax[0,0].set_axis_off()
-    ax[0,1].set_axis_off()
-    ax[0,2].set_axis_off()
+    ax[0, 0].set_axis_off()
+    ax[0, 1].set_axis_off()
+    ax[0, 2].set_axis_off()
 
-    ax[0,3].set_axis_off()
-    ax[1,3].set_axis_off()
-    ax[2,3].set_axis_off()
-    ax[3,3].set_axis_off()
+    ax[0, 3].set_axis_off()
+    ax[1, 3].set_axis_off()
+    ax[2, 3].set_axis_off()
+    ax[3, 3].set_axis_off()
 
     ax[1, 0].set_title("U_Diode Signals")
     # colors_1 = list(zip(np.linspace(0.5, 1 ,128), mpl.cm.jet(np.linspace(0,1,128))))
     # colors_2 = list(zip(np.linspace(0,0.5,128), mpl.cm.jet(np.linspace(1,0,128))))
-    cmap = mpl.cm.jet #mpl.colors.LinearSegmentedColormap.from_list('my_colormap', colors_2 + colors_1)
+    cmap = mpl.cm.jet  # mpl.colors.LinearSegmentedColormap.from_list('my_colormap', colors_2 + colors_1)
     norm = mpl.colors.Normalize(vmin=1, vmax=154)
-    cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax[1, 0], fraction=1, orientation = 'horizontal')
+    cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax[1, 0], fraction=1, orientation='horizontal')
     cbar.set_label('El. Position')
 
-
     for i, x in enumerate(dataset_1EE.loc[{'event': fpa_identifier}].data):
-        ax[2, 0].plot(dataset_1EE.loc[{'event': fpa_identifier}].time, x, c=cmap(i/n_magnets))
+        ax[2, 0].plot(dataset_1EE.loc[{'event': fpa_identifier}].time, x, c=cmap(i / n_magnets))
     ax[2, 0].grid()
     ax[2, 0].set_title(f"U_Diode @ 1st EE plateau")
     ax[2, 0].set_xlabel('Time / s')
     ax[2, 0].set_ylabel('Voltage / V')
     for t in sec_quench_times:
-        ax[2, 0].axvline(x = t / 1000, color = 'r')
-    ax[2, 0].set_xlim(dataset_1EE.loc[{'event': fpa_identifier}].time.min(),dataset_1EE.loc[{'event': fpa_identifier}].time.max())
+        ax[2, 0].axvline(x=t / 1000, color='r')
+    ax[2, 0].set_xlim(dataset_1EE.loc[{'event': fpa_identifier}].time.min(),
+                      dataset_1EE.loc[{'event': fpa_identifier}].time.max())
 
     x_fft = dataset_1EE_fft.loc[{'event': fpa_identifier}].data
     frequency = dataset_1EE_fft.loc[{'event': fpa_identifier}].frequency
@@ -152,25 +156,25 @@ def plot_position_frequency_map_ee_plateau(fpa_identifier,
     im1 = plot_circuit_frequencies_phys_pos(ax[2, 2], x_fft, frequency, rb_magnet_metadata_subset, vmin=vmin, vmax=vmax)
     ax[2, 2].set_title(f'Phys. Position')
     ax[2, 2].grid(linewidth=0.2)
-    ax[2, 1].axvline(x = prim_quench_position, color = 'red')
-    ax[2, 2].axvline(x = prim_quench_position_phys, color = 'red')
+    ax[2, 1].axvline(x=prim_quench_position, color='red')
+    ax[2, 2].axvline(x=prim_quench_position_phys, color='red')
     for e, p in zip(sec_quench_position, sec_quench_position_phys):
-        ax[2, 1].axvline(x = e, color = 'orange')
-        ax[2, 2].axvline(x = p, color = 'orange')
-    cbar = fig.colorbar(im, ax=ax[2, 3],fraction=1)
+        ax[2, 1].axvline(x=e, color='orange')
+        ax[2, 2].axvline(x=p, color='orange')
+    cbar = fig.colorbar(im, ax=ax[2, 3], fraction=1)
     cbar.set_label('Voltage / V')
 
-
     for i, x in enumerate(dataset_2EE.loc[{'event': fpa_identifier}].data):
-        ax[3, 0].plot(dataset_2EE.loc[{'event': fpa_identifier}].time, x, c=cmap(i/n_magnets))
+        ax[3, 0].plot(dataset_2EE.loc[{'event': fpa_identifier}].time, x, c=cmap(i / n_magnets))
     ax[3, 0].grid()
     ax[3, 0].set_title(f"U_Diode @ 2nd EE plateau")
     ax[3, 0].set_xlabel('Time / s')
     ax[3, 0].set_ylabel('Voltage / V')
     for t in sec_quench_times:
-        ax[3, 0].axvline(x = t / 1000, color = 'r')
-    ax[3, 0].set_xlim(dataset_2EE.loc[{'event': fpa_identifier}].time.min(), dataset_2EE.loc[{'event': fpa_identifier}].time.max())
-    #ax[3, 0].text(0.45, -4.9, "12")
+        ax[3, 0].axvline(x=t / 1000, color='r')
+    ax[3, 0].set_xlim(dataset_2EE.loc[{'event': fpa_identifier}].time.min(),
+                      dataset_2EE.loc[{'event': fpa_identifier}].time.max())
+    # ax[3, 0].text(0.45, -4.9, "12")
 
     x_fft = dataset_2EE_fft.loc[{'event': fpa_identifier}].data
     frequency = dataset_2EE_fft.loc[{'event': fpa_identifier}].frequency
@@ -178,15 +182,14 @@ def plot_position_frequency_map_ee_plateau(fpa_identifier,
     ax[3, 1].set_title(f'El. Position')
     ax[3, 1].tick_params(axis='x', colors='red')
 
-
     im1 = plot_circuit_frequencies_phys_pos(ax[3, 2], x_fft, frequency, rb_magnet_metadata_subset, vmin=vmin, vmax=vmax)
     ax[3, 2].set_title(f'Phys. Position')
     ax[3, 2].grid(linewidth=0.2)
-    ax[3, 1].axvline(x = prim_quench_position, color = 'red')
-    ax[3, 2].axvline(x = prim_quench_position_phys, color = 'red')
+    ax[3, 1].axvline(x=prim_quench_position, color='red')
+    ax[3, 2].axvline(x=prim_quench_position_phys, color='red')
     for e, p in zip(sec_quench_position, sec_quench_position_phys):
-        ax[3, 1].axvline(x = e, color = 'orange')
-        ax[3, 2].axvline(x = p, color = 'orange')
+        ax[3, 1].axvline(x=e, color='orange')
+        ax[3, 2].axvline(x=p, color='orange')
     cbar = fig.colorbar(im, ax=ax[3, 3], fraction=1)
     cbar.set_label('Voltage / V')
 
@@ -194,17 +197,18 @@ def plot_position_frequency_map_ee_plateau(fpa_identifier,
     plt.savefig(filename, dpi=400)
     plt.close(fig)
 
+
 def plot_NMF(X, W, H,
-             frequency: Optional[pd.DataFrame]=None,
+             frequency: Optional[pd.DataFrame] = None,
              event_idex=1,
-             event_context: Optional[pd.DataFrame]=None,
-             hyperparameters: Optional[dict]=None):
+             event_context: Optional[pd.DataFrame] = None,
+             hyperparameters: Optional[dict] = None):
     image_len = 154
     x_fft_cut = X[event_idex * image_len: event_idex * image_len + image_len]
     if frequency is None:
         frequency = np.arange(len(x_fft_cut[0]))
     if hyperparameters:
-        fig, ax = plt.subplots(2,3, figsize=(20,12))
+        fig, ax = plt.subplots(2, 3, figsize=(20, 12))
     else:
         fig, ax = plt.subplots(2, 2, figsize=(15, 12))
     plot_position_frequency_map(ax[0, 0], x_fft_cut, frequency, norm=None, vmin=0, vmax=1)
@@ -247,9 +251,10 @@ def plot_NMF(X, W, H,
     return ax
 
 
-def plot_nmf_event_composition(data_1EE, W, H, component_indexes, dataset_1EE_fft, fpa_identifier, mp3_fpa_df):
+def plot_nmf_event_composition(data_1EE, W, H, component_indexes, dataset_1EE_fft, fpa_identifier, mp3_fpa_df,
+                               vmin=1e-5, vmax=1e-2):
     # get right event index
-    all_fpa_identifiers = mp3_fpa_df[(mp3_fpa_df['timestamp_fgc'] > 1611836512820000000)].fpa_identifier.unique()
+    all_fpa_identifiers = mp3_fpa_df.fpa_identifier.unique()
     fpa_identifiers = all_fpa_identifiers[np.isin(all_fpa_identifiers, dataset_1EE_fft.event.values)]
     event_idex = np.argmax(fpa_identifiers == fpa_identifier)
 
@@ -316,11 +321,11 @@ def plot_nmf_event_composition(data_1EE, W, H, component_indexes, dataset_1EE_ff
         axes[k, 3].yaxis.set_label_position("right")
         axes[k, 5].set_ylabel('Frequency / Hz')
 
-        yticks = axes[k, 3].get_yticks().tolist()
-        ylim = axes[k, 3].get_ylim()
-        axes[k, 3].set_yticks(yticks)
-        axes[k, 3].set_ylim(ylim)
-        axes[k, 3].set_yticklabels([f"$10^{{{(3 * a - 5):.2f}}}$" for a in yticks], fontsize="large")
+        vdiff = np.log10(vmax) - np.log10(vmin)
+        n_ticks = int(vdiff) + 1
+        axes[k, 3].set_yticks(np.linspace(0, 1, n_ticks))
+        axes[k, 3].set_yticklabels([f"$10^{{{int(np.log10(vmin)) + a}}}$" for a in range(n_ticks)], fontsize="large")
+
         axes[k, 3].yaxis.tick_right()
 
         if k < len(component_indexes) - 1:
@@ -351,28 +356,52 @@ def plot_nmf_event_composition(data_1EE, W, H, component_indexes, dataset_1EE_ff
     axes[0, 6].set_title("=", fontsize=15)
     axes[0, 7].set_title("Reconstructed Event\n$WH_{:,i:i+154}$", fontsize=12)
 
-    plt.tight_layout(h_pad=-2, w_pad=-10)
+    plt.tight_layout(h_pad=-2, w_pad=-8.5)
 
-def plot_nmf_components(H, dataset_1EE_fft, component_indexes=None):
-    fig, ax = plt.subplots(figsize=(12, 5))
+
+def plot_nmf_components(H, dataset_1EE_fft, W=None, loss=None, component_indexes=None, vmin=None, vmax=None,
+                        hyperparameters=None, norm_component=True):
+    if norm_component:
+        max_W = W.max(axis=0, keepdims=True)
+        H = (H * np.expand_dims(max_W.T, axis=0))[0]
+
+    fig, ax = plt.subplots(1, 2, figsize=(20, 8), gridspec_kw={'width_ratios': [2, 1]})
     if component_indexes is None:
         component_indexes = np.arange(len(H))
 
     for k, i in enumerate(component_indexes):
         if isinstance(i, list):
             H_temp = 0
-            data_reconstructed = 0
             for j in i:
                 H_temp += H[j:j + 1]
         else:
             H_temp = H[i:i + 1]
 
-        ax.plot(dataset_1EE_fft.frequency, H_temp.T, label=f"component {i}")
-        ax.set_xlabel('Frequency / Hz')
-        ax.set_ylabel('Voltage / V')
-    ax.set_xlim([dataset_1EE_fft.frequency.values.min(), dataset_1EE_fft.frequency.values.max()])
-    ax.grid()
-    plt.legend()
+        ax[0].plot(dataset_1EE_fft.frequency, H_temp.T, label=f"component {i}")
+
+    if vmin and vmax is not None:
+        vdiff = np.log10(vmax) - np.log10(vmin)
+        n_ticks = int(vdiff) + 1
+        ax[0].set_yticks(np.linspace(0, 1, n_ticks))
+        ax[0].set_yticklabels([f"$10^{{{int(np.log10(vmin)) + a}}}$" for a in range(n_ticks)], fontsize="large")
+
+    if hyperparameters:
+        ax[1].set_axis_off()
+        ax[1].set_axis_off()
+        ax[1].text(0, 1, "Hyperparameters", fontsize="x-large")
+        i = 1
+        for key, value in hyperparameters.items():
+            ax[1].text(0, 1 - i * 0.05, f"{key} = {value}", fontsize="large", va="top")
+            i += 1
+
+    if loss is not None:
+        ax[0].set_title(f"mean loss: {np.mean(loss):.2f}", loc="right")
+
+    ax[0].set_xlim([dataset_1EE_fft.frequency.values.min(), dataset_1EE_fft.frequency.values.max()])
+    ax[0].grid()
+    ax[0].set_xlabel('Frequency / Hz')
+    ax[0].set_ylabel('Voltage / V')
+    ax[0].legend()
 
 
 def plot_avg_component_weight(ax, c_weights, component_number, xlabel):
@@ -394,12 +423,13 @@ def plot_avg_component_weight(ax, c_weights, component_number, xlabel):
     ax.fill_between(c_weights["index"], lower_error, upper_error, alpha=0.1, edgecolor=default_colors[ck],
                     facecolor=default_colors[ck])
 
+
 def plot_distribution_over_column(c_weights_dict, mp3_fpa_df_unique, fpa_identifiers, column, columns_values):
     n_components = c_weights_dict["El. Position"]["values"].shape[-1]
     for k in range(n_components):
         snr_sorted_index = np.argsort([-c_weights_dict[sort]["snr"][k] for sort in c_weights_dict])[0]
 
-        fig, ax = plt.subplots(1,len(columns_values), figsize =(len(columns_values)*4,4))
+        fig, ax = plt.subplots(1, len(columns_values), figsize=(len(columns_values) * 4, 4))
         sort = np.array(list(c_weights_dict))[snr_sorted_index]
 
         data = c_weights_dict[sort]["values"][..., k]
@@ -417,7 +447,7 @@ def plot_distribution_over_column(c_weights_dict, mp3_fpa_df_unique, fpa_identif
             ax[i].set_ylim((0, y_max))
             if i == 0:
                 yticks = ax[i].get_yticks().tolist()
-                ax[i].set_yticklabels([f"$10^{{{(3*a-5):.2f}}}$" for a in yticks], fontsize="large")
+                ax[i].set_yticklabels([f"$10^{{{(3 * a - 5):.2f}}}$" for a in yticks], fontsize="large")
                 ax[i].set_ylabel("Voltage / V")
             else:
                 ax[i].set_yticks([])
@@ -428,7 +458,7 @@ def plot_distribution_over_column(c_weights_dict, mp3_fpa_df_unique, fpa_identif
 def plot_component_distribution(c_weights_dict, mp3_fpa_df_subset, event_sort, event_sort_ticks, event_index=None,
                                 is_date=False):
     if event_index is None:
-        event_index = np.ones(len(mp3_fpa_df_subset), dtype=bool) 
+        event_index = np.ones(len(mp3_fpa_df_subset), dtype=bool)
     n_components = c_weights_dict["El. Position"]["values"].shape[-1]
 
     mp3_fpa_df_sorted = mp3_fpa_df_subset.reset_index(drop=True)[event_index].sort_values(by=event_sort)
@@ -467,8 +497,8 @@ def plot_component_distribution(c_weights_dict, mp3_fpa_df_subset, event_sort, e
 
     plt.tight_layout()
 
-def plot_cweight_distribution_all_data(components, c_weights_dict, frequency, plot_n_highest_snr=2):
 
+def plot_cweight_distribution_all_data(components, c_weights_dict, frequency, plot_n_highest_snr=2):
     n_components = c_weights_dict["El. Position"]["values"].shape[-1]
     default_colors = plt.rcParams['axes.prop_cycle'].by_key()['color'] * 5
 
@@ -478,7 +508,7 @@ def plot_cweight_distribution_all_data(components, c_weights_dict, frequency, pl
         snr_sorted_index = np.argsort([-c_weights_dict[sort]["snr"][k] for sort in c_weights_dict])[:plot_n_highest_snr]
         best_sort_index.append(snr_sorted_index[0])
 
-        fig, ax = plt.subplots(1,plot_n_highest_snr+2, figsize =(5*(plot_n_highest_snr+2),4))
+        fig, ax = plt.subplots(1, plot_n_highest_snr + 2, figsize=(5 * (plot_n_highest_snr + 2), 4))
         ax[0].plot(frequency, components[k], c=default_colors[k % n_components])
         ax[0].set_title(f"Component {k}")
         ax[0].set_xlabel("Frequency / Hz")
@@ -491,20 +521,48 @@ def plot_cweight_distribution_all_data(components, c_weights_dict, frequency, pl
             ax[0].set_title(f"Component {k}: STATIC")
 
         for i, sort in enumerate(np.array(list(c_weights_dict))[snr_sorted_index]):
-            plot_avg_component_weight(ax[i+1], c_weights_dict[sort], component_number=k, xlabel=sort)
+            plot_avg_component_weight(ax[i + 1], c_weights_dict[sort], component_number=k, xlabel=sort)
 
-            yticks = ax[i+1].get_yticks().tolist()
+            yticks = ax[i + 1].get_yticks().tolist()
 
-            ax[i+1].set_yticklabels([f"$10^{{{(3*a-5):.2f}}}$" for a in yticks], fontsize="large")
-            ax[i+1].set_ylabel("Voltage / V")
-            ax[i+1].set_ylim(ax[1].get_ylim())
-
+            ax[i + 1].set_yticklabels([f"$10^{{{(3 * a - 5):.2f}}}$" for a in yticks], fontsize="large")
+            ax[i + 1].set_ylabel("Voltage / V")
+            ax[i + 1].set_ylim(ax[1].get_ylim())
 
         best_sort = list(c_weights_dict)[snr_sorted_index[0]]
-        V_mean = np.nanmean(c_weights_dict[best_sort]["values"], axis=0)[:, k:k+1] @  components[k:k+1]
+        V_mean = np.nanmean(c_weights_dict[best_sort]["values"], axis=0)[:, k:k + 1] @ components[k:k + 1]
         plot_position_frequency_map(ax[-1], V_mean, frequency, norm=None, vmin=0, vmax=1)
         ax[-1].set_xlabel(best_sort)
         ax[-1].set_ylabel("Frequency / Hz")
 
         plt.tight_layout()
     return best_sort_index
+
+
+def plot_NMF_loss(loss, mp3_fpa_df_subset, outlier_events):
+    def sort_data_by_event_column(data, event_sort, mp3_fpa_df_subset):
+        mp3_fpa_df_sorted = mp3_fpa_df_subset.reset_index(drop=True).sort_values(by=event_sort)
+        event_sort_index = mp3_fpa_df_sorted.index.values
+        x_axis_data = mp3_fpa_df_sorted[event_sort].values
+        return x_axis_data, data[event_sort_index]
+
+    mp3_fpa_df_subset['datetime'] = pd.to_datetime(mp3_fpa_df_subset['Date (FGC)'])
+
+    fpa_identifiers_train = mp3_fpa_df_subset.fpa_identifier.values
+    outlier_index = np.isin(fpa_identifiers_train, outlier_events)
+
+    sorted_fpa = fpa_identifiers_train[np.argsort(loss)[::-1]]
+    n_outlier = np.arange(1, len(sorted_fpa) + 1)[np.isin(sorted_fpa, outlier_events)]
+
+    x_train, y_train = sort_data_by_event_column(loss, ['datetime'], mp3_fpa_df_subset)
+    x_outl, y_outl = sort_data_by_event_column(loss[outlier_index], ['datetime'],
+                                               mp3_fpa_df_subset[outlier_index])
+    plt.figure(figsize=(12, 5))
+    plt.plot(x_train, y_train, ".")
+    plt.plot(x_outl, y_outl, "o")
+    plt.ylabel("NMF Loss")
+    plt.xlabel("Date")
+    plt.grid()
+    plt.xlim([datetime.date(2021, 3, 1), datetime.date(2021, 12, 1)])
+    plt.title(f"mean loss: {np.mean(loss):.2f}, outlier rank {n_outlier}")
+    plt.tight_layout()

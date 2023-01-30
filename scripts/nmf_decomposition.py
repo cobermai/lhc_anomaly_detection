@@ -1,3 +1,4 @@
+import datetime
 import os
 import time
 from pathlib import Path
@@ -6,14 +7,14 @@ from typing import Optional
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
+import xarray as xr
 
 from src.datasets.rb_fpa_prim_quench_ee_plateau import RBFPAPrimQuenchEEPlateau
 from src.models.nmf import NMF
 from src.utils.frequency_utils import get_fft_of_DataArray
 from src.utils.utils import dict_to_df_meshgrid, merge_array
 
-from src.visualisation.fft_visualisation import plot_NMF
+from src.visualisation.fft_visualisation import plot_NMF, plot_nmf_components, plot_NMF_loss
 from src.visualisation.visualisation import make_gif
 
 
@@ -47,21 +48,49 @@ def NMF_sensitivity_analysis(data: np.array,
 
         # fit and transform NMF, fit both W and H
         nmf_model = NMF(**row.to_dict())
-        W = nmf_model.fit_transform(X=data)
+        nmf_model.fit(X=data[bool_train_flattened])
+        W = nmf_model.transform(X=data)
         H = nmf_model.components_
-        plot_NMF(data, W, H, frequency=frequency, event_context=event_context, hyperparameters=row.to_dict())
-        plt.title("normal")
-        plt.show()
+        event_loss = np.linalg.norm(np.nan_to_num(data_scaled) - (W @ H).reshape(data_scaled.shape), axis=(1, 2))
 
         # log results
         results = nmf_model.evaluate(X=data, W=W)
         df_results.loc[index, list(results.keys())] = results.values()
 
+
+        H_norm, W_norm = nmf_model.normalize_H(H=H, W=W)
+        df_components = pd.DataFrame(H_norm.T,
+                                     index=frequency,
+                                     columns=[f"component_{i}" for i in range(len(H_norm))])
+        component_path = plot_path / ("component_" + str(index) + "_" + '_'.join(row.astype(str).values))
+        df_components.to_csv(f'{component_path}.csv')
+
         # plot example
-        plot_NMF(data, W, H, frequency=frequency, event_context=event_context, hyperparameters=row.to_dict())
-        im_path = plot_path / (str(index) + "_" + '_'.join(row.astype(str).values) + '.png')
+        #plot_NMF(data, W, H, frequency=frequency, event_context=event_context, hyperparameters=row.to_dict())
+        #im_path = plot_path / (str(index) + "_" + '_'.join(row.astype(str).values) + '.png')
+        #im_paths.append(im_path)
+        #plt.savefig(im_path)
+
+        # plot components only
+        plot_nmf_components(H, dataset_fft,  W, loss=event_loss,
+                            component_indexes=None, vmin=lower_bound, vmax=upper_bound, hyperparameters=row.to_dict())
+        im_path = plot_path / (str(index) + "_" + '_'.join(row.astype(str).values) + '_scaled.png')
         im_paths.append(im_path)
+        plt.tight_layout()
         plt.savefig(im_path)
+
+        # plot loss
+        outlier_events = ["RB_RB.A78_1619330143440000000",
+                          "RB_RB.A12_1621014819920000000",
+                          "RB_RB.A45_1620797547820000000",
+                          "RB_RB.A34_1620105483360000000"]
+        plot_NMF_loss(loss=event_loss[bool_train],
+                      mp3_fpa_df_subset=mp3_fpa_df[mp3_fpa_df.fpa_identifier.isin(fpa_identifiers_train)]
+                      .drop_duplicates(subset=['fpa_identifier']),
+                      outlier_events=outlier_events)
+        loss_im_path = plot_path / ("loss_" + str(index) + "_" + '_'.join(row.astype(str).values) + '.png')
+        plt.savefig(loss_im_path)
+
 
     df_results.to_csv(out_path / f'results_{output_name}.csv')
     make_gif(im_paths=im_paths, output_path=plot_path)
@@ -80,44 +109,65 @@ if __name__ == "__main__":
     output_path.mkdir(parents=True, exist_ok=True)
 
     # load desired fpa_identifiers
-    sec_after_prim_quench = 2
     mp3_fpa_df = pd.read_csv(context_path)
-    all_fpa_identifiers_mp3 = mp3_fpa_df[(mp3_fpa_df['timestamp_fgc'] > 1611836512820000000)].fpa_identifier.unique()
-    fpa_identifiers_fast_sec_quench = mp3_fpa_df[(mp3_fpa_df['Delta_t(iQPS-PIC)'] / 1000 < 5) & (
-                mp3_fpa_df['Nr in Q event'].astype(str) != '1')].fpa_identifier.unique()
-    all_fpa_identifiers = all_fpa_identifiers_mp3[~np.isin(all_fpa_identifiers_mp3, fpa_identifiers_fast_sec_quench)]
+    all_fpa_identifiers = mp3_fpa_df.fpa_identifier.unique()
 
     dataset_creator = RBFPAPrimQuenchEEPlateau()
     dataset = dataset_creator.load_dataset(fpa_identifiers=all_fpa_identifiers,
                                            dataset_path=dataset_path,
                                            drop_data_vars=['simulation', 'el_position_feature', 'event_feature'])
+    # postprocess timeseries data
+    dataset["data"] = dataset_creator.detrend_dim(dataset.data)
+    dataset_pad = dataset_creator.pad_data(dataset.data)
 
     # calculate fft
     max_freq = 360
-    dataset_fft = get_fft_of_DataArray(data=dataset.data,
-                                       cutoff_frequency=max_freq)
+    dataset_fft = get_fft_of_DataArray(data=dataset_pad, cutoff_frequency=max_freq)
 
     # postprocess fft data
-    data_scaled = np.array([dataset_creator.log_scale_data(x) for x in dataset_fft.data])
+    lower_bound = 1e-5
+    upper_bound = 1
+    data_scaled = np.array([dataset_creator.log_scale_data(x, vmin=lower_bound, vmax=upper_bound)
+                            for x in dataset_fft.data])
     data_processed = np.nan_to_num(data_scaled.reshape(-1, np.shape(data_scaled)[2]))
 
-    # define parameters to iterate over and start training
-    experiment_name = "test"
+    # all events with successfully loaded data
+    fpa_identifiers = all_fpa_identifiers[np.isin(all_fpa_identifiers, dataset.event.values)]
+
+    # model is not trained on data before 2021 and events with fast secondary quenches
+    bool_fast = ((mp3_fpa_df['Delta_t(iQPS-PIC)'] / 1000 < 5) &
+                 (mp3_fpa_df['Nr in Q event'].astype(str) != '1'))
+    bool_R2 = (mp3_fpa_df['timestamp_fgc'] < 1611836512820000000)
+    bool_test = bool_R2 | bool_fast
+
+    fpa_identifiers_test = fpa_identifiers[np.isin(fpa_identifiers, mp3_fpa_df[bool_test].fpa_identifier.unique())]
+    bool_train = ~np.isin(fpa_identifiers, fpa_identifiers_test)
+    fpa_identifiers_train = fpa_identifiers[bool_train]
+
+    # add dims for indexing flattended data
+    bool_train_flattened = np.stack([bool_train for l in range(data_scaled.shape[1])]).T.reshape(-1)
+
+    experiment_name = "detrend_pad_1e-5"
     experiment_param_grid = {
-        "n_components": [10],
-        "solver": ["cd"],
+        "n_components": [3,4,5,6,8,10, 12, 15],
+        "solver": ["cd", "mu"],
         "beta_loss": ['frobenius'],
-        "init": ["nndsvd"],
+        "init": ["nndsvda"],
         "tol": [1e-5],
-        "max_iter": [200],
+        "max_iter": [500],
         "l1_ratio": [0.5],
-        "alpha": [1],
-        "shuffle": ["True"],
-        "ortho_reg": [0]  # list(np.round(np.arange(1, 30)/10, 2))
+        "alpha": [0.1, 0.5],
+        "shuffle": ["False"],
+        "ortho_reg": [0]
     }
     df_results = NMF_sensitivity_analysis(data=data_processed,
                                           param_grid=experiment_param_grid,
                                           frequency=dataset_fft.frequency,
                                           out_path=output_path,
                                           output_name=experiment_name)
+
+
+
+
+
 

@@ -1570,7 +1570,6 @@ class NMF(BaseEstimator, TransformerMixin):
             'l1_components': (np.sum(self.components_)) / self.n_components_,
             'l1_sum': (np.sum(self.components_) + np.sum(W)) / self.n_components_,
             'ortho_components': (np.linalg.norm(H_norm @ H_norm.T - np.eye(len(H_norm)))) / len(H_norm)
-
         }
         return results
 

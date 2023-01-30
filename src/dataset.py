@@ -199,7 +199,6 @@ class Dataset(ABC):
 
                 dataset[data_var].loc[split_events] = (data - data_mean) / data_std
                 dataset[data_var].attrs[f"{split}_scale_coef"] = (data_mean.values, data_std.values)
-                # plot_xarray_event(dataset, data_var, idx=0)
         return dataset
 
     @staticmethod
@@ -220,6 +219,66 @@ class Dataset(ABC):
         X_std[X_std < 0] = 0
         X_std[X_std > 1] = 1
         return X_std
+
+    @staticmethod
+    def detrend_dim(da: xr.Dataset, dim: str = "time", data_var: str = "data", deg: int = 1) -> xr.Dataset:
+        """
+        subtract trend of data along given dimension
+        :param da: DataArray to detrend
+        :param dim: dimension to calculate the trend from , default ist time dimension
+        :param data_var: data_var to detrend, default is to detrend data
+        :param deg: degree of trend, default is a linear trend, i.e. deg=1
+        :return: Dataset with subtracted trend
+        """
+        p = da[data_var].polyfit(dim=dim, deg=deg)
+        fit = xr.polyval(da[dim], p.polyfit_coefficients)
+        da[data_var] = da[data_var] - fit
+        return da.merge(p)
+
+    @staticmethod
+    def trend_dim(da: xr.Dataset, dim: str = "time", data_var: str = "data", deg: int = 1) -> xr.Dataset:
+        """
+        add trend of data along given dimension
+        :param da: DataArray with data_var and polyfit_coefficients as data variables
+        :param dim: dimension to calculate the trend from , default ist time dimension
+        :param data_var: data_var to detrend, default is to detrend data
+        :param deg: degree of trend, default is a linear trend, i.e. deg=1
+        :return: Dataset with added trend
+        """
+        fit = xr.polyval(da[dim], da.polyfit_coefficients)
+        da[data_var] = da[data_var] + fit
+        return da
+
+    @staticmethod
+    def pad_data(da: xr.DataArray,
+                 dim: str = "time",
+                 interp_method: str = "nearest",
+                 pad_len: Optional[int] = None) -> xr.DataArray:
+        """
+        pad signal at end and beginning
+        :param da: DataArray to pad
+        :param dim: dimension to calculate the trend from , default ist time dimension
+        :param interp_method: interpolation method to fill pad with, default is to take last value of start/beginning
+        :param pad_len: length of padding, efault is to pad with half of the data length on each side
+        :return: DataArray with padded values
+        """
+        if pad_len is None:
+            pad_len = int(len(da.time) / 2)
+
+        # fill nan of input data
+        da = da.interpolate_na(dim=dim, method=interp_method, fill_value="extrapolate")
+
+        # define times when to pad
+        dt = (da.time[1] - da.time[0]).values
+        start_pad = np.linspace(da.time[0] - pad_len * dt, da.time[0] - dt, pad_len)
+        end_pad = np.linspace(da.time[-1] + dt, da.time[-1] + pad_len * dt, pad_len)
+        time_pad = np.hstack((start_pad, da.time, end_pad))
+
+        # pad data extrapolate
+        dataset_padded = da.interp(time=time_pad, method='nearest')  # fill with index with nan
+        dataset_padded = dataset_padded.interpolate_na(dim=dim, method=interp_method, fill_value="extrapolate")
+
+        return dataset_padded
 
 
 def load_dataset(creator: "DatasetCreator",

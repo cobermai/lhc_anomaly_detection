@@ -18,9 +18,14 @@ def get_fft_amplitude(x: np.array, f_window: Callable = np.hanning) -> np.array:
         y_FFT = np.zeros_like(y_FFT) * np.nan
     else:
         x = x[~np.isnan(x)]
-        x = x * f_window(len(x))
+        window_gain = sum(f_window(1000)) / 1000
+        x = x * f_window(len(x)) / window_gain
         y_FFT = fft(np.nan_to_num(x))
-    return 2.0 / N * np.abs(y_FFT[0:N // 2])
+
+    # Hilbert Transform
+    amplitude = np.abs(y_FFT[0:N // 2]) / N
+    amplitude[1:] = amplitude[1:] * 2
+    return amplitude
 
 
 def get_fft_of_DataArray(data: xr.DataArray,
