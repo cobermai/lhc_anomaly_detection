@@ -123,15 +123,19 @@ class Dataset(ABC):
         """
 
     @staticmethod
-    def load_dataset(fpa_identifiers: list, dataset_path: Path,
-                     drop_data_vars: Optional[list] = None, location: Optional[dict] = None) -> xr.Dataset:
+    def load_dataset(fpa_identifiers: list,
+                     dataset_path: Path,
+                     join: str = "inner",
+                     drop_data_vars: Optional[list] = None,
+                     location: Optional[dict] = None) -> xr.Dataset:
         """
         load DataArray from given list of fpa_identifiers
         :param fpa_identifiers: list of strings which defines event, i.e. "<Circuit Family>_<Circuit
         Name>_<timestamp_fgc>"
         :param dataset_path: path to datasets
+        :param join: how to join the different datasets
         :param drop_data_vars: data_vars to load, default is all
-        :param location: location to load, default is all
+        :param location: location (e.g. timespan) to load, default is all
         :return: DataArray with dims (event, type, el_position, time)
         """
         if drop_data_vars is None:
@@ -148,7 +152,7 @@ class Dataset(ABC):
                 else:
                     dataset.append(fpa_event_data.drop_vars(drop_data_vars).loc[location])
 
-        dataset_full = xr.concat(dataset, dim="event")
+        dataset_full = xr.concat(dataset, dim="event", join="inner")
         return dataset_full
 
     @staticmethod
@@ -230,10 +234,11 @@ class Dataset(ABC):
         :param deg: degree of trend, default is a linear trend, i.e. deg=1
         :return: Dataset with subtracted trend
         """
-        p = da[data_var].polyfit(dim=dim, deg=deg)
-        fit = xr.polyval(da[dim], p.polyfit_coefficients)
-        da[data_var] = da[data_var] - fit
-        return da.merge(p)
+        data = da.copy()
+        p = data[data_var].polyfit(dim=dim, deg=deg)
+        fit = xr.polyval(data[dim], p.polyfit_coefficients)
+        data[data_var] = data[data_var] - fit
+        return data.merge(p)
 
     @staticmethod
     def trend_dim(da: xr.Dataset, dim: str = "time", data_var: str = "data", deg: int = 1) -> xr.Dataset:
