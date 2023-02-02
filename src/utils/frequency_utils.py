@@ -103,18 +103,23 @@ def get_ifft_of_DataArray(data: xr.DataArray, f_window: Callable = np.ones) -> x
     return data_ifft_window
 
 
-def scale_fft_amplitude(data: xr.DataArray, f_window: Callable = np.ones):
+def scale_fft_amplitude(data: xr.DataArray, f_window: Callable = np.ones, is_polar=False):
     """
-    calculates scaled amplitude of complex DataArray
+    scales amplitude of DataArray with data length and window gain
+    if input is complex (is_polar = False) amplitude is decreased
+    if amplitude is polar (is_polar = True) amplitude is increased
     :param data: DataArray containing complex frequency data with coords (el_position, event, frequency)
     :param f_window: window function for fft, default is no window (np.ones)
+    :param is_polar: states whether the amplitude should be converted from complex to polar, or from polar to complex
     :return: DataArray containing real valued frequency amplitudes of data with coords (el_position, event, frequency)
     """
     N = len(data.frequency)
     window_gain = sum(f_window(N)) / N
 
-    amplitude = xr.apply_ufunc(np.abs, data)
-    data_amplitude = amplitude / N / window_gain
+    if not is_polar:
+        amplitude = xr.apply_ufunc(np.abs, data)
+        data_amplitude = amplitude / N / window_gain
+    else:
+        data_amplitude = data * N * window_gain
 
     return data_amplitude
-

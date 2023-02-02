@@ -208,7 +208,7 @@ class Dataset(ABC):
     @staticmethod
     def log_scale_data(X: np.array, vmin: float = 1e-5, vmax: float = 1e-2) -> np.array:
         """
-        function min/max scales log data X with values vmin, vmax. Applies clipping. TODO: implement in scale_dataset
+        function min/max scales log10 data X with values vmin, vmax. Applies clipping. TODO: implement in scale_dataset
         :param X: data of shape (
         :param vmin: minimal value, set to 0
         :param vmax: minimal value, set to 1
@@ -223,6 +223,19 @@ class Dataset(ABC):
         X_std[X_std < 0] = 0
         X_std[X_std > 1] = 1
         return X_std
+
+    @staticmethod
+    def exp_scale_data(X: np.array, vmin: float = 1e-5, vmax: float = 1e-2):
+        """
+        function min/max scales data X with values vmin, vmax and exponent 10. Reverses log_scale_data
+        :param X: data of shape (
+        :param vmin: minimal value, set to 0
+        :param vmax: minimal value, set to 1
+        :return: scaled data
+        """
+        vdiff = np.log10(vmax) - np.log10(vmin)
+        x_log = np.log10(vmin) + vdiff * X
+        return 10 ** x_log
 
     @staticmethod
     def detrend_dim(da: xr.Dataset, dim: str = "time", data_var: str = "data", deg: int = 1) -> xr.Dataset:

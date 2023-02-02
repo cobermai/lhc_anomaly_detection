@@ -1448,10 +1448,10 @@ class NMF(BaseEstimator, TransformerMixin):
             If init='custom', it is used as initial guess for the solution.
 
         not_fit_H_idx: list, by Christoph Obermair
-            List with book or int, with component numbers not to fit
+            List with bool or int, with component numbers not to fit
 
         not_init_H_idx: list, by Christoph Obermair
-            List with book or int, with component numbers not to initialize again
+            List with bool or int, with component numbers not to initialize again
 
         Returns
         -------
@@ -1498,7 +1498,7 @@ class NMF(BaseEstimator, TransformerMixin):
         self.fit_transform(X, **params)
         return self
 
-    def transform(self, X):
+    def transform(self, X, H = None):
         """Transform the data X according to the fitted NMF model
 
         Parameters
@@ -1506,12 +1506,18 @@ class NMF(BaseEstimator, TransformerMixin):
         X : {array-like, sparse matrix}, shape (n_samples, n_features)
             Data matrix to be transformed by the model
 
+        H : array-like, shape (n_components, n_features)
+            components
+
         Returns
         -------
         W : array, shape (n_samples, n_components)
             Transformed data
         """
-        check_is_fitted(self, 'n_components_')
+        #check_is_fitted(self, 'n_components_')
+
+        if H is None:
+            H = self.components_
 
         W, _, n_iter_ = non_negative_factorization(
             X=X, W=None, H=self.components_, n_components=self.n_components_,
