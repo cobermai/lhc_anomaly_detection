@@ -254,13 +254,12 @@ class Dataset(ABC):
         return data.merge(p)
 
     @staticmethod
-    def trend_dim(da: xr.Dataset, dim: str = "time", data_var: str = "data", deg: int = 1) -> xr.Dataset:
+    def trend_dim(da: xr.Dataset, dim: str = "time", data_var: str = "data") -> xr.Dataset:
         """
         add trend of data along given dimension
         :param da: DataArray with data_var and polyfit_coefficients as data variables
         :param dim: dimension to calculate the trend from , default ist time dimension
         :param data_var: data_var to detrend, default is to detrend data
-        :param deg: degree of trend, default is a linear trend, i.e. deg=1
         :return: Dataset with added trend
         """
         fit = xr.polyval(da[dim], da.polyfit_coefficients)

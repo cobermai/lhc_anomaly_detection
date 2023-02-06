@@ -81,10 +81,12 @@ def get_fft_of_DataArray(data: xr.DataArray,
     return data_fft
 
 
-def get_ifft_of_DataArray(data: xr.DataArray, f_window: Callable = np.ones) -> xr.DataArray:
+def get_ifft_of_DataArray(data: xr.DataArray, f_window: Callable = np.ones, start_time: float = 0) -> xr.DataArray:
     """
     calculates ifft of DataArray, creates new coord time
     :param data: DataArray containing complex frequency data with coords (el_position, event, frequency)
+    :param f_window: window function for fft, default is no window (np.ones)
+    :param start_time: start time of output timeseries, starts at 0 by default
     :return: DataArray containing frequency data with coords (el_position, event, frequency)
     """
     data_ifft = xr.apply_ufunc(ifft,
@@ -95,9 +97,10 @@ def get_ifft_of_DataArray(data: xr.DataArray, f_window: Callable = np.ones) -> x
                                vectorize=True)
 
     df = data.frequency[1].values - data.frequency[0].values
-    time_range = np.arange(len(data.frequency)) / df / len(data.frequency)
+    time_range = np.arange(len(data.frequency)) / df / len(data.frequency) + start_time
     data_ifft = data_ifft.assign_coords(time=time_range)
 
+    # divide imag part by window?
     data_ifft_window = np.real(data_ifft) / f_window(len(data_ifft.time)) + 1j * np.imag(data_ifft)
 
     return data_ifft_window
