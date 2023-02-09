@@ -348,6 +348,7 @@ def load_dataset(creator: "DatasetCreator",
                               dataset_path=dataset_path,
                               drop_data_vars=drop_data_vars,
                               location=location)
+
     dataset = ds.train_valid_test_split(dataset=dataset, split_mask=split_mask)
     if scale_dataset:
         dataset = ds.scale_dataset(dataset=dataset)
