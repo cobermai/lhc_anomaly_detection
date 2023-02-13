@@ -126,3 +126,6 @@ def scale_fft_amplitude(data: xr.DataArray, f_window: Callable = np.ones, is_pol
         data_amplitude = data * N * window_gain
 
     return data_amplitude
+
+
+

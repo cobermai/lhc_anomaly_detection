@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from matplotlib import pyplot as plt
+from scipy.stats import gamma, chi2
 
 from src.datasets.rb_fpa_prim_quench_ee_plateau import RBFPAPrimQuenchEEPlateau
 from src.models.nmf import NMF
@@ -19,23 +20,36 @@ def plot_loss(figpath):
     bool_outlier = np.isin(ds.event.values, outlier_events)
 
     plt.figure(figsize=(7, 5))
-    plt.plot(np.abs(fft_loss[~bool_test]), np.abs(fft_nmf_loss[~bool_test]), ".")
-    plt.plot(np.abs(fft_loss[bool_outlier]), np.abs(fft_nmf_loss[bool_outlier]), "o")
+    for line in fft_nmf_loss[bool_outlier]:
+        plt.axvline(line, c='orange')
 
-    plt.ylabel("$|||X[k]| -|\hat{X}[k]|$", fontsize=15)
-    plt.xlabel("$||x^*[n] - \hat{x}_{FFT}^*[n]||$", fontsize=15)
+    plt.hist(fft_nmf_loss[~bool_test], bins=200, density=True)
+    plt.ylabel("$||x^*[n] - \hat{x}_{NMF}^*[n]||$", fontsize=15)
 
-    plt.yscale("log")
-    plt.xscale("log")
+    # Fit a gamma distribution to the data
+    #params_fit = gamma.fit(fft_nmf_loss[~bool_test])
+    params_fit = chi2.fit(fft_nmf_loss[~bool_test])
+
+    # Plot the pdf of the fitted gamma distribution
+    x = np.linspace(0, fft_nmf_loss[~bool_test].max(), 300)
+    pdf = chi2.pdf(x, *params_fit)
+    plt.plot(x, pdf, 'k--', lw=2)
+
+    upper = chi2.ppf(0.99, *params_fit)
+    plt.axvline(upper, c='red')
+
     plt.savefig(figpath)
+
+    p_values = 1 - chi2.cdf(fft_nmf_loss[~bool_test], *params_fit)
+    df_p_values = pd.DataFrame({'fpa_identifier': ds.event.values[~bool_test],
+                                'loss': fft_nmf_loss[~bool_test],
+                                'p_values': p_values})
+    df_p_values.to_csv(output_path / 'p_values.csv')
 
 def plot_event(figpath):
     event = 2
     magnet = 150
-    vdiff = np.log10(upper_bound) - np.log10(lower_bound)
-    n_ticks = int(vdiff) + 1
-
-    fig, ax = plt.subplots(2, 4, figsize=(20, 7))
+    fig, ax = plt.subplots(2, 3, figsize=(17, 7))
 
     # x(t)
     ax[0, 0].plot(ds.time, ds.data[event, magnet].T)
@@ -55,22 +69,6 @@ def plot_event(figpath):
     ax[0, 2].set_ylabel('Voltage / V')
     ax[0, 2].legend(['$|X[k]|$'])
 
-    # X(k) log
-    ax[0, 3].plot(da_fft_amp.frequency, na_fft_log[event, magnet].T, c="g")
-    ax[0, 3].set_xlabel('Frequency / Hz')
-    ax[0, 3].set_ylabel('Voltage / V')
-    ax[0, 3].set_yticks(np.linspace(0, 1, n_ticks))
-    ax[0, 3].set_yticklabels([f"$10^{{{int(np.log10(lower_bound)) + a}}}$" for a in range(n_ticks)])
-    ax[0, 3].legend(['$|X[k]|$'])
-
-    # WH log
-    ax[1, 3].plot(da_fft_amp.frequency, na_fft_nmf_log[event, magnet].T, c="r")
-    ax[1, 3].set_xlabel('Frequency / Hz')
-    ax[1, 3].set_ylabel('Voltage / V')
-    ax[1, 3].set_yticks(np.linspace(0, 1, n_ticks))
-    ax[1, 3].set_yticklabels([f"$10^{{{int(np.log10(lower_bound)) + a}}}$" for a in range(n_ticks)])
-    ax[1, 3].legend(['$|\hat{X}[k]|$'])
-
     # WH
     ax[1, 2].plot(da_fft_amp.frequency, na_fft_nmf_amp[event, magnet].T, c="r")
     ax[1, 2].set_xlabel('Frequency / Hz')
@@ -78,8 +76,8 @@ def plot_event(figpath):
     ax[1, 2].legend(['$|\hat{X}[n]|$'])
 
     # \hat{x}*(t)
-    ax[1, 1].plot(ds.time, da_ifft_nmf_win[event, magnet].T, c="r")
-    ax[1, 1].plot(ds.time, da_ifft_win[event, magnet].T, c="g")
+    ax[1, 1].plot(ds.time, da_ifft_nmf[event, magnet].T, c="r")
+    ax[1, 1].plot(ds.time, da_ifft[event, magnet].T, c="g")
     ax[1, 1].set_xlabel('Time / s')
     ax[1, 1].set_ylabel('Voltage / V')
     ax[1, 1].legend(['$\hat{x}^*_{NMF}[n]$', '$\hat{x}^*_{FFT}[n]$'])
@@ -121,8 +119,11 @@ if __name__ == "__main__":
 
     # Preprocessing
     f_window = np.hamming
+    cutoff_freq = 300
+    filt_order = 5
     ds_detrend = dataset_creator.detrend_dim(ds)
-    da_processed = ds_detrend.data * f_window(len(ds.time))
+    da_win = ds_detrend.data * f_window(len(ds.time))
+    da_processed = dataset_creator.lowpass_filter_DataArray(da=da_win, cutoff=cutoff_freq, order=filt_order)
 
     # calculate fft
     f_lim = (0, 500)
@@ -132,15 +133,11 @@ if __name__ == "__main__":
     _, da_fft_phase = complex_to_polar(da_fft)
 
     # scale fft data
-    lower_bound = 1e-3
-    upper_bound = 1
-    na_fft_log = np.array([dataset_creator.log_scale_data(x, vmin=lower_bound, vmax=upper_bound)
-                           for x in da_fft_amp.data])
-    na_fft_log_flat = np.nan_to_num(na_fft_log.reshape(-1, np.shape(na_fft_log)[2]))
+    na_fft_flat = np.nan_to_num(da_fft_amp.data.reshape(-1, np.shape(da_fft_amp.data)[2]))
 
     # fit and transform NMF, fit both W and H
     hyperparameter = {
-        "n_components": 20,
+        "n_components": 3,
         "solver": "cd",
         "beta_loss": 'frobenius',
         "init": "nndsvd",
@@ -152,8 +149,8 @@ if __name__ == "__main__":
         "ortho_reg": 0
     }
     nmf_model = NMF(**hyperparameter)
-    nmf_model.fit(X=na_fft_log_flat[bool_train_flat])
-    W = nmf_model.transform(X=na_fft_log_flat)
+    nmf_model.fit(X=na_fft_flat[bool_train_flat])
+    W = nmf_model.transform(X=na_fft_flat)
     H = nmf_model.components_
     H_norm, W_norm = nmf_model.normalize_H(H=H, W=W)
 
@@ -167,8 +164,7 @@ if __name__ == "__main__":
     ds_fft_rec = dataset_creator.trend_dim(ds_fft_rec)
 
     # reconstruct fft with NMF
-    na_fft_nmf_log = (W_norm @ H_norm).reshape(na_fft_log.shape)
-    na_fft_nmf_amp = dataset_creator.exp_scale_data(na_fft_nmf_log, vmin=lower_bound, vmax=upper_bound)
+    na_fft_nmf_amp = (W_norm @ H_norm).reshape(da_fft_amp.data.shape)
     da_fft_nmf_amp = xr.zeros_like(da_fft, dtype=float)
     da_fft_nmf_amp[:, :, :na_fft_nmf_amp.shape[-1]] = na_fft_nmf_amp
 
@@ -188,16 +184,24 @@ if __name__ == "__main__":
     # Loss
     fft_loss_sample = da_processed.values - np.real(da_ifft).values
     fft_nmf_loss_sample = da_processed.values - np.real(da_ifft_nmf).values
-    nmf_loss_sample = na_fft_log - (W_norm @ H_norm).reshape(na_fft_log.shape)
-    fft_loss = np.linalg.norm(np.nan_to_num(fft_loss_sample), axis=(1, 2))
-    fft_nmf_loss = np.linalg.norm(np.nan_to_num(fft_nmf_loss_sample), axis=(1, 2))
-    nmf_loss = np.linalg.norm(np.nan_to_num(nmf_loss_sample), axis=(1, 2))
+    nmf_loss_sample = da_fft_amp.data - na_fft_nmf_amp
+    fft_loss = np.linalg.norm(np.nan_to_num(fft_loss_sample), axis=2).max(axis=1).reshape(-1)
+    fft_nmf_loss = np.linalg.norm(np.nan_to_num(fft_nmf_loss_sample), axis=2).max(axis=1).reshape(-1)
+    nmf_loss = np.linalg.norm(np.nan_to_num(nmf_loss_sample), axis=2).max(axis=1).reshape(-1)
 
     # plot ts circle
     plot_event(output_path / 'event.png')
 
     # plot loss
     plot_loss(output_path / 'loss.png')
+
+    plt.figure()
+    plt.plot(da_fft_amp.frequency, H.T)
+    plt.legend([f"component {i}" for i in range(len(H))])
+    plt.xlabel('Frequency / Hz')
+    plt.ylabel('Voltage / V')
+    plt.savefig(output_path / 'components.png')
+
 
 
 

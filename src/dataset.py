@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
+from scipy.signal import butter, lfilter, filtfilt
 
 from src.visualisation.xarray_visualisation import plot_xarray_event
 
@@ -296,6 +297,36 @@ class Dataset(ABC):
         dataset_padded = dataset_padded.interpolate_na(dim=dim, method=interp_method, fill_value="extrapolate")
 
         return dataset_padded
+
+    @staticmethod
+    def lowpass_filter(data: np.array, cutoff: float, fs: float, order: int) -> np.array:
+        """
+        butterworth lowpass filters numpy array
+        :param data: data
+        :param cutoff: cuttoff frequency
+        :param fs: sampling frequency
+        :param order: order of butterworth filter, the higher, the more reponse time it needs
+        :return: filtered numpy array
+        """
+        b, a = butter(order, cutoff, fs=fs, btype='low', analog=False)
+        y = filtfilt(b, a, data)
+        return y
+
+    def lowpass_filter_DataArray(self, da: xr.DataArray, cutoff: float, order: int):
+        """
+        butterworth lowpass filters xarray dataarray
+        :param da: data array
+        :param cutoff: cuttoff frequency
+        :param order: order of butterworth filter, the higher, the more reponse time it needs
+        :return: filtered xarray dataarray
+        """
+        fs = 1 / (da.time.values[1] - da.time.values[0]),
+        da_filtered = xr.apply_ufunc(self.lowpass_filter,
+                                     da,
+                                     cutoff,
+                                     fs,
+                                     order)
+        return da_filtered
 
 
 def load_dataset(creator: "DatasetCreator",
