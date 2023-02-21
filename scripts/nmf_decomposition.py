@@ -200,7 +200,7 @@ if __name__ == "__main__":
     plt.legend([f"component {i}" for i in range(len(H))])
     plt.xlabel('Frequency / Hz')
     plt.ylabel('Voltage / V')
-    plt.savefig(output_path / 'components.png')
+    plt.savefig(output_path / '3_components.png')
 
 
 

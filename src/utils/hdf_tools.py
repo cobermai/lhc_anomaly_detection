@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 
 import h5py
@@ -129,7 +129,7 @@ def get_hdf_tree(file_path: Path, regex_list: list = ['']) -> pd.DataFrame:
         :param node: node of dataset
         """
         if isinstance(node, h5py.Dataset):
-            parent_path = str(Path(name).parent)
+            parent_path = str(PurePosixPath(name).parent)
             if not parent_path in file_tree:
                 file_tree.append(parent_path)
         return None

@@ -6,17 +6,19 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from matplotlib import pyplot as plt
-from scipy.stats import gamma, chi2
+from scipy.stats import chi2
+from scipy import signal
 
 from src.datasets.rb_fpa_prim_quench_ee_plateau import RBFPAPrimQuenchEEPlateau
 from src.models.nmf import NMF
 from src.utils.frequency_utils import get_fft_of_DataArray, scale_fft_amplitude, get_ifft_of_DataArray, \
     complex_to_polar, polar_to_complex
 from src.utils.utils import dict_to_df_meshgrid
-from src.visualisation.NMF_visualization import plot_NMF_components, plot_ts_circle, plot_loss_hist
+from src.visualisation.NMF_visualization import plot_NMF_components, plot_ts_circle, plot_loss_hist, plot_outliers, \
+    plot_component_examples
 
 
-def NMF_sensitivity_analysis(hyperparameter, out_path):
+def NMF_sensitivity_analysis(hyperparameter, outlier_loss, out_path):
     df_meshgrid = dict_to_df_meshgrid(hyperparameter)
 
     df_loss = pd.DataFrame({'fpa_identifier': ds.event.values})
@@ -29,8 +31,31 @@ def NMF_sensitivity_analysis(hyperparameter, out_path):
 
         print(row)
 
+        # Preprocessing
+        ds_detrend = dataset_creator.detrend_dim(ds, deg=row["trend_deg"])
+        f_window = window_functions[row["f_window"]]
+        da_processed = ds_detrend.data * f_window(len(ds.time))
+        row = row.drop(["trend_deg", "f_window"])
+
+        # Calculate fft
+        f_lim = (0, 534)
+        da_fft = get_fft_of_DataArray(data=da_processed, f_lim=f_lim)
+        da_fft_amp = scale_fft_amplitude(data=da_fft, f_window=f_window)
+        da_fft_amp = da_fft_amp[:, :, da_fft_amp.frequency < f_lim[1]]
+        _, da_fft_phase = complex_to_polar(da_fft)
+
+        # Flatten data for nmf
+        na_fft_flat = np.nan_to_num(da_fft_amp.data.reshape(-1, np.shape(da_fft_amp.data)[2]))
+
+        # Train NMF
+        init_components = False
         nmf_model = NMF(**row.to_dict())
-        nmf_model.fit(X=na_fft_flat[bool_train_flat])
+        if init_components:
+            df_components = pd.read_csv("../data/final_components/components_merged.csv")
+            H_init = df_components.values[:, 1:].T
+            nmf_model.fit(X=na_fft_flat[bool_train_flat], H=H_init, not_init_H_idx=True)
+        else:
+            nmf_model.fit(X=na_fft_flat[bool_train_flat])
         W = nmf_model.transform(X=na_fft_flat)
         H = nmf_model.components_
         H_norm, W_norm = nmf_model.normalize_H(H=H, W=W)
@@ -63,63 +88,76 @@ def NMF_sensitivity_analysis(hyperparameter, out_path):
         ds_fft_nmf_rec = dataset_creator.trend_dim(ds_fft_nmf_rec)
 
         # Loss
-        fft_nmf_loss_sample = da_processed.values - np.real(da_ifft_nmf).values
-        fft_nmf_loss_max = np.linalg.norm(np.nan_to_num(fft_nmf_loss_sample), axis=2).max(axis=1).reshape(-1)
-        fft_nmf_loss = np.linalg.norm(np.nan_to_num(fft_nmf_loss_sample))
-        df_loss[experiment_name] = fft_nmf_loss_max
+        if outlier_loss == "nmf":
+            loss_sample = da_fft_amp.data - na_fft_nmf_amp
+        elif outlier_loss == "fft+nmf":
+            loss_sample = da_processed.values - np.real(da_ifft_nmf).values
+        masked_arr = np.ma.masked_invalid(loss_sample)
+        loss_magnet = np.linalg.norm(masked_arr, axis=2)
+        loss_max = np.nanmax(loss_magnet, axis=1)
 
-        nmf_loss_sample = da_fft_amp.data - na_fft_nmf_amp
-        nmf_loss = np.linalg.norm(np.nan_to_num(nmf_loss_sample))
-        loss.append([fft_nmf_loss, nmf_loss])
+        total_loss = np.linalg.norm(masked_arr[~bool_test].compressed())
+        df_loss[experiment_name] = loss_max
+        loss.append([total_loss, loss_magnet])
 
         #calculate p values
-        params_fit = chi2.fit(fft_nmf_loss_max[~bool_test])
-        p_values = 1 - chi2.cdf(fft_nmf_loss_max[~bool_test], *params_fit)
+        params_fit = chi2.fit(loss_max[~bool_test], floc=0)  # fit df, and fshape
+        p_values = 1 - chi2.cdf(loss_max[~bool_test], *params_fit)
         df_p_values[experiment_name] = p_values
 
         # plot ts circle
         plot_ts_circle(ds, da_processed, da_fft_amp, na_fft_nmf_amp, da_ifft_nmf, da_ifft, ds_fft_nmf_rec, ds_fft_rec,
-                       experiment_path / 'event.png')
+                       experiment_path / 'event.png', event=2, magnet=150)
 
         # plot loss histogram
-        plot_loss_hist(fft_nmf_loss_max[~bool_test], ds.event.values[~bool_test], experiment_path)
+        plot_loss_hist(loss_max[~bool_test], experiment_path, params_fit)
 
         # plot components
         plot_NMF_components(da_fft_amp.frequency, H, experiment_path / 'components.png')
 
-    # plot loss
-    loss = np.array(loss)
-    fig, ax1 = plt.subplots()
-    ax2 = ax1.twinx()
-    ax1.plot(loss[:, 0], 'g-')
-    ax2.plot(loss[:, 1], 'b-')
-    ax1.set_ylabel('fft+nmf loss', color='g')
-    ax2.set_ylabel('nmf loss', color='b')
-    plt.savefig(output_path / 'loss.png')
+        # plot event signals where each component is the biggest
+        plot_component_examples(H_norm, W_norm, da_fft_amp, da_processed, experiment_path, n_examples=5)
 
+        plt.tight_layout()
+        plt.savefig(experiment_path / 'component_examples.png')
+
+        pd.DataFrame(H_norm.T,
+                     index=da_fft_amp.frequency.values,
+                     columns=[f"component_{i}" for i in range(len(H_norm))]).to_csv(experiment_path / "components.csv")
+
+    df_loss.to_csv(output_path / 'loss.csv', index=False)
     df_p_values['median'] = df_p_values.drop(columns=['fpa_identifier']).median(axis=1)
     df_p_values['std'] = df_p_values.drop(columns=['fpa_identifier']).std(axis=1)
     df_p_values = df_p_values.sort_values(by='median').reset_index(drop=True)
-    df_loss.to_csv(output_path / 'loss.csv', index=False)
     df_p_values.to_csv(output_path / 'p_values.csv', index=False)
 
-    outlier_path = out_path / 'outliers'
-    outlier_path.mkdir(parents=True, exist_ok=True)
-    for i, row in df_p_values.head(5).iterrows():
-        plt.figure()
-        plt.plot(ds.time, ds.data.loc[{'event': row['fpa_identifier']}].T)
-        plt.title(f"p-value: {row['median']:.4} +/-{row['std']:.4}")
-        plt.xlabel('Time / s')
-        plt.ylabel('Voltage / V')
-        plt.savefig(outlier_path / f"{i}_{row['fpa_identifier']}.png")
+    # plot loss
+    loss = np.array(loss)
+    fig, ax1 = plt.subplots()
+    ax1.plot(loss[:, 0], 'g-', label=outlier_loss)
+    ax1.set_ylabel(f'{outlier_loss} loss', color='g')
+    ax1.legend()
+    plt.savefig(output_path / 'loss.png')
 
+    n_outliers = 10
+    loss_hist = np.stack(loss[:, 1], axis=-1)
+    outlier_event_index = np.arange(len(ds.event.values))[np.isin(ds.event.values,
+                                                                  df_p_values.head(n_outliers).fpa_identifier.values)]
+    plot_outliers(ds, df_p_values, loss_hist, da_fft_amp, out_path, n_outliers=10, mp3_fpa_df=mp3_fpa_df)
+    for i, row in df_p_values.head(n_outliers).iterrows():
+        event_loss = np.nanmean(loss_hist, axis=-1)[outlier_event_index[i]].reshape(-1)
+        outlier_magnet_index = np.nanargmax(event_loss)
+        plot_ts_circle(ds, da_processed, da_fft_amp, na_fft_nmf_amp, da_ifft_nmf, da_ifft, ds_fft_nmf_rec, ds_fft_rec,
+                       experiment_path / f'event_outlier_{i}.png', event=outlier_event_index[i],
+                       magnet=outlier_magnet_index)
+
+    var_loss = np.nanmax(loss_hist[outlier_event_index], axis=1)
     plt.figure()
-    df_p_values.drop(columns=['fpa_identifier', 'median', 'std']).head(10).T.boxplot()
-    plt.xlabel('Outlier number')
-    plt.ylabel('p-value')
-    plt.axhline(y=0.01, color='r', linestyle='-', label='99% confidence interval')
-    plt.legend()
-    plt.savefig(output_path / 'outlier_boxplot.png')
+    plt.plot(var_loss.T)
+    plt.ylabel("Max Loss")
+    plt.xlabel("# Sensitivity Analysis")
+    plt.legend([f"Outlier {i}" for i in range(len(var_loss))])
+    plt.savefig(output_path / 'outliers/outlier_loss.png')
 
 
 if __name__ == "__main__":
@@ -146,35 +184,27 @@ if __name__ == "__main__":
     # add dims for indexing flattened data
     bool_train_flat = np.stack([~bool_test for l in range(len(ds.el_position))]).T.reshape(-1)
 
-    # Preprocessing
-    f_window = np.hamming
-    cutoff_freq = 300
-    filt_order = 5
-    ds_detrend = dataset_creator.detrend_dim(ds)
-    da_processed = ds_detrend.data * f_window(len(ds.time))
-    #da_processed = dataset_creator.lowpass_filter_DataArray(da=da_win, cutoff=cutoff_freq, order=filt_order)
-
-    # calculate fft
-    f_lim = (0, 500)
-    da_fft = get_fft_of_DataArray(data=da_processed, f_lim=f_lim)
-    da_fft_amp = scale_fft_amplitude(data=da_fft, f_window=f_window)
-    da_fft_amp = da_fft_amp[:, :, da_fft_amp.frequency < f_lim[1]]
-    _, da_fft_phase = complex_to_polar(da_fft)
-
-    # scale fft data
-    na_fft_flat = np.nan_to_num(da_fft_amp.data.reshape(-1, np.shape(da_fft_amp.data)[2]))
-
     # fit and transform NMF, fit both W and H
+    window_functions = {"ones": np.ones,
+                        "hanning": np.hanning,
+                        "bartlett": signal.windows.bartlett,
+                        "blackman": signal.windows.blackman,
+                        "flattop": signal.windows.flattop,
+                        "hamming": signal.windows.hamming,
+                        "tukey": signal.windows.tukey}
+
+    outlier_loss = "nmf"  # fft+nmf
     hyperparameter = {
-        "n_components": [2, 3, 4, 5, 6],
-        "solver": ["cd"],
-        "beta_loss": ['frobenius'],
-        "init": ["nndsvd"],
-        "tol": [1e-5],
-        "max_iter": [200],
-        "l1_ratio": [0.5],
-        "alpha": [0],
+        "trend_deg": [0, 1],
+        "f_window": list(window_functions.keys()),
+        "n_components": [2,3,4,5,6,7,8], #, 7,8,9,10,11,12,13,14,15,16,17,18,19,20
+        "solver": ["mu"],
+        "beta_loss": ['frobenius', 'kullback-leibler', 'itakura-saito'], #'frobenius', 'kullback-leibler', 'itakura-saito'
+        "init": ["nndsvda", 'random'],
+        #"l1_ratio": [0.5],
+        #"alpha": [0],
+        #"max_iter": [1000],
         "shuffle": ["False"],
-        "ortho_reg": [0]
+        #"ortho_reg": [0]
     }
-    NMF_sensitivity_analysis(hyperparameter, output_path)
+    NMF_sensitivity_analysis(hyperparameter, outlier_loss, output_path)

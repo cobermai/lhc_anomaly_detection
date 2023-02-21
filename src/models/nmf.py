@@ -1171,6 +1171,10 @@ def non_negative_factorization(X, W=None, H=None, n_components=None,
                          "Use 'mu' solver or remove NaN from the input X."
                          % solver)
 
+    # by cobermai to use 'itakura-saito' distance
+    if safe_min(X) == 0 and beta_loss <= 0:
+        X = X + EPSILON
+
     if safe_min(X) == 0 and beta_loss <= 0:
         raise ValueError("When beta_loss <= 0 and X contains zeros, "
                          "the solver may diverge. Please add small values to "
@@ -1599,6 +1603,6 @@ class NMF(BaseEstimator, TransformerMixin):
             Transformed data matrix, adjusted to normalization
         """
         max_H = H.max(axis=1, keepdims=True)
-        H_norm = H / max_H
+        H_norm = np.nan_to_num(H / max_H)
         W_norm = (W * np.expand_dims(max_H.T, axis=0))[0]
         return H_norm, W_norm
