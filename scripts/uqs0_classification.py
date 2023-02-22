@@ -18,7 +18,8 @@ from sklearn.svm import LinearSVC, SVC
 
 from src.utils.dataset_utils import u_diode_data_to_df
 from src.utils.hdf_tools import load_from_hdf_with_regex
-from src.visualisation.uqs0_classification_visualisation import plot_confusion_signals, plot_confusion_matrix
+from src.visualisation.uqs0_classification_visualisation import plot_confusion_signals, plot_confusion_matrix, \
+    write_excel
 
 
 def generate_magnet_labels_from_event(df_event_labels: pd.DataFrame, label_names: list) -> pd.DataFrame:
@@ -56,12 +57,12 @@ def filter_df(df_filt, window_size, step):
     offset = abs(df_filt.index.min())  # rolling cannot handle zero passing
     df_filt.index = df_filt.index + offset
     group_labels = np.arange(len(df_filt)) // step
-    # apply the rolling method to each group
-    max_df = df_filt.groupby(group_labels)\
-        .rolling(window_size, center=True).median().reset_index(level=0, drop=True).dropna(how="all")
-    max_df.index = max_df.index - offset
 
-    return max_df
+    # apply the rolling method to each group
+    med_df = df_filt.groupby(group_labels)\
+        .rolling(window_size, center=True).mean().reset_index(level=0, drop=True).dropna(how="all")
+
+    return med_df
 
 
 def load_uqs0_data_from_hdf5(df_events: pd.DataFrame, file_path: Path) -> pd.DataFrame:
@@ -79,9 +80,20 @@ def load_uqs0_data_from_hdf5(df_events: pd.DataFrame, file_path: Path) -> pd.Dat
 
         df = u_diode_data_to_df(data, len_data=len(data[0]))
 
-        window_size = 50
-        step = 50
-        df = df.iloc[60:]
+        #fig_path = Path(f"../output/{os.path.basename(__file__)}/signals")
+        #fig_path.mkdir(parents=True, exist_ok=True)
+        #m_list = df.filter(regex="_A").columns
+        #for m in m_list:
+        #    magnet = m.split("_")[0]
+        #    event = df_experiment[df_experiment["magnet"] == magnet].event.values[0]
+        #    plt.figure(figsize=(10,6))
+        #    df.filter(regex=magnet).plot(label=False)
+        #    plt.ylim((-0.1, 0.1))
+        #    plt.savefig(fig_path / (str(event) + ".png"))
+
+        window_size = 100
+        step = 100
+        df = df.iloc[500:]
         df = filter_df(df, window_size, step)
         magnets = [x.split("_")[0] for x in df.filter(regex="_A").columns.values]
         data_columns.append(magnets)
@@ -99,89 +111,67 @@ def load_uqs0_data_from_hdf5(df_events: pd.DataFrame, file_path: Path) -> pd.Dat
 
 
 class WindowSlice():
-    def __init__(self, labels=None, reduce_ratio=0.9):
+    def __init__(self, labels=None, reduce_ratio=0.9, none_flat_shape=None):
         self.labels = labels
         self.reduce_ratio = reduce_ratio
+        self.none_flat_shape = none_flat_shape
         self.name = "window_slice"
 
     def augment(self, X: np.array, y: np.array, oversampling_rate=None) -> tuple:
+        index = np.arange(len(X))
+        biggest_label_size = np.sum(y, axis=0).max()
         if oversampling_rate is None:
-            oversampling_rate = np.sum(y, axis=0).max() / np.sum(y, axis=0)
+            oversampling_rate = biggest_label_size / np.sum(y, axis=0)
+
+        shape_X = X.shape
+        if self.none_flat_shape:
+            X = X.reshape(self.none_flat_shape)
+        else:
+            X = X.reshape((X.shape[0], -1, X.shape[-1]))
 
         X_augmented_list = []
         y_augmented_list = []
+        source_index_list = []
         for i, label in enumerate(self.labels):
-            label_bool = (y == label).all(axis=1)
+            label_bool = (y[:, i] == label[i])
             X_label = X[label_bool]
             y_label = y[label_bool]
 
-            random_choices = np.random.choice(len(X_label), size=int(np.floor(oversampling_rate[i] * len(X_label))))
+            if len(X_label) == biggest_label_size:
+                random_choices = np.random.choice(len(X_label), size=int(oversampling_rate[i] * biggest_label_size), replace=False)
+            else:
+                random_choices = np.random.choice(len(X_label), size=int(oversampling_rate[i] * biggest_label_size))
+
             X_oversampled = X_label[random_choices]
             y_oversampled = y_label[random_choices]
 
             # https://halshs.archives-ouvertes.fr/halshs-01357973/document
             X_window_sliced = np.zeros_like(X_oversampled)
-            target_len = np.ceil(self.reduce_ratio * X_oversampled.shape[1]).astype(int)
+            target_len = np.ceil(self.reduce_ratio * X_oversampled.shape[-1]).astype(int)
 
-            starts = np.random.randint(low=0, high=X.shape[1] - target_len, size=(X_oversampled.shape[0])).astype(int)
+            starts = np.random.randint(low=0, high=X.shape[-1] - target_len, size=(X_oversampled.shape[0])).astype(int)
             ends = (target_len + starts).astype(int)
 
-            for i, pattern in enumerate(X_oversampled):
-                X_window_sliced[i] = np.interp(np.linspace(0, target_len, num=X_oversampled.shape[1]),
-                                               np.arange(target_len),
-                                               pattern[starts[i]:ends[i]]).T
+            for j, pattern in enumerate(X_oversampled):
+                for dim in range(X_oversampled.shape[1]):
+                    X_window_sliced[j, dim, :] = np.interp(np.linspace(0, target_len, num=X_oversampled.shape[-1]),
+                                                           np.arange(target_len),
+                                                           pattern[dim, starts[j]:ends[j]]).T
 
-            X_augmented_list.append(X_window_sliced)
+            X_augmented_list.append(X_window_sliced.reshape((-1, ) + shape_X[1:]))
             y_augmented_list.append(y_oversampled)
+            source_index_list.append(index[label_bool][random_choices])
 
         X_augmented = np.vstack(X_augmented_list)
         y_augmented = np.vstack(y_augmented_list)
+        source_index = np.hstack(source_index_list)
+        print(f"len: {len(X)}, unique: {pd.DataFrame(source_index).nunique().values}")
 
         idx_shuffled = np.random.permutation(np.arange(len(X_augmented)))
 
-        return X_augmented[idx_shuffled], y_augmented[idx_shuffled]
+        return X_augmented[idx_shuffled], y_augmented[idx_shuffled], source_index[idx_shuffled]
 
-def write_excel():
-    # Open the source Excel file
-    source_workbook = openpyxl.load_workbook(labels_path)
-    source_sheet = source_workbook.active
 
-    column_names = ["A", "B", "C", "D"]
-    with open(output_path / 'dest_file.xlsx', 'wb') as dest_file:
-        dest_workbook = xlsxwriter.Workbook(dest_file)
-        dest_sheet = dest_workbook.add_worksheet()
-
-        columns = ['event', 'Electrical order', true_label_name, pred_label_name, "pred probability"]
-        dest_sheet.write_row(0, 0, columns)
-
-        red_format = dest_workbook.add_format({'bg_color': '#FFC7CE'})
-        j = 1
-        for i, row in df_experiment.iterrows():
-            # Read the URL from the source file
-            url = source_sheet.cell(row=1 + i, column=2).hyperlink.target
-
-            # Create a new Excel file and copy the URL to it
-            dest_sheet.write(j, 0, row["event"])
-            dest_sheet.write_url(j, 1, url, string=str(row['Electrical order']))
-
-            df_result_magnet = df_result[df_result.index == row["magnet"]]
-            man_label = df_result_magnet[true_label_name].values[0]
-            pred_label = df_result_magnet[pred_label_name].values[0]
-            if not man_label == pred_label:
-                dest_sheet.write(j, 2, man_label, red_format)
-                dest_sheet.write(j, 3, pred_label, red_format)
-            else:
-                dest_sheet.write(j, 2, man_label)
-                dest_sheet.write(j, 3, pred_label)
-
-            dest_sheet.write(j, 4, df_result_magnet["ML probability"].values[0])
-            j += 1
-
-        for column_index in range(len(columns)):
-            column_name = xl_utility.xl_col_to_name(column_index)  # Convert index to column name
-            dest_sheet.set_column(f'{column_name}:{column_name}', 20)
-
-        dest_workbook.close()
 
 
 if __name__ == "__main__":
@@ -214,15 +204,21 @@ if __name__ == "__main__":
 
     # Load data
     data_path = Path("D:/datasets/20230220_snapshot_data")  # Path('/eos/project/s/steam/measurement_database/RB/data')
-    df_data = load_uqs0_data_from_hdf5(df_context_subset, data_path)
+    df_data = load_uqs0_data_from_hdf5(df_context_subset, data_path)[df_magnet_labels.index.values]
 
     # Process data
     clip = 0.15
+    scale_data = False
+    n_signals = 2  # Board A & B
     df_data[(df_data > clip)] = clip
     df_data[df_data < -clip] = -clip
-    X = np.nan_to_num((df_data.T.values - np.nanmean(df_data.T.values)) / np.nanstd(df_data.T.values))
+    data = df_data.T.values
+
+    if scale_data:
+        data = (data - np.nanmean(data)) / np.nanstd(data)
+    X = np.nan_to_num(data)
     all_labels = ["normal"] + label_names
-    y = df_magnet_labels.loc[df_data.columns, all_labels].values
+    y = df_magnet_labels.loc[df_magnet_labels.index.values, all_labels].values
     y_argmax = np.argmax(y, axis=1)
 
     # Select classification parameter
@@ -245,13 +241,13 @@ if __name__ == "__main__":
             # data augmentation
             if augment_data:
                 ws = WindowSlice(labels=np.eye(len(all_labels)))
-                X_train, y_train = ws.augment(X[train_index], y[train_index])
+                X_train, y_train, _ = ws.augment(X[train_index], y[train_index])
             else:
                 X_train = X[train_index]
                 y_train = y[train_index]
 
             # Train classifier
-            dt_clf = classifier() # , class_weight="balanced", max_depth=1
+            dt_clf = classifier(n_neighbors=3, weights='distance')  # class_weight="balanced", max_depth=1
             dt_clf.fit(X_train, y_train)
 
             # Evaluate classifier
@@ -288,21 +284,67 @@ if __name__ == "__main__":
         plot_confusion_matrix(df_result["true_int"].values, df_result["pred_int"].values, all_labels, output_path, n_split="test_all")
         plot_confusion_signals(X, df_result["true_int"].values, df_result["pred_int"].values, all_labels, output_path, n_split="test_all")
 
-    #write_excel()
-
     # train on whole dataset
-    ws = WindowSlice(labels=np.eye(len(all_labels)))
-    X_train, y_train = ws.augment(X, y)
+    ws = WindowSlice(labels=np.eye(len(all_labels)),
+                     reduce_ratio=0.8,
+                     none_flat_shape=(X.shape[0], n_signals, int(X.shape[-1] / n_signals)))
+    X_train, y_train, source_index = ws.augment(X, y)
 
     # Train classifier
-    dt_clf = classifier(n_neighbors=10)
+    dt_clf = classifier(n_neighbors=3, weights='distance')
     dt_clf.fit(X_train, y_train)
 
     # Evaluate classifier
     y_pred = dt_clf.predict(X)
     y_test_argmax = np.argmax(y, axis=1)
     y_pred_argmax = np.argmax(y_pred, axis=1)
+    y_prob = np.array(dt_clf.predict_proba(X))
+
+    neighbor_path = output_path / "neighbors"
+    neighbor_path.mkdir(parents=True, exist_ok=True)
+    j=0
+    for i in np.arange(len(y_pred))[y_test_argmax != y_pred_argmax]:
+        c = ["b", "orange", "red", "green"]
+
+        fig, ax = plt.subplots(1,2, figsize=(15, 5))
+        name = f"true: {all_labels[y_test_argmax[i]]}, pred: {all_labels[y_pred_argmax[i]]}"
+        ax[0].plot(X[i], c=c[y_pred_argmax[i]], label=name)
+        ax[0].legend()
+        ax[0].set_ylim((-0.1, 0.1))
+
+        c = ["b", "orange", "red", "green"]
+        neighbors = dt_clf.kneighbors(X[i:i + 1])
+        for dist, ind in zip(neighbors[0][0], neighbors[1][0]):
+            label = np.argmax(y_train, axis=1)[ind]
+            name = f"{source_index[ind]}_{all_labels[label]}_{dist:.2f}"
+            ax[1].plot(X_train[ind], label=name, c=c[label])
+        ax[1].legend()
+        ax[1].set_ylim((-0.1, 0.1))
+
+        plt.tight_layout()
+        plt.savefig(neighbor_path / f"{i}.png")
+        j+=1
+        if j > 30:
+            break
 
     # test
     plot_confusion_matrix(y_test_argmax, y_pred_argmax, all_labels, output_path, n_split="train_all")
     plot_confusion_signals(X, y_test_argmax, y_pred_argmax, all_labels, output_path, n_split="train_all")
+
+    neighbor_index = source_index[dt_clf.kneighbors(X)[1]]
+    neighbor_events = df_experiment.event.values[neighbor_index]
+    neighbor_labels = y[neighbor_index]
+    neighbor_labelevent = []
+    for j, label in enumerate(y):
+        output = [[] for _ in range(label.shape[-1])]
+        number, index = np.where(neighbor_labels[j])
+        for n, ind in zip(number, index):
+            output[ind].append(neighbor_events[j, n])
+        neighbor_labelevent.append(output)
+
+    df_true = pd.DataFrame(y, index=df_experiment.event.values, columns=["true_" + l for l in all_labels])
+    df_pred = pd.DataFrame(y_pred, index=df_experiment.event.values, columns=["pred_" + l for l in all_labels])
+    df_prob = pd.DataFrame(y_prob[:, :, 1].T, index=df_experiment.event.values, columns=["pred_" + l for l in all_labels])
+    df_results = pd.concat([df_true, df_prob], axis=1)
+    df_results["correct_classification"] = (df_true.values == df_pred.values).all(axis=1) + 0
+    write_excel(df_results, labels_path, neighbor_labelevent, output_path)
