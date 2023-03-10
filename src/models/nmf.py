@@ -1606,3 +1606,5 @@ class NMF(BaseEstimator, TransformerMixin):
         H_norm = np.nan_to_num(H / max_H)
         W_norm = (W * np.expand_dims(max_H.T, axis=0))[0]
         return H_norm, W_norm
+
+

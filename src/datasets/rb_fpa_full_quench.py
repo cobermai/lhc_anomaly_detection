@@ -15,12 +15,14 @@ from src.modeling.sec_quench import get_df_time_window
 from src.utils.dataset_utils import align_u_diode_data, drop_quenched_magnets, u_diode_simulation_to_df, \
     u_diode_data_to_df, data_to_xarray, get_u_diode_data_alignment_timestamps
 
+
 class RBFPAFullQuench(Dataset):
     """
     Subclass of Dataset to specify dataset selection. This dataset contains downloaded and simulated u diode data
     during a primary quench.
     Paths must be given to regenerate dataset.
     """
+
     def __init__(self,
                  dataset_path: Optional[Path] = None,
                  context_path: Optional[Path] = None,
@@ -147,7 +149,7 @@ class RBFPAFullQuench(Dataset):
         rb_magnet_metadata = pd.read_csv(self.metadata_path)
         rb_magnet_metadata = rb_magnet_metadata.sort_values("#Electric_circuit")
 
-        reference_index = None #only works if ds is calculated in one go, TODO: load reference index from folder
+        reference_index = None  # only works if ds is calculated in one go, TODO: load reference index from folder
         for fpa_identifier in fpa_identifiers:
             # if dataset already exists
             if not os.path.isfile(self.plot_dataset_path / f"{fpa_identifier}.png"):
@@ -179,7 +181,6 @@ class RBFPAFullQuench(Dataset):
                                           event_identifier=fpa_identifier)
                 xr_array.to_netcdf(self.dataset_path / f"{fpa_identifier}.nc")
 
-
                 if self.plot_dataset_path:
                     self.plot_dataset_path.mkdir(parents=True, exist_ok=True)
                     fig, ax = plt.subplots(2, 1, figsize=(15, 10))
@@ -194,5 +195,3 @@ class RBFPAFullQuench(Dataset):
                     plt.tight_layout()
                     plt.savefig(self.plot_dataset_path / f"{fpa_identifier}.png")
                     plt.close(fig)
-
-

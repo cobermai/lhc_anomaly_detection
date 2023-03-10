@@ -44,7 +44,7 @@ def plot_confusion_matrix(y_test_argmax, y_pred_argmax, all_labels, output_path,
     plt.savefig(output_path / f"{n_split}_confusion_matrix")
 
 
-def write_excel(df_result_magnet: pd.DataFrame, labels_path:Path, neighbor_labelevent,  output_path:Path):
+def write_excel(df_result_magnet: pd.DataFrame, labels_path: Path, neighbor_labelevent,  output_path:Path):
     """
     function stores result of df_result_magnet in Excel
     :param df_result_magnet: Dataframe with magnets in index and labels as columns

@@ -1,12 +1,14 @@
 import os
 from pathlib import Path
+import gc
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 from src.datasets.rb_fpa_prim_quench_ee_plateau import RBFPAPrimQuenchEEPlateau
 from src.datasets.rb_fpa_prim_quench_ee_plateau2 import RBFPAPrimQuenchEEPlateau2
-from src.utils.frequency_utils import get_fft_of_DataArray
+from src.utils.frequency_utils import get_fft_of_DataArray, scale_fft_amplitude
 from src.visualisation.fft_visualisation import plot_position_frequency_map_ee_plateau
 
 if __name__ == "__main__":
@@ -18,7 +20,7 @@ if __name__ == "__main__":
     dataset_path_2EE = Path("D:\\datasets\\20220707_RBFPAPrimQuenchEEPlateau2")
 
     # define paths to read + write
-    output_path = Path(f"D:\\datasets\\FFT_analysis\\U_diode_EE_plateau_detrend_pad")
+    output_path = Path(f"D:\\datasets\\FFT_analysis\\U_diode_EE_plateau_detrend")
     output_path.mkdir(parents=True, exist_ok=True)
 
     # load context and magnet metadata
@@ -38,16 +40,22 @@ if __name__ == "__main__":
                                                    drop_data_vars=['simulation', 'el_position_feature',
                                                                    'event_feature'])
 
-    # postprocess timeseries data
-    dataset_1EE_detrend = dataset_creator_1EE.detrend_dim(dataset_1EE.data)
-    dataset_1EE_pad = dataset_creator_1EE.pad_data(dataset_1EE_detrend)
-    dataset_2EE_detrend = dataset_creator_2EE.detrend_dim(dataset_2EE.data)
-    dataset_2EE_pad = dataset_creator_1EE.pad_data(dataset_2EE_detrend)
+    # Preprocessing
+    f_window = np.hamming
+    ds_detrend_1EE = dataset_creator_1EE.detrend_dim(dataset_1EE)
+    da_win_1EE = ds_detrend_1EE.data * f_window(len(dataset_1EE.time))
+    ds_detrend_2EE = dataset_creator_2EE.detrend_dim(dataset_2EE)
+    da_win_2EE = ds_detrend_2EE.data * f_window(len(dataset_2EE.time))
 
     # calculate fft
-    max_freq = 360
-    dataset_1EE_fft = get_fft_of_DataArray(data=dataset_1EE_pad, cutoff_frequency=max_freq)
-    dataset_2EE_fft = get_fft_of_DataArray(data=dataset_2EE_pad, cutoff_frequency=max_freq)
+    f_lim = (0, 534)
+    da_fft_1EE = get_fft_of_DataArray(data=da_win_1EE, f_lim=f_lim)
+    da_fft_amp_1EE = scale_fft_amplitude(data=da_fft_1EE, f_window=f_window)
+    da_fft_amp_1EE = da_fft_amp_1EE[:, :, da_fft_amp_1EE.frequency < f_lim[1]]
+
+    da_fft_2EE = get_fft_of_DataArray(data=da_win_2EE, f_lim=f_lim)
+    da_fft_amp_2EE = scale_fft_amplitude(data=da_fft_2EE, f_window=f_window)
+    da_fft_amp_2EE = da_fft_amp_2EE[:, :, da_fft_amp_2EE.frequency < f_lim[1]]
 
     # plot_position_frequency_map of ee_plateau
     circuit_imgs = {"el_pos_odd": plt.imread('../documentation/1_el_pos.png'),
@@ -62,8 +70,8 @@ if __name__ == "__main__":
         if not os.path.isfile(filename):
             plot_position_frequency_map_ee_plateau(fpa_identifier=fpa_identifier,
                                                    dataset_1EE=dataset_1EE,
-                                                   dataset_1EE_fft=dataset_1EE_fft,
-                                                   dataset_2EE_fft=dataset_2EE_fft,
+                                                   dataset_1EE_fft=da_fft_amp_1EE,
+                                                   dataset_2EE_fft=da_fft_amp_2EE,
                                                    dataset_2EE=dataset_2EE,
                                                    mp3_fpa_df=mp3_fpa_df,
                                                    rb_magnet_metadata=rb_magnet_metadata,
@@ -71,3 +79,6 @@ if __name__ == "__main__":
                                                    filename=filename,
                                                    vmin=1e-5,
                                                    vmax=1)
+
+            plt.close('all')
+            gc.collect()
