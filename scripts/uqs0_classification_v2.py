@@ -1,41 +1,36 @@
 import os
-import typing
 from datetime import datetime
 from pathlib import Path
+import gc
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import openpyxl
-import xlsxwriter
-import xlsxwriter.utility as xl_utility
+from matplotlib import pyplot as plt
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.gaussian_process.kernels import RBF
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, balanced_accuracy_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.svm import LinearSVC, SVC
+from sklearn.svm import SVC
 
 from src.utils.dataset_utils import u_diode_data_to_df
 from src.utils.hdf_tools import load_from_hdf_with_regex
-from src.visualisation.uqs0_classification_visualisation import plot_confusion_signals, plot_confusion_matrix, \
-    write_excel
+from src.utils.uqs0_classification_utils import plot_confusion_signals, plot_confusion_matrix, WindowSlice, write_excel
 
 
 def filter_df(df_filt, window_size, step):
-
     # create a series of group labels based on the step
     offset = abs(df_filt.index.min())  # rolling cannot handle zero passing
     df_filt.index = df_filt.index + offset
     group_labels = np.arange(len(df_filt)) // step
 
     # apply the rolling method to each group
-    med_df = df_filt.groupby(group_labels)\
+    med_df = df_filt.groupby(group_labels) \
         .rolling(window_size, center=True).mean().reset_index(level=0, drop=True).dropna(how="all")
 
     return med_df
@@ -58,8 +53,8 @@ def load_uqs0_data_from_hdf5(df_events: pd.DataFrame, file_path: Path) -> pd.Dat
 
         window_size = 100
         step = 100
-        df = df.iloc[500:]
-        df = filter_df(df, window_size, step)
+        df = df.iloc[96:]
+        # df = filter_df(df, window_size, step)
         magnets = [x.split("_")[0] for x in df.filter(regex="_A").columns.values]
         data_columns.append(magnets)
 
@@ -73,6 +68,17 @@ def load_uqs0_data_from_hdf5(df_events: pd.DataFrame, file_path: Path) -> pd.Dat
 
     print(f"Length of one Signal: {len(df)}")
     return df_data
+
+
+def calc_features(X, window_size):
+    n_features = 3
+    X_features = np.zeros((len(X), window_size * n_features))
+    for i, X_split in enumerate(np.array_split(X.T, window_size)):
+        X_features[:, i] = np.nanquantile(X_split, 0.95, axis=0)
+        X_features[:, window_size + i] = np.nanquantile(X_split, 0.5, axis=0)
+        X_features[:, 2 * window_size + i] = np.nanquantile(X_split, 0.05, axis=0)
+
+    return X_features
 
 
 if __name__ == "__main__":
@@ -93,114 +99,150 @@ if __name__ == "__main__":
     # Load labels
     true_label_name = "manual classification"
     pred_label_name = "ML classification"
-    label_names = ["true_2_normal",
-                   "true_2_long_unbalanced",
-                   "true_2_very_long_unbalanced",
-                   "true_2_boardA_boardB"]
+    label_names = ["normal",
+                   "long",
+                   "very_long",
+                   "boardA_boardB"]
 
     labels_path = Path("../data/UQS0_labels/dest_file_v02.xlsx")
     df_event_labels = pd.read_excel(labels_path)
     df_event_labels["magnet"] = df_event_labels["event"].apply(lambda x: x.split("_")[0])
-    df_magnet_labels = df_event_labels.set_index('magnet')[label_names] #generate_magnet_labels_from_event(df_event_labels, label_names)
+    df_magnet_labels = df_event_labels.set_index('magnet')[
+        label_names]  # generate_magnet_labels_from_event(df_event_labels, label_names)
 
     experiment_path = Path("../data/UQS0_labels/Outliers_summary_Meas_2021_2022_NoZero.xlsx")
     df_all_experiments = pd.read_excel(experiment_path)
     df_experiment = df_all_experiments[(df_all_experiments["Current_level"] == current_level) &
-                                        (df_all_experiments["Expected_dI_dt"] == dI_dt)]
+                                       (df_all_experiments["Expected_dI_dt"] == dI_dt)]
 
     # Load data
     data_path = Path("D:/datasets/20230220_snapshot_data")  # Path('/eos/project/s/steam/measurement_database/RB/data')
     df_data = load_uqs0_data_from_hdf5(df_context_subset, data_path)[df_magnet_labels.index.values]
-
     # Process data
     clip = 0.15
-    n_signals = 2  # Board A & B
     df_data[(df_data > clip)] = clip
     df_data[df_data < -clip] = -clip
+
     data = df_data.T.values
     X = np.nan_to_num(data)
     target_names = label_names
     y = df_magnet_labels.loc[df_magnet_labels.index.values, target_names].values
-    y_argmax = np.argmax(y, axis=1)
 
-    # define classifiers
-    names = [
-        "Nearest Neighbors",
-        "Linear SVM",
-        "RBF SVM",
-        "Gaussian Process",
-        "Decision Tree",
-        "Random Forest",
-        "Neural Net",
-        "AdaBoost",
-        "Naive Bayes",
-        "QDA",
-    ]
-
-    classifiers = [
-        KNeighborsClassifier(3),
-        SVC(kernel="linear", C=0.025),
-        SVC(gamma=2, C=1),
-        GaussianProcessClassifier(1.0 * RBF(1.0)),
-        DecisionTreeClassifier(max_depth=5),
-        RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
-        MLPClassifier(alpha=1, max_iter=1000),
-        AdaBoostClassifier(),
-        GaussianNB(),
-        QuadraticDiscriminantAnalysis(),
-    ]
+    # Select classification parameter
+    augment_data = True
+    use_raw_ts = False
+    n_signals = 2  # board A board B
+    classifiers = {
+        #"Neural_Net": MLPClassifier(hidden_layer_sizes=(32, 3), max_iter=10000),
+        "Nearest_Neighbors": KNeighborsClassifier(5, weights="distance"),
+        #"RBF_SVM": SVC(gamma=2, C=1),
+        #"Gaussian_Process": GaussianProcessClassifier(1.0 * RBF(1.0)),
+        #"Decision_Tree": DecisionTreeClassifier(max_depth=5),
+        #"Random_Forest": RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
+        #"AdaBoost": AdaBoostClassifier(),
+        #"Naive_Bayes": GaussianNB(),
+        #"QDA": QuadraticDiscriminantAnalysis(),
+    }
 
     # Leave one out cross validation
     skf = StratifiedKFold(n_splits=8, random_state=0, shuffle=True)
-    df_result = pd.DataFrame([target_names[i] for i in y_argmax],
-                             index=df_magnet_labels.index,
-                             columns=[true_label_name])
 
+
+    df_accuracy = pd.DataFrame(columns=label_names, index=list(classifiers.keys()))
     # Iterate over classifiers
-    for name, clf in zip(names, classifiers):
+    for name, clf in classifiers.items():
         print(f"{name}:")
         clf_path = output_path / name
+        df_result = pd.DataFrame(index=df_experiment.event.values)
 
         # Iterate over labels - one vs. rest classification
         for l, label_name in enumerate(label_names):
-            target_names = [f"not_{label_name}" ,label_name]
+            target_names = [f"other label", label_name]
 
             # Iterate over data splits
-            for i, (train_index, test_index) in enumerate(skf.split(X, y_argmax)):
-                print(f"Fold {i}:")
+            for i, (train_index, test_index) in enumerate(skf.split(X, y[:, l])):
                 fold_path = clf_path / Path(f"fold_{i}")
                 fold_path.mkdir(parents=True, exist_ok=True)
 
-
                 # Define data in this iteration
-                X_train = X[train_index]
-                y_train = y[train_index, l]
+                if augment_data:
+                    ws = WindowSlice(labels=np.eye(len(target_names)),
+                                     none_flat_shape=(len(X[train_index]), n_signals, int(X.shape[-1] / 2)))
+                    X_train_ts, y_train, source_index = ws.augment(X[train_index], y[train_index, l])
+                else:
+                    X_train_ts = X[train_index]
+                    y_train = y[train_index, l]
+
+                if use_raw_ts:
+                    X_train = X_train_ts
+                    X_test = X[test_index]
+                else:
+                    window_size = 4 #40
+                    X_train = calc_features(X_train_ts, window_size=window_size)
+                    X_test = calc_features(X[test_index], window_size=window_size)
                 y_test = y[test_index, l]
+
+                #n_features = 3
+                #event = -1
+                #X_features = X_train.reshape(X_train.shape[0], n_features, -1)
+                #plt.plot(X_train_ts[event])
+                #feature_range = np.linspace(500, 7500, 8)
+                #plt.plot(feature_range, X_features[event, 0], ".", label="min")
+                #plt.plot(feature_range, X_features[event, 1], ".", label="median")
+                #plt.plot(feature_range, X_features[event, 2], ".", label="max")
+                #plt.legend()
+                #plt.show()
 
                 # Train classifier
                 clf.fit(X_train, y_train)
                 y_pred_train = clf.predict(X_train)
 
                 # Evaluate classifier
-                y_pred = clf.predict(X[test_index])
+                y_pred = clf.predict(X_test)
+                y_prob = np.array(clf.predict_proba(X_test))
                 result = classification_report(y_test, y_pred, target_names=target_names)
-                print(result)
+                # print(result)
 
                 # Add result to table
                 df_result.loc[df_result.index[test_index], f"{label_name}_true"] = y_test
                 df_result.loc[df_result.index[test_index], f"{label_name}_pred"] = y_pred
+                df_result.loc[df_result.index[test_index], f"{label_name}_prob"] = y_prob[:, 1]
 
                 # Plot results
                 # train
-                plot_confusion_matrix(y_train, y_pred_train, target_names, fold_path, n_split=f"{label_name}_train")
-                plot_confusion_signals(X_train, y_train, y_pred_train, target_names, fold_path, n_split=f"{label_name}_train")
+                plot_confusion_matrix(y_train, y_pred_train, target_names, fold_path,
+                                      n_split=f"{name}_{label_name}_train")
+                plot_confusion_signals(X_train, y_train, y_pred_train, target_names, fold_path,
+                                       n_split=f"{name}_{label_name}_train")
 
                 # test
-                plot_confusion_matrix(y_test, y_pred, target_names, fold_path, n_split=f"{label_name}_test")
-                plot_confusion_signals(X[test_index], y_test, y_pred, target_names, fold_path, n_split=f"{label_name}_test")
+                plot_confusion_matrix(y_test, y_pred, target_names, fold_path, n_split=f"{name}_{label_name}_test")
+                plot_confusion_signals(X_test, y_test, y_pred, target_names, fold_path,
+                                       n_split=f"{name}_{label_name}_test")
 
-        
-            plot_confusion_matrix(df_result[f"{label_name}_true"].values, df_result[f"{label_name}_pred"].values, target_names, clf_path, n_split="test_all")
-            plot_confusion_signals(X, df_result[f"{label_name}_true"].values, df_result[f"{label_name}_pred"].values, target_names, clf_path, n_split="test_all")
+            balanced_accuracy = balanced_accuracy_score(df_result[f"{label_name}_true"].values,
+                                                        df_result[f"{label_name}_pred"].values)
+            df_accuracy.loc[name, label_name] = balanced_accuracy
+            print(f"balanced_accuracy {name}_{label_name}: {balanced_accuracy}")
 
+            plot_confusion_matrix(df_result[f"{label_name}_true"].values,
+                                  df_result[f"{label_name}_pred"].values, target_names, clf_path,
+                                  n_split=f"{label_name}_test")
+            plot_confusion_signals(X, df_result[f"{label_name}_true"].values,
+                                   df_result[f"{label_name}_pred"].values, target_names, clf_path,
+                                   n_split=f"{label_name}_test")
 
+            plt.close('all')
+            gc.collect()
+
+        neighbor_labelevent = None
+        df_true = df_result.filter(regex="true")
+        df_pred = df_result.filter(regex="pred")
+        df_prob = df_result.filter(regex="prob")
+        df_results = pd.concat([df_true, df_prob], axis=1)
+        df_results["correct_classification"] = (df_true.values == df_pred.values).all(axis=1) + 0
+        write_excel(df_results, labels_path, neighbor_labelevent, output_path=output_path / f'{name}_results.xlsx')
+
+    df_accuracy["mean"] = df_accuracy.mean(axis=1)
+    overall_mean = df_accuracy["mean"].mean()
+    df_accuracy.to_csv(output_path / f"balanced_accuracy_{overall_mean:.2f}.csv")
