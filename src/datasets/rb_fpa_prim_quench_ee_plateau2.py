@@ -45,6 +45,36 @@ class RBFPAPrimQuenchEEPlateau2(Dataset):
                                "t_EE_even",
                                "dI_dt_from_data"]
 
+    def select_events(self) -> list:
+        """
+        generates list of events to load
+        :param mp3_fpa_df: DataFrame with mp3 fpa Excel file
+        :param acquisition_summary_path: optional file path if data is manually analyzed, must be .xlsx
+        :return: list of strings which defines event, i.e. "<Circuit Family>_<Circuit
+        Name>_<timestamp_fgc>"
+        """
+        mp3_fpa_df = pd.read_csv(self.context_path)
+        mp3_fpa_df_unique = mp3_fpa_df.drop_duplicates(subset=["timestamp_fgc", "Circuit Name"])
+        # only events > 2014 (1388530800000000000), string to unix timestamp with lhcsmapi.Time.to_unix_timestamp()
+        # only events = 2021 (1608530800000000000), string to unix timestamp with lhcsmapi.Time.to_unix_timestamp()
+        # test 1636530800000000000
+        lower_limit = 1388530800000000000  # 1623530800000000000
+        mp3_fpa_df_period = mp3_fpa_df_unique[mp3_fpa_df_unique["timestamp_fgc"] >= lower_limit].reset_index(drop=True)
+
+        if self.acquisition_summary_path:
+            df_acquisition = pd.read_excel(self.acquisition_summary_path)
+            df_to_analyze = mp3_fpa_df_period.merge(df_acquisition,
+                                                    left_on=["Circuit Name", "timestamp_fgc"],
+                                                    right_on=["Circuit Name", "timestamp_fgc"],
+                                                    how="left")
+            mp3_fpa_df_period = df_to_analyze[(df_to_analyze["VoltageNQPS.*U_DIODE"] == 1) &
+                                              (df_to_analyze["VoltageNXCALS.*U_DIODE"] == 1) &
+                                              (df_to_analyze["simulation_data"] == 1)]
+
+        fpa_identifiers = [f"{row['Circuit Family']}_{row['Circuit Name']}_{int(row['timestamp_fgc'])}"
+                           for i, row in mp3_fpa_df_period.iterrows()]
+        return fpa_identifiers
+
     @staticmethod
     def generate_data(mp3_fpa_df_subset: pd.DataFrame,
                       data_path: Path,

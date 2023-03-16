@@ -6,11 +6,12 @@ import pandas as pd
 import xarray as xr
 
 
-def u_diode_data_to_df(data: list, len_data: int = 5500) -> pd.DataFrame:
+def u_diode_data_to_df(data: list, len_data: int = 5500, sort_circuit = None) -> pd.DataFrame:
     """
     puts list of df with u diode data in dataframe
     :param data: list of df with u diode data
     :param len_data: len to cut signals to if to long/short
+    :param sort_with_metadata: sort df with metadata
     :return: dataframe with U_Diode_signals
     """
     data_columns = [df.columns.values[0].split("/")[1] for df in data]
@@ -23,6 +24,18 @@ def u_diode_data_to_df(data: list, len_data: int = 5500) -> pd.DataFrame:
     time[:len(df.index.values)] = df.index.values[:len_data]  # TODO: interpolate index, not take first one
 
     df_data_nxcals = pd.DataFrame(np.transpose(np.array(data_new)), columns=data_columns, index=time)
+
+    if sort_circuit is not None:
+        # simulation numbering is sorted by #Electric_circuit
+        meta_data_path = Path("../data/RB_metadata.csv")  # TODO: take path as argument
+        df_metadata = pd.read_csv(meta_data_path, index_col=False)  # MappingMetadata.read_layout_details("RB")
+        df_metadata = df_metadata[df_metadata.Circuit == sort_circuit].sort_values("#Electric_circuit")
+        magnet_names = df_metadata.Magnet.apply(lambda x: x + ":U_DIODE_RB").values
+
+        is_data_available = np.isin(magnet_names, df_data_nxcals.columns.values)
+        df_data_nxcals.loc[:, magnet_names[~is_data_available]] = np.nan
+        df_data_nxcals = df_data_nxcals[magnet_names]
+
     return df_data_nxcals
 
 
@@ -67,38 +80,44 @@ def get_u_diode_data_alignment_timestamps(df: pd.DataFrame, ee_margins: list,
                                           medfilt_size: int = 51) -> list:
     """
     gets timestamp of first energy extraction from data, used for data alignment.
-    timestamp is first index, where meanfiltered data > threshold and meanfiltered derivative > delta threshold
+    timestamp is index, where derivative is max and voltage is smaller than voltage_threshold
     :param df: df with data, magnets in columns, time in index
     :param ee_margins: timeframe where first energy extraction takes place
     :param medfilt_size: size of meanfilter, should be odd
     :return: list of timestamps where first energy extraction is triggered
     """
+    voltage_threshold = -5
     df_filt = df.rolling(medfilt_size, center=True).median()
-    df_diff_filt = df_filt[(ee_margins[0] < df_filt.index) & (df_filt.index < ee_margins[1])].diff()
-    alignment_timestamps = df_diff_filt.idxmin().to_list()
+    df_diff_filt = df_filt[(ee_margins[0] < df_filt.index) &
+                           (df_filt.index < ee_margins[1])].diff()
+    alignment_timestamps = df_diff_filt[(df_filt > voltage_threshold)].idxmin().to_list()
     return alignment_timestamps
 
 
 def align_u_diode_data(df_data: pd.DataFrame,
-                       t_first_extraction: Union[float, int, list],
+                       method="voltage_threshold",
+                       t_first_extraction: Optional[Union[float, int, list]] = None,
                        ee_margins: list = [-0.25, 0.4],
                        shift_th: int = 0) -> pd.DataFrame:
     """
     align u diode data, which is often shifted due to wrong triggers
     :param df_data: df with data, magnets are columns, time is index
-    :param t_first_extraction: int with timestamp of first energy extraction for all magnets, if list: timestamp of each magnet
+    :param t_first_extraction: int with timestamp of first energy extraction for all magnets,
+    if list: timestamp of each magnet, signals will be aligned to this timestamp
     :param ee_margins: timeframe where first energy extraction takes place
     :param shift_th: only shift if time difference is bigger than shift_th
     :return: df with aligned data
     """
+    # timestamp of first energy extraction
     offset_ts = get_u_diode_data_alignment_timestamps(df_data, ee_margins)
 
     for i, c in enumerate(df_data.columns):
         # index, where time is closest to alignment ts
-        if type(t_first_extraction) == list:
+        if method == "timestamp_EE_list":
             zero_index = np.argmin(abs(df_data.index.values - t_first_extraction[i]))
-        else:
+        elif method == "timestamp_EE":
             zero_index = np.argmin(abs(df_data.index.values - t_first_extraction))
+
 
         # index, where time is closest to offset_ts
         delta_index = np.argmin(abs(df_data.index.values - offset_ts[i]))
@@ -106,7 +125,7 @@ def align_u_diode_data(df_data: pd.DataFrame,
         shift_index = zero_index - delta_index
         if abs(shift_index) > shift_th:
             df_data[c] = df_data[c].shift(shift_index)
-    return df_data.dropna()
+    return df_data
 
 
 def data_to_xarray(df_data: pd.DataFrame,
