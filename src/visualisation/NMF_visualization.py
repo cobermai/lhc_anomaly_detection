@@ -128,29 +128,31 @@ def plot_outliers(ds, df_p_values, loss, out_path, n_outliers, mp3_fpa_df, da_ff
     for i, row in df_p_values.head(n_outliers).iterrows():
         outlier_event_index = np.isin(ds.event.values, row['fpa_identifier'])
         event_loss = np.nanmean(loss, axis=-1)[outlier_event_index].reshape(-1)
-        
+
+
         outlier_magnet_index = np.nanargmax(event_loss)
+        event_loss_norm = np.nan_to_num(event_loss / np.nanmax(event_loss))
         quenched_magnet_index = mp3_fpa_df[mp3_fpa_df.fpa_identifier == row['fpa_identifier']]['#Electric_circuit'].values[0]
+        quenched_magnet = mp3_fpa_df[mp3_fpa_df.fpa_identifier == row['fpa_identifier']].Magnet.values[0]
 
         plt.figure()
-        plt.plot(ds.time, ds.data.loc[{'event': row['fpa_identifier']}].T, alpha=0.5)
-        plt.plot(ds.time, ds.data.loc[{'event': row['fpa_identifier']}].values[outlier_magnet_index].T)
-        #plt.title(f"p-value: {row['median']:.4} +/-{row['std']:.4}")
+        for s, signal in enumerate(ds.data.loc[{'event': row['fpa_identifier']}]):
+            plt.plot(ds.time, signal, alpha=event_loss_norm[s])
         plt.xlabel('Time / s')
         plt.ylabel('Voltage / V')
-        plt.savefig(outlier_path / f"{j}_{row['fpa_identifier']}.png")
+        plt.savefig(outlier_path / f"{j}_{quenched_magnet}_{row['fpa_identifier']}.png")
 
-        plt.figure()
-        plt.title(f"{row['fpa_identifier']}\nqench@{quenched_magnet_index} maxloss@{outlier_magnet_index+1}")
-        mean = np.nanmean(loss[outlier_event_index], axis=-1).reshape(-1)
-        std = np.nanstd(loss[outlier_event_index], axis=-1).reshape(-1)
-        plt.plot(np.arange(1, 155), mean)
-        plt.xlabel('El. Position')
-        plt.ylabel('Loss')
-        plt.axvline(quenched_magnet_index, c="r")
-        plt.fill_between(np.arange(1, 155), mean-std, mean+std, alpha=0.2)
-        plt.savefig(outlier_path / f"{j}_{row['fpa_identifier']}_loss.png")
-
+        #plt.figure()
+        #plt.title(f"{row['fpa_identifier']}\nqench@{quenched_magnet_index} maxloss@{outlier_magnet_index+1}")
+        #mean = np.nanmean(loss[outlier_event_index], axis=-1).reshape(-1)
+        #std = np.nanstd(loss[outlier_event_index], axis=-1).reshape(-1)
+        #plt.plot(np.arange(1, 155), mean)
+        #plt.xlabel('El. Position')
+        #plt.ylabel('Loss')
+        #plt.axvline(quenched_magnet_index, c="r")
+        #plt.fill_between(np.arange(1, 155), mean-std, mean+std, alpha=0.2)
+        #plt.savefig(outlier_path / f"{j}_{quenched_magnet}_{row['fpa_identifier']}_loss.png")
+#=
         #fig, ax = plt.subplots(figsize=(10,5))
         #im = plot_circuit_frequencies(ax, da_fft_amp.values[outlier_event_index], da_fft_amp.frequency, vmin=1e-5, vmax=1)
         #ax.set_xlabel(f'El. Position')

@@ -1,6 +1,6 @@
 import os
 from collections import namedtuple
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Optional
 
 import numpy as np
@@ -15,7 +15,7 @@ from src.utils.dataset_utils import align_u_diode_data, drop_quenched_magnets, u
 from src.utils.hdf_tools import load_from_hdf_with_regex
 from src.utils.utils import interp
 
-class RBFPASnapshotsEEPlateau2(Dataset):
+class RBFPAFullQuench_Snapshot(Dataset):
     """
     Subclass of Dataset to specify dataset selection. This dataset contains downloaded and simulated u diode data
     during a primary quench.
@@ -54,7 +54,8 @@ class RBFPASnapshotsEEPlateau2(Dataset):
     def generate_data(mp3_fpa_df_subset: pd.DataFrame,
                       data_path: Path,
                       simulation_path: Path,
-                      reference_index: Optional[list] = None) -> tuple:
+                      reference_index: Optional[list] = None,
+                      metadata: Optional[pd.DataFrame] = None) -> tuple:
         """
         load and process data and simulation
         :param mp3_fpa_df_subset: DataFrame with mp3 data of quenched magnets
@@ -78,48 +79,34 @@ class RBFPASnapshotsEEPlateau2(Dataset):
         drop_columns = df_data.columns[(df_data.std() < min_std) |
                                            (df_data.mean() > mean_range[0]) |
                                            (df_data.mean() < mean_range[1])]
-        print(len(drop_columns))
         df_data_noq = df_data.drop(drop_columns, axis=1)
 
         # cut out time frame to analyze
         if timestamp_fgc < 1526582397220000000: # data before 2018 has smaller plateau
             # align with energy extraction timestamp
             ee_margins = [-0.25, 0.55]
-            t_first_extraction = 0.2
-            df_data_aligned = align_u_diode_data(df_data=df_data_noq.copy(),
+            t_first_extraction = 0.34
+            df_data_aligned, offset_ts = align_u_diode_data(df_data=df_data_noq.copy(),
                                                  method="timestamp_EE",
                                                  t_first_extraction=t_first_extraction,
-                                                 ee_margins=ee_margins)
-
-            time_frame = [0.6, 0]
-            n_samples = 500
-            df_data_cut = get_df_time_window(df=df_data_aligned,
-                                             timestamp=t_first_extraction,
-                                             time_frame=time_frame,
-                                             n_samples=n_samples)
-
+                                                 ee_margins=ee_margins,
+                                                 metadata=metadata)
         else:
             # align with energy extraction timestamp
             ee_margins = [-0.25, 0.45]
-            t_first_extraction = 0.2
-            df_data_aligned = align_u_diode_data(df_data=df_data_noq.copy(),
+            t_first_extraction = 0.1
+            df_data_aligned, offset_ts = align_u_diode_data(df_data=df_data_noq.copy(),
                                                  method="timestamp_EE",
                                                  t_first_extraction=t_first_extraction,
-                                                 ee_margins=ee_margins)
-
-            time_frame = [0.6, 0]
-            n_samples = 800
-            df_data_cut = get_df_time_window(df=df_data_aligned,
-                                             timestamp=t_first_extraction,
-                                             time_frame=time_frame,
-                                             n_samples=n_samples)
+                                                 ee_margins=ee_margins,
+                                                 metadata=metadata)
 
 
         # add quenched magnets again for continuity
-        dropped_columns_data = magnet_list[~np.isin(magnet_list, df_data_cut.columns)]
-        df_data_cut[dropped_columns_data] = np.nan
+        dropped_columns_data = magnet_list[~np.isin(magnet_list, df_data_aligned.columns)]
+        df_data_aligned[dropped_columns_data] = np.nan
         # bring into electrical order again
-        df_data_cut = df_data_cut[magnet_list]
+        df_data_cut = df_data_aligned[magnet_list]
 
         return df_data_cut, None
 
@@ -132,11 +119,8 @@ class RBFPASnapshotsEEPlateau2(Dataset):
         self.dataset_path.mkdir(parents=True, exist_ok=True)
         # load and process mp3 excel
         mp3_fpa_df = pd.read_csv(self.context_path)
-        mp3_fpa_df = mp3_fpa_df[mp3_fpa_df.fpa_identifier.isin(fpa_identifiers)]
-        mp3_fpa_df_unique = mp3_fpa_df.drop_duplicates(subset=['timestamp_fgc', 'Circuit'])
-        # load and process magnet metadata
-        rb_magnet_metadata = pd.read_csv(self.metadata_path)
-        rb_magnet_metadata = rb_magnet_metadata.sort_values("#Electric_circuit")
+        df_metadata = pd.read_csv(self.metadata_path)
+
 
         reference_index = None
         for fpa_identifier in fpa_identifiers:
@@ -144,31 +128,33 @@ class RBFPASnapshotsEEPlateau2(Dataset):
             if not os.path.isfile(self.plot_dataset_path / f"{fpa_identifier}_snapshots.png"):
                 print(fpa_identifier)
                 mp3_fpa_df_subset = mp3_fpa_df[mp3_fpa_df.fpa_identifier == fpa_identifier]
-                rb_magnet_metadata_subset = rb_magnet_metadata[rb_magnet_metadata.Circuit ==
-                                                               mp3_fpa_df_subset['Circuit'].values[0]]
+                df_metadata_subset = df_metadata[df_metadata["Circuit"] == fpa_identifier.split("_")[1]]\
+                    .sort_values("#Electric_circuit")
 
-
-                df_data, df_sim = self.generate_data(mp3_fpa_df_subset,
-                                                     self.data_path,
-                                                     self.simulation_path,
-                                                     reference_index)
+                df_data, _ = self.generate_data(mp3_fpa_df_subset,
+                                                self.data_path,
+                                                self.simulation_path,
+                                                reference_index,
+                                                df_metadata_subset)
                 if reference_index is None:
                     reference_index = df_data.index
 
                 # add data and simulation
                 xr_array = data_to_xarray(df_data=df_data,
-                                          df_simulation=df_sim,
+                                          df_simulation=None,
+                                          df_el_position_features=None,
+                                          df_event_features=None,
                                           event_identifier=fpa_identifier)
-
                 xr_array.to_netcdf(self.dataset_path / f"{fpa_identifier}.nc")
 
 
                 if self.plot_dataset_path:
                     self.plot_dataset_path.mkdir(parents=True, exist_ok=True)
                     fig, ax = plt.subplots(figsize=(15, 10))
-                    ax.plot(df_data.values)
-                    ax.set_title(f"Data {len(df_data.dropna(axis=1, how='all').columns)}")
+                    df_data.plot(legend=False, ax=ax)
+                    ax.set_title(f"{mp3_fpa_df_subset['date'].values[0]}\n{fpa_identifier}")
                     ax.set_ylabel("Voltage / V")
+                    ax.set_xlabel("Time / s")
                     plt.tight_layout()
                     plt.grid()
                     plt.savefig(self.plot_dataset_path / f"{fpa_identifier}_snapshots.png")

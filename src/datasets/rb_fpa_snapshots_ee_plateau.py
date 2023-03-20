@@ -64,56 +64,64 @@ class RBFPASnapshotsEEPlateau(Dataset):
         :return: list of dataframes with data and simulation
         """
         fpa_identifier = mp3_fpa_df_subset.fpa_identifier.values[0]
+        timestamp_fgc = int(fpa_identifier.split("_")[-1])
 
         # load data
         data_dir = data_path / (fpa_identifier + ".hdf5")
         data = load_from_hdf_with_regex(file_path=data_dir, regex_list=['VoltageNQPS.*U_DIODE'])
-        df_data = u_diode_data_to_df(data, len_data=len(data[0]))
+        df_data = u_diode_data_to_df(data, len_data=len(data[0]), sort_circuit=fpa_identifier.split("_")[1])
+        magnet_list = df_data.columns.values
 
-        # load simulation
-        simulation_dir = simulation_path / (fpa_identifier + ".hdf")
-        data_sim = load_from_hdf_with_regex(file_path=simulation_dir, regex_list=["0v_magf"])
-        df_sim = u_diode_simulation_to_df(data_sim, circuit_name=mp3_fpa_df_subset["Circuit"].values[0])
-
-        # save magnet order for later usage
-        magnet_list = df_sim.columns
-
-        # sometimes only noise is stored, mean must be in window -1, -10
+        # sometimes only noise is stored, std must be > 3, mean must be in window -1, -10
         mean_range = [-1.5, -10]
-        df_data_noq = df_data.drop(
-            df_data.columns[~(mean_range[0] > df_data.mean()) | (mean_range[1] > df_data.mean())],
-            axis=1)
-
-        # align with energy extraction timestamp
-        ee_margins = [-0.25, 0.25]
-        t_first_extraction = get_u_diode_data_alignment_timestamps(df_sim, ee_margins=ee_margins)
-        df_data_aligned = align_u_diode_data(df_data=df_data_noq.copy(),
-                                             t_first_extraction=t_first_extraction,
-                                             ee_margins=ee_margins)
+        min_std = 1
+        drop_columns = df_data.columns[(df_data.std() < min_std) |
+                                           (df_data.mean() > mean_range[0]) |
+                                           (df_data.mean() < mean_range[1])]
+        print(len(drop_columns))
+        df_data_noq = df_data.drop(drop_columns, axis=1)
 
         # cut out time frame to analyze
-        t_first_extraction = min(float(mp3_fpa_df_subset['Delta_t(EE_odd-PIC)'].values[0]) / 1000,
-                                 float(mp3_fpa_df_subset['Delta_t(EE_even-PIC)'].values[0]) / 1000)
-        time_frame = [0.15, 0.45]
-        n_samples = 330
-        df_data_cut = get_df_time_window(df=df_data_aligned,
-                                         timestamp=t_first_extraction,
-                                         time_frame=time_frame,
-                                         n_samples=n_samples)
+        if timestamp_fgc < 1526582397220000000: # data before 2018 has smaller plateau
+            # align with energy extraction timestamp
+            ee_margins = [-0.25, 0.55]
+            t_first_extraction = 0.2
+            df_data_aligned = align_u_diode_data(df_data=df_data_noq.copy(),
+                                                 method="timestamp_EE",
+                                                 t_first_extraction=t_first_extraction,
+                                                 ee_margins=ee_margins)
 
-        # adjust simulation length to data
-        df_sim_noq_resampled = interp(df_sim, df_data_cut.index)
+            time_frame = [0.1, 0.2]
+            n_samples = 110
+            df_data_cut = get_df_time_window(df=df_data_aligned,
+                                             timestamp=t_first_extraction,
+                                             time_frame=time_frame,
+                                             n_samples=n_samples)
+
+        else:
+            # align with energy extraction timestamp
+            ee_margins = [-0.25, 0.45]
+            t_first_extraction = 0.2
+            df_data_aligned = align_u_diode_data(df_data=df_data_noq.copy(),
+                                                 method="timestamp_EE",
+                                                 t_first_extraction=t_first_extraction,
+                                                 ee_margins=ee_margins)
+
+            time_frame = [0.1, 0.45]
+            n_samples = 400
+            df_data_cut = get_df_time_window(df=df_data_aligned,
+                                             timestamp=t_first_extraction,
+                                             time_frame=time_frame,
+                                             n_samples=n_samples)
+
 
         # add quenched magnets again for continuity
-        dropped_columns_data = magnet_list[~magnet_list.isin(df_data_cut.columns)]
-        dropped_columns_simulation = magnet_list[~magnet_list.isin(df_sim_noq_resampled.columns)]
+        dropped_columns_data = magnet_list[~np.isin(magnet_list, df_data_cut.columns)]
         df_data_cut[dropped_columns_data] = np.nan
-        df_sim_noq_resampled[dropped_columns_simulation] = np.nan
         # bring into electrical order again
         df_data_cut = df_data_cut[magnet_list]
-        df_sim_noq_resampled = df_sim_noq_resampled[magnet_list]
 
-        return df_data_cut, df_sim_noq_resampled
+        return df_data_cut, None
 
     def generate_dataset(self, fpa_identifiers: list):
         """
@@ -133,7 +141,7 @@ class RBFPASnapshotsEEPlateau(Dataset):
         reference_index = None
         for fpa_identifier in fpa_identifiers:
             # if dataset already exists
-            if not os.path.isfile(self.plot_dataset_path / f"{fpa_identifier}.png"):
+            if not os.path.isfile(self.plot_dataset_path / f"{fpa_identifier}_snapshots.png"):
                 print(fpa_identifier)
                 mp3_fpa_df_subset = mp3_fpa_df[mp3_fpa_df.fpa_identifier == fpa_identifier]
                 rb_magnet_metadata_subset = rb_magnet_metadata[rb_magnet_metadata.Circuit ==
@@ -157,15 +165,11 @@ class RBFPASnapshotsEEPlateau(Dataset):
 
                 if self.plot_dataset_path:
                     self.plot_dataset_path.mkdir(parents=True, exist_ok=True)
-                    fig, ax = plt.subplots(2, 1, figsize=(15, 10))
-                    ax[0].plot(df_data.values)
-                    ax[0].set_title("Data")
-                    ax[0].set_ylabel("Voltage / V")
-                    ax[1].plot(df_sim.values)
-                    ax[1].set_title("Simulation")
-                    ax[1].set_xlabel("Samples")
-                    ax[1].set_ylabel("Voltage / V")
-                    plt.setp(ax, ylim=ax[0].get_ylim(), xlim=ax[0].get_xlim())
+                    fig, ax = plt.subplots(figsize=(15, 10))
+                    ax.plot(df_data.values)
+                    ax.set_title(f"Data {len(df_data.dropna(axis=1, how='all').columns)}")
+                    ax.set_ylabel("Voltage / V")
                     plt.tight_layout()
-                    plt.savefig(self.plot_dataset_path / f"{fpa_identifier}.png")
+                    plt.grid()
+                    plt.savefig(self.plot_dataset_path / f"{fpa_identifier}_snapshots.png")
                     plt.close(fig)

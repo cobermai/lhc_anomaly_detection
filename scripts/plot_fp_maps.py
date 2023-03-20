@@ -6,39 +6,36 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.datasets.rb_fpa_prim_quench_ee_plateau import RBFPAPrimQuenchEEPlateau
-from src.datasets.rb_fpa_prim_quench_ee_plateau2 import RBFPAPrimQuenchEEPlateau2
+from src.datasets.rb_fpa_prim_quench_ee_plateau_V2 import RBFPAPrimQuenchEEPlateau_V2
+from src.datasets.rb_fpa_prim_quench_ee_plateau2_V2 import RBFPAPrimQuenchEEPlateau2_V2
 from src.utils.frequency_utils import get_fft_of_DataArray, scale_fft_amplitude
 from src.visualisation.fft_visualisation import plot_position_frequency_map_ee_plateau
 
 if __name__ == "__main__":
 
     # define paths to read
-    context_path = Path("../data/RB_TC_extract_2022_07_07_processed_filled.csv")
+    context_path = Path("../data/MP3_context_data/20230313_RB_processed.csv")
     metadata_path = Path("../data/RB_metadata.csv")
-    dataset_path_1EE = Path("D:\\datasets\\20220707_prim_ee_plateau_dataset")
-    dataset_path_2EE = Path("D:\\datasets\\20220707_RBFPAPrimQuenchEEPlateau2")
+    dataset_path_1EE = Path("D:\\datasets\\20230313_RBFPAPrimQuenchEEPlateau_V2")
+    dataset_path_2EE = Path("D:\\datasets\\20230313_RBFPAPrimQuenchEEPlateau2_V2")
 
     # define paths to read + write
-    output_path = Path(f"D:\\datasets\\FFT_analysis\\U_diode_EE_plateau_detrend")
+    output_path = Path(f"D:\\datasets\\FFT_analysis\\U_diode_EE_plateau_detrend_V2")
     output_path.mkdir(parents=True, exist_ok=True)
 
     # load context and magnet metadata
     mp3_fpa_df = pd.read_csv(context_path, index_col=False)
+    mp3_fpa_df = mp3_fpa_df[mp3_fpa_df['timestamp_fgc'] >= 1526582397220000000]  # data after 2017 have longer plateaus
     rb_magnet_metadata = pd.read_csv(metadata_path, index_col=False)
 
     # load desired fpa_identifiers
     all_fpa_identifiers = mp3_fpa_df.fpa_identifier.unique()
-    dataset_creator_1EE = RBFPAPrimQuenchEEPlateau()
-    dataset_creator_2EE = RBFPAPrimQuenchEEPlateau2()
+    dataset_creator_1EE = RBFPAPrimQuenchEEPlateau_V2()
+    dataset_creator_2EE = RBFPAPrimQuenchEEPlateau2_V2()
     dataset_1EE = dataset_creator_1EE.load_dataset(fpa_identifiers=all_fpa_identifiers,
-                                                   dataset_path=dataset_path_1EE,
-                                                   drop_data_vars=['simulation', 'el_position_feature',
-                                                                   'event_feature'])
+                                                   dataset_path=dataset_path_1EE)
     dataset_2EE = dataset_creator_2EE.load_dataset(fpa_identifiers=all_fpa_identifiers,
-                                                   dataset_path=dataset_path_2EE,
-                                                   drop_data_vars=['simulation', 'el_position_feature',
-                                                                   'event_feature'])
+                                                   dataset_path=dataset_path_2EE)
 
     # Preprocessing
     f_window = np.hamming
@@ -67,6 +64,7 @@ if __name__ == "__main__":
     for fpa_identifier in fpa_identifiers:
         date = mp3_fpa_df[mp3_fpa_df['fpa_identifier'] == fpa_identifier]['date'].values[0]
         filename = output_path / f"{fpa_identifier}_{date}.png"
+        print(fpa_identifier)
         if not os.path.isfile(filename):
             plot_position_frequency_map_ee_plateau(fpa_identifier=fpa_identifier,
                                                    dataset_1EE=dataset_1EE,

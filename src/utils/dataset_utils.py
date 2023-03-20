@@ -76,8 +76,10 @@ def drop_quenched_magnets(df: pd.DataFrame, all_quenched_magnets: list, quench_t
     return df
 
 
-def get_u_diode_data_alignment_timestamps(df: pd.DataFrame, ee_margins: list,
-                                          medfilt_size: int = 51) -> list:
+def get_u_diode_data_alignment_timestamps(df: pd.DataFrame,
+                                          ee_margins: list,
+                                          medfilt_size: int = 51,
+                                          metadata: Optional[pd.DataFrame] = None) -> pd.DataFrame:
     """
     gets timestamp of first energy extraction from data, used for data alignment.
     timestamp is index, where derivative is max and voltage is smaller than voltage_threshold
@@ -86,46 +88,61 @@ def get_u_diode_data_alignment_timestamps(df: pd.DataFrame, ee_margins: list,
     :param medfilt_size: size of meanfilter, should be odd
     :return: list of timestamps where first energy extraction is triggered
     """
-    voltage_threshold = -5
+    voltage_threshold = [-5, 0]
     df_filt = df.rolling(medfilt_size, center=True).median()
     df_diff_filt = df_filt[(ee_margins[0] < df_filt.index) &
                            (df_filt.index < ee_margins[1])].diff()
-    alignment_timestamps = df_diff_filt[(df_filt > voltage_threshold)].idxmin().to_list()
-    return alignment_timestamps
+    alignment_timestamps = df_diff_filt[(df_filt > voltage_threshold[0]) & (df_filt < voltage_threshold[1])].idxmin().to_list()
+    magnets = [c.split(":")[0] for c in df.columns.values]
+    df_offset = pd.DataFrame(alignment_timestamps, index=magnets, columns=["offset"])
+
+
+    if metadata is not None:
+        metadata = metadata.set_index("Magnet")
+        #metadata.loc[magnets, "offset_ts"] = alignment_timestamps
+        #crate_offset = metadata.groupby("QPS Crate")["offset_ts"].median()
+        #df_offset = metadata.apply(lambda x: crate_offset[x["QPS Crate"]], axis=1).to_frame(name ="offset")
+        df_offset.loc[magnets, "QPS Crate"] = metadata.loc[magnets, "QPS Crate"].values
+
+    return df_offset
 
 
 def align_u_diode_data(df_data: pd.DataFrame,
-                       method="voltage_threshold",
+                       method="timestamp_EE",
                        t_first_extraction: Optional[Union[float, int, list]] = None,
                        ee_margins: list = [-0.25, 0.4],
-                       shift_th: int = 0) -> pd.DataFrame:
+                       metadata: Optional[pd.DataFrame] = None) -> pd.DataFrame:
     """
     align u diode data, which is often shifted due to wrong triggers
     :param df_data: df with data, magnets are columns, time is index
     :param t_first_extraction: int with timestamp of first energy extraction for all magnets,
     if list: timestamp of each magnet, signals will be aligned to this timestamp
     :param ee_margins: timeframe where first energy extraction takes place
-    :param shift_th: only shift if time difference is bigger than shift_th
     :return: df with aligned data
     """
     # timestamp of first energy extraction
-    offset_ts = get_u_diode_data_alignment_timestamps(df_data, ee_margins)
+    offset_ts = get_u_diode_data_alignment_timestamps(df_data, ee_margins, metadata=metadata)
 
     for i, c in enumerate(df_data.columns):
         # index, where time is closest to alignment ts
+        magnet = c.split(":")[0]
         if method == "timestamp_EE_list":
             zero_index = np.argmin(abs(df_data.index.values - t_first_extraction[i]))
         elif method == "timestamp_EE":
             zero_index = np.argmin(abs(df_data.index.values - t_first_extraction))
 
-
         # index, where time is closest to offset_ts
-        delta_index = np.argmin(abs(df_data.index.values - offset_ts[i]))
+        delta_index = np.argmin(abs(df_data.index.values - offset_ts.loc[magnet, "offset"]))
 
         shift_index = zero_index - delta_index
-        if abs(shift_index) > shift_th:
-            df_data[c] = df_data[c].shift(shift_index)
-    return df_data
+        df_data[c] = df_data[c].shift(shift_index)
+
+        offset_ts.loc[magnet, "shift"] = shift_index
+
+    if metadata is not None:
+        return df_data, offset_ts
+    else:
+        return df_data
 
 
 def data_to_xarray(df_data: pd.DataFrame,

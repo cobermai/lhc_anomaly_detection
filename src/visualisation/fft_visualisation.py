@@ -79,8 +79,8 @@ def plot_position_frequency_map_ee_plateau(fpa_identifier,
                            gridspec_kw={'height_ratios': [0.2, 1.2, 5, 5], 'width_ratios': [4, 4, 4, 1]})
     date = mp3_fpa_df[mp3_fpa_df['fpa_identifier'] == fpa_identifier]['Timestamp_PIC'].values[0]
 
-    mp3_fpa_df_subset = mp3_fpa_df[(mp3_fpa_df['fpa_identifier'] == fpa_identifier)]
-    current = mp3_fpa_df_subset['I_end_2_from_data'].values[0]
+    mp3_fpa_df_subset = mp3_fpa_df[(mp3_fpa_df['fpa_identifier'] == fpa_identifier)].fillna(0)
+    current = mp3_fpa_df_subset['I_Q_circ'].values[0]
     mp3_fpa_df_subset_fast = mp3_fpa_df_subset[mp3_fpa_df_subset['Delta_t(iQPS-PIC)'] / 1000 < 1]
 
     rb_magnet_metadata_subset = rb_magnet_metadata[rb_magnet_metadata.Circuit == circuit]

@@ -10,7 +10,8 @@ from matplotlib import pyplot as plt
 from scipy.stats import chi2
 from scipy import signal
 
-from src.datasets.rb_fpa_prim_quench_ee_plateau2 import RBFPAPrimQuenchEEPlateau2
+from src.datasets.rb_fpa_prim_quench_ee_plateau2_V2 import RBFPAPrimQuenchEEPlateau2_V2
+from src.datasets.rb_fpa_prim_quench_ee_plateau_V2 import RBFPAPrimQuenchEEPlateau_V2
 from src.models.nmf import NMF
 from src.utils.frequency_utils import get_fft_of_DataArray, scale_fft_amplitude, get_ifft_of_DataArray, \
     complex_to_polar, polar_to_complex
@@ -128,7 +129,7 @@ def NMF_sensitivity_analysis(hyperparameter, outlier_loss, out_path):
         plot_NMF_components(da_fft_amp.frequency, H, experiment_path / 'components.png')
 
         # plot event signals where each component is the biggest
-        plot_component_examples(H_norm, W_norm, da_fft_amp, da_processed, experiment_path, n_examples=5)
+        plot_component_examples(H_norm, W_norm, da_fft_amp, ds.data, experiment_path, n_examples=3)
 
         plt.tight_layout()
         plt.savefig(experiment_path / 'component_examples.png')
@@ -151,7 +152,7 @@ def NMF_sensitivity_analysis(hyperparameter, outlier_loss, out_path):
     df_p_values = df_p_values.sort_values(by='median').reset_index(drop=True)
     magnets = mp3_fpa_df_unique.set_index('fpa_identifier', drop=True).loc[df_p_values.fpa_identifier, 'Position']
     df_p_values = df_p_values.set_index(magnets, drop=True)
-    df_p_values.to_csv(output_path / 'p_values.csv', index=False)
+    df_p_values.to_csv(output_path / 'p_values.csv')
 
     # plot loss
     loss = np.array(loss)
@@ -172,7 +173,6 @@ def NMF_sensitivity_analysis(hyperparameter, outlier_loss, out_path):
                                                                   df_p_values.head(n_outliers).fpa_identifier.values)]
     plot_outliers(ds, df_p_values, loss_hist, out_path, da_fft_amp=None, n_outliers=10, mp3_fpa_df=mp3_fpa_df)
 
-
     #for i, row in df_p_values.head(n_outliers).iterrows():
     #    event_loss = np.nanmean(loss_hist, axis=-1)[outlier_event_index[i]].reshape(-1)
     #    outlier_magnet_index = np.nanargmax(event_loss)
@@ -191,29 +191,30 @@ def NMF_sensitivity_analysis(hyperparameter, outlier_loss, out_path):
 
 if __name__ == "__main__":
     # define paths to read
-    context_path = Path("../data/RB_TC_extract_2022_07_07_processed_filled.csv")
+    context_path = Path("../data/MP3_context_data/20230313_RB_processed.csv")
 
     # define paths to read + write
-    dataset_path = Path("D:\\datasets\\20220707_RBFPAPrimQuenchEEPlateau2")
+    dataset_path = Path('D:\\datasets\\20230313_RBFPAPrimQuenchEEPlateau2_V2')
     output_path = Path(f"../output/{os.path.basename(__file__)}/{datetime.now().strftime('%Y-%m-%dT%H.%M.%S.%f')}")
     output_path.mkdir(parents=True, exist_ok=True)
 
     # load desired fpa_identifiers
     mp3_fpa_df = pd.read_csv(context_path)
-    mp3_fpa_df_unique = mp3_fpa_df.drop_duplicates(subset=['fpa_identifier'])
-    dataset_creator = RBFPAPrimQuenchEEPlateau2()
-    ds = dataset_creator.load_dataset(fpa_identifiers=mp3_fpa_df.fpa_identifier.unique(),
-                                      dataset_path=dataset_path,
-                                      drop_data_vars=['simulation', 'el_position_feature', 'event_feature'])
+    drop_events = ["RB_RB.A78_1619330143440000000", "RB_RB.A45_1544355147780000000", "RB_RB.A45_1544300287820000000"] # known outliers to drop
+    mp3_fpa_df =mp3_fpa_df[~mp3_fpa_df.fpa_identifier.isin(drop_events)]
+    mp3_fpa_df_unique = mp3_fpa_df[mp3_fpa_df['timestamp_fgc'] >= 1526582397220000000].drop_duplicates(subset=['fpa_identifier'])
+    dataset_creator = RBFPAPrimQuenchEEPlateau2_V2()
+    ds = dataset_creator.load_dataset(fpa_identifiers=mp3_fpa_df_unique.fpa_identifier.values,
+                                      dataset_path=dataset_path)
+
 
     # model is not trained on data before 2021 and events with fast secondary quenches
+
     test_conditions = ((mp3_fpa_df['Delta_t(iQPS-PIC)'] / 1000 < 5) &
-                       (mp3_fpa_df['Nr in Q event'].astype(str) != '1')) | \
-                      (mp3_fpa_df['timestamp_fgc'] < 1611836512820000000)
+                       (mp3_fpa_df['Nr in Q event'].astype(str) != '1'))
     bool_test = np.isin(ds.event.values, mp3_fpa_df[test_conditions].fpa_identifier.unique())
     # add dims for indexing flattened data
     bool_train_flat = np.stack([~bool_test for l in range(len(ds.el_position))]).T.reshape(-1)
-
     # fit and transform NMF, fit both W and H
     window_functions = {"ones": np.ones,
                         "hanning": np.hanning,
@@ -223,34 +224,13 @@ if __name__ == "__main__":
                         "hamming": signal.windows.hamming,
                         "tukey": signal.windows.tukey}
 
-    outlier_loss = "nmf"  # fft+nmf
-    """
-    hyperparameter = {
-        "trend_deg": [1],
-        "f_window": list(window_functions.keys()),
-        "n_components": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-        # , 7,8,9,10,11,12,13,14,15,16,17,18,19,20
-        "solver": ["mu"],
-        "beta_loss": ['frobenius'],  # 'frobenius', 'kullback-leibler', 'itakura-saito'
-        "init": ["nndsvda"],
-        # "l1_ratio": [0.5],
-        # "alpha": [0],
-        # "max_iter": [1000],
-        "shuffle": ["False"],
-        # "ortho_reg": [0]
-    }
-
-    NMF_sensitivity_analysis(hyperparameter, outlier_loss, output_path)
-    """ 
-    #window_functions = {"hamming": signal.windows.hamming}
-
-    outlier_loss = "nmf"  # fft+nmf
+    outlier_loss = "nmf"
     hyperparameter = {
         "trend_deg": [0,1],
         "f_window": list(window_functions.keys()),
-        "n_components": [2,3,4,5,6,8,9,10, 11,12], #2,3,4,5,6,7,8,9,10, 11,12,13,14,15,16,17,18,19,20
+        "n_components": [2,3,4,5,6,8,9,10,11,12], #2,3,4,5,6,7,8,9,10, 11,12,13,14,15,16,17,18,19,20
         "solver": ["mu"],
-        "beta_loss": ['frobenius', 'kullback-leibler', 'itakura-saito'], #'frobenius', 'kullback-leibler', 'itakura-saito'
+        "beta_loss": ['frobenius', 'kullback-leibler'], #'frobenius', 'kullback-leibler', 'itakura-saito'
         "init": ["nndsvda"],
         #"l1_ratio": [0.5],
         #"alpha": [0.1],
@@ -259,4 +239,6 @@ if __name__ == "__main__":
         #"ortho_reg": [0]
     }
     NMF_sensitivity_analysis(hyperparameter, outlier_loss, output_path)
+
+
 
