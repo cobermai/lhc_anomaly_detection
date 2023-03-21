@@ -1520,8 +1520,8 @@ class NMF(BaseEstimator, TransformerMixin):
         """
         #check_is_fitted(self, 'n_components_')
 
-        if H is None:
-            H = self.components_
+        if H is not None:
+            self.components_ = H
 
         W, _, n_iter_ = non_negative_factorization(
             X=X, W=None, H=self.components_, n_components=self.n_components_,

@@ -2,7 +2,9 @@ from typing import Callable
 
 import numpy as np
 import xarray as xr
+from matplotlib import pyplot as plt
 from scipy.fft import fft, ifft
+from scipy.optimize import curve_fit
 
 
 def polar_to_complex(amplitude: np.array, phase: np.array) -> np.array:
@@ -126,6 +128,26 @@ def scale_fft_amplitude(data: xr.DataArray, f_window: Callable = np.ones, is_pol
         data_amplitude = data * N * window_gain
 
     return data_amplitude
+
+def exponential_func(x, a, b, c):
+    return a * np.exp(-b * x) + c
+
+def fit_exponential_trend(da):
+    times = da.time.values
+    data = da.values.reshape(-1, len(times))
+    params = []
+    p0 = [0, 0, np.nanmean(data)]
+    i = 0
+    for d in data:
+        popt, _ = curve_fit(exponential_func, times, np.nan_to_num(d), p0=p0, maxfev=5000)
+        params.append(popt)
+        print(i)
+        i+=1
+
+    trend = np.array([exponential_func(times, *p) for p in params])
+    da_trend = xr.DataArray(trend.reshape(da.shape), coords=da.coords, dims=da.dims)
+
+    return
 
 
 

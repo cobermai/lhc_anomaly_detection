@@ -10,20 +10,21 @@ from matplotlib import pyplot as plt
 from scipy.stats import chi2
 from scipy import signal
 
+from src.datasets.rb_fpa_prim_quench_ee_plateau2_V2 import RBFPAPrimQuenchEEPlateau2_V2
 from src.datasets.rb_fpa_prim_quench_ee_plateau_V2 import RBFPAPrimQuenchEEPlateau_V2
 from src.models.nmf import NMF
 from src.utils.frequency_utils import get_fft_of_DataArray, scale_fft_amplitude, get_ifft_of_DataArray, \
     complex_to_polar, polar_to_complex
-from src.utils.utils import dict_to_df_meshgrid
+from src.utils.utils import dict_to_df_meshgrid, interp
 from src.visualisation.NMF_visualization import plot_NMF_components, plot_ts_circle, plot_loss_hist, plot_outliers, \
-    plot_component_examples
+    plot_component_examples, plot_event_componet_weigts
 
 
 def NMF_sensitivity_analysis(hyperparameter, outlier_loss, out_path):
     df_meshgrid = dict_to_df_meshgrid(hyperparameter)
     print(f"n_iter: {len(df_meshgrid)}")
     df_loss = pd.DataFrame({'fpa_identifier': ds.event.values})
-    df_p_values = pd.DataFrame({'fpa_identifier': ds.event.values[~bool_test]})
+    df_p_values = pd.DataFrame({'fpa_identifier': ds.event.values})
     loss = []
     df_result = df_meshgrid.copy()
     for index, row in df_meshgrid.iterrows():
@@ -50,14 +51,20 @@ def NMF_sensitivity_analysis(hyperparameter, outlier_loss, out_path):
         na_fft_flat = np.nan_to_num(da_fft_amp.data.reshape(-1, np.shape(da_fft_amp.data)[2]))
 
         # Train NMF
-        init_components = False
-        nmf_model = NMF(**row.to_dict())
+        init_components = True
         if init_components:
-            df_components = pd.read_csv("../data/final_components/components_merged.csv")
-            H_init = df_components.values[:, 1:].T
-            nmf_model.fit(X=na_fft_flat[bool_train_flat], H=H_init, not_init_H_idx=True)
+            df_components = pd.read_csv("../data/1EE_final_components_V2/8_components_fitted.csv",
+                                        index_col="Unnamed: 0")
+            row["n_components"] = len(df_components.columns)
+            H_init = df_components.values.T
+            nmf_model = NMF(**row.to_dict())
+            nmf_model.components_ = H_init
+            nmf_model.n_components_ = len(df_components.columns)
+            #W = nmf_model.transform(X=na_fft_flat, H= H_init)
+            #nmf_model.fit(X=na_fft_flat, H=H_init, not_init_H_idx=True)
         else:
-            nmf_model.fit(X=na_fft_flat[bool_train_flat])
+            nmf_model = NMF(**row.to_dict())
+            nmf_model.fit(X=na_fft_flat)
         W = nmf_model.transform(X=na_fft_flat)
         H = nmf_model.components_
         H_norm, W_norm = nmf_model.normalize_H(H=H, W=W)
@@ -100,7 +107,7 @@ def NMF_sensitivity_analysis(hyperparameter, outlier_loss, out_path):
         outlier_radius = 3
         loss_max = pd.DataFrame(loss_magnet.T).rolling(outlier_radius).mean().max().values
 
-        total_loss = np.linalg.norm(masked_arr[~bool_test].compressed())
+        total_loss = np.linalg.norm(masked_arr.compressed())
         df_loss[experiment_name] = loss_max
         component_overlap = np.sum(np.linalg.norm(H, axis=0)) #/ len(H)
         component_overlap_norm = np.sum(np.linalg.norm(H_norm, axis=0)) #/ len(H_norm)
@@ -111,8 +118,8 @@ def NMF_sensitivity_analysis(hyperparameter, outlier_loss, out_path):
         df_result.loc[index, "L2_C_norm"] = component_overlap_norm
 
         # calculate p values
-        params_fit = chi2.fit(loss_max[~bool_test], floc=0)  # fit df, and fshape
-        p_values = 1 - chi2.cdf(loss_max[~bool_test], *params_fit)
+        params_fit = chi2.fit(loss_max, floc=0)  # fit df, and fshape
+        p_values = 1 - chi2.cdf(loss_max, *params_fit)
         df_p_values[experiment_name] = p_values
 
         # plot ts circle
@@ -122,7 +129,7 @@ def NMF_sensitivity_analysis(hyperparameter, outlier_loss, out_path):
                        experiment_path / 'event1.svg', event=110, magnet=59)
 
         # plot loss histogram
-        plot_loss_hist(loss_max[~bool_test], experiment_path, params_fit)
+        plot_loss_hist(loss_max, experiment_path, params_fit)
 
         # plot components
         plot_NMF_components(da_fft_amp.frequency, H, experiment_path / 'components.png')
@@ -136,6 +143,9 @@ def NMF_sensitivity_analysis(hyperparameter, outlier_loss, out_path):
         pd.DataFrame(H_norm.T,
                      index=da_fft_amp.frequency.values,
                      columns=[f"component_{i}" for i in range(len(H_norm))]).to_csv(experiment_path / "components.csv")
+
+
+        plot_event_componet_weigts(W_norm, H_norm, da_fft_amp, ds, mp3_fpa_df, experiment_path)
 
         plt.close('all')
         del ds_detrend, da_processed, da_fft, da_fft_amp, da_fft_phase, na_fft_flat, H_norm, W_norm, H, W, da_ifft, \
@@ -194,35 +204,32 @@ if __name__ == "__main__":
     snapshot_context_path = Path("../data/RB_snapshot_context.csv")
 
     # define paths to read + write
-    dataset_path = Path('D:\\datasets\\20230313_RBFPAPrimQuenchEEPlateau_V2')
+    dataset_path = Path('D:\\datasets\\20230313_RBFPAPrimQuenchEEPlateau2_V2')
     output_path = Path(f"../output/{os.path.basename(__file__)}/{datetime.now().strftime('%Y-%m-%dT%H.%M.%S.%f')}")
     output_path.mkdir(parents=True, exist_ok=True)
 
     # load desired fpa_identifiers
     mp3_fpa_df = pd.read_csv(context_path)
+    snapshot_context_df = pd.read_csv(snapshot_context_path)
+    mp3_fpa_df = pd.concat([mp3_fpa_df[mp3_fpa_df['timestamp_fgc'] >= 1526582397220000000], snapshot_context_df])
     drop_events = ["RB_RB.A78_1619330143440000000", "RB_RB.A45_1544355147780000000", "RB_RB.A45_1544300287820000000"] # known outliers to drop
     mp3_fpa_df = mp3_fpa_df[~mp3_fpa_df.fpa_identifier.isin(drop_events)]
-    mp3_fpa_df_unique = mp3_fpa_df[mp3_fpa_df['timestamp_fgc'] >= 1526582397220000000].drop_duplicates(subset=['fpa_identifier'])
-    dataset_creator = RBFPAPrimQuenchEEPlateau_V2()
+    mp3_fpa_df_unique = mp3_fpa_df.drop_duplicates(subset=['fpa_identifier'])
+
+    # add snapshot data
+    dataset_creator = RBFPAPrimQuenchEEPlateau2_V2()
     ds = dataset_creator.load_dataset(fpa_identifiers=mp3_fpa_df_unique.fpa_identifier.values,
                                       dataset_path=dataset_path)
 
+    ds = ds.isel(time=slice(0, 400))
     # model is not trained on data before 2021 and events with fast secondary quenches
-
-    test_conditions = ((mp3_fpa_df['Delta_t(iQPS-PIC)'] / 1000 < 5) &
-                       (mp3_fpa_df['Nr in Q event'].astype(str) != '1'))
-    bool_test = np.isin(ds.event.values, mp3_fpa_df[test_conditions].fpa_identifier.unique())
-    # add dims for indexing flattened data
-    bool_train_flat = np.stack([~bool_test for l in range(len(ds.el_position))]).T.reshape(-1)
-    # fit and transform NMF, fit both W and H
-
     window_functions = {"hamming": signal.windows.hamming}
 
     outlier_loss = "nmf"
     hyperparameter = {
         "trend_deg": [1],
         "f_window": list(window_functions.keys()),
-        "n_components": [10],
+        "n_components": [6],
         "solver": ["mu"],
         "beta_loss": ['frobenius'],
         "init": ["nndsvda"],

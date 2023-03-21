@@ -7,11 +7,13 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from matplotlib import pyplot as plt
+from scipy.optimize import curve_fit
 
 from src.dataset import Dataset
 from src.modeling.sec_quench import get_df_time_window
 from src.utils.dataset_utils import align_u_diode_data, drop_quenched_magnets, u_diode_simulation_to_df, \
-    u_diode_data_to_df, data_to_xarray, get_u_diode_data_alignment_timestamps
+    u_diode_data_to_df, data_to_xarray, get_u_diode_data_alignment_timestamps, add_exp_trend_coeff
+from src.utils.frequency_utils import exponential_func
 from src.utils.hdf_tools import load_from_hdf_with_regex
 from src.utils.utils import interp
 
@@ -156,15 +158,25 @@ class RBFPAPrimQuenchEEPlateau2_V2(Dataset):
                                           df_el_position_features=None,
                                           df_event_features=None,
                                           event_identifier=fpa_identifier)
+
+                xr_array = add_exp_trend_coeff(ds=xr_array, data_var="data")
                 xr_array.to_netcdf(self.dataset_path / f"{fpa_identifier}.nc")
 
 
                 if self.plot_dataset_path:
+                    bool_na = ~df_data.isna().all().values
+                    exp_fit = xr_array['polyfit_coefficients'].values
+
                     self.plot_dataset_path.mkdir(parents=True, exist_ok=True)
-                    fig, ax = plt.subplots(figsize=(15, 10))
-                    ax.plot(df_data.values)
-                    ax.set_title(f"Data {len(df_data.dropna(axis=1, how='all').columns)}")
-                    ax.set_ylabel("Voltage / V")
+                    fig, ax = plt.subplots(2,1, figsize=(15, 10))
+                    ax[0].plot(df_data.values.T[bool_na].T)
+                    ax[0].set_title(f"Data {len(df_data.dropna(axis=1, how='all').columns)}")
+                    ax[0].set_ylabel("Voltage / V")
+
+                    trend = np.array([exponential_func(df_data.index, *p) for p in exp_fit])
+                    ax[1].plot(df_data.index, trend[bool_na].T)
+                    ax[1].set_title(f"Exp. Trend")
+                    ax[1].set_ylabel("Voltage / V")
                     plt.tight_layout()
                     plt.grid()
                     plt.savefig(self.plot_dataset_path / f"{fpa_identifier}.png")

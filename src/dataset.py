@@ -9,8 +9,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
+from scipy.optimize import curve_fit
 from scipy.signal import butter, lfilter, filtfilt
 
+from src.utils.frequency_utils import fit_exponential_trend, exponential_func
 from src.visualisation.xarray_visualisation import plot_xarray_event
 
 
@@ -215,6 +217,7 @@ class Dataset(ABC):
         x_log = np.log10(vmin) + vdiff * X
         return 10 ** x_log
 
+
     @staticmethod
     def detrend_dim(da: xr.Dataset, dim: str = "time", data_var: str = "data", deg: int = 1) -> xr.Dataset:
         """
@@ -226,10 +229,16 @@ class Dataset(ABC):
         :return: Dataset with subtracted trend
         """
         data = da.copy()
-        p = data[data_var].polyfit(dim=dim, deg=deg)
-        fit = xr.polyval(data[dim], p.polyfit_coefficients)
+        if deg == -1:  # exp fit
+            fit_coeff = da['polyfit_coefficients']
+            fit = np.array([exponential_func(data[dim], *p) for p in fit_coeff.values.reshape(-1, fit_coeff.values.shape[-1])])
+            fit = fit.reshape(data[data_var].shape)
+        else:
+            fit_coeff = data[data_var].polyfit(dim=dim, deg=deg)
+            fit = xr.polyval(data[dim], fit_coeff.polyfit_coefficients)
+
         data[data_var] = data[data_var] - fit
-        return data.merge(p)
+        return data.merge(fit_coeff)
 
     @staticmethod
     def trend_dim(da: xr.Dataset, dim: str = "time", data_var: str = "data") -> xr.Dataset:
@@ -240,8 +249,14 @@ class Dataset(ABC):
         :param data_var: data_var to detrend, default is to detrend data
         :return: Dataset with added trend
         """
-        fit = xr.polyval(da[dim], da.polyfit_coefficients)
+        if "tau" in da["polyfit_coefficient_names"]:
+            fit_coeff = da['polyfit_coefficients']
+            fit = np.array([exponential_func(da[dim], *p) for p in fit_coeff.values.reshape(-1, fit_coeff.values.shape[-1])])
+            fit = fit.reshape(da[data_var].shape)
+        else:
+            fit = xr.polyval(da[dim], da.polyfit_coefficients)
         da[data_var] = da[data_var] + fit
+
         return da
 
     @staticmethod

@@ -19,6 +19,9 @@ def plot_ts_circle(ds, da_processed, da_fft_amp, na_fft_nmf_amp, da_ifft_nmf, da
                    figpath, event=2, magnet=150):
     fig, ax = plt.subplots(3, 3, figsize=(17, 11))
 
+    if type(event) == str:
+        event = np.argmax(ds.event.values == event)
+
     # x(t)
     ax[0, 0].plot(ds.time, ds.data[event, magnet].T, c="b")
     ax[0, 0].set_xlabel('Time / s')
@@ -242,3 +245,65 @@ def plot_kmeans_centers(H_norm, W_norm, ds_detrend, da_fft_amp, experiment_path)
     plt.setp(ax, ylim=custom_ylim)
     plt.tight_layout()
     plt.savefig(experiment_path / 'component_examples.png')
+
+def plot_event_componet_weigts(W_norm, H_norm, da_fft_amp, ds, mp3_fpa_df, experiment_path):
+    W_reshaped = W_norm.reshape(da_fft_amp.data.shape[:-1] + (W_norm.shape[-1],))
+    test_conditions = ((mp3_fpa_df['Delta_t(iQPS-PIC)'] / 1000 < 5) &
+                       (mp3_fpa_df['Nr in Q event'].astype(str) != '1'))
+    bool_test = np.isin(ds.event.values, mp3_fpa_df[test_conditions].fpa_identifier.unique())
+
+    snapshot_conditions = mp3_fpa_df["Date (FGC)"].isna()
+    bool_snapshot = np.isin(ds.event.values, mp3_fpa_df[snapshot_conditions].fpa_identifier.unique())
+
+    fig, ax = plt.subplot_mosaic('AAA;BCD;EFG', figsize=(20, 15))
+    ax["A"].plot(da_fft_amp.frequency, H_norm.T, label=[f"Component {i}" for i in range(len(H_norm))])
+    ax["A"].legend()
+    ax["A"].set_title("Components")
+    ax["A"].set_ylabel("Relative Value")
+    ax["A"].set_xlabel("Frequency / Hz")
+    ax["A"].set_xlim((0, 270))
+
+    ax["B"].plot(np.sort(W_reshaped[~(bool_snapshot | bool_test)].max(axis=1), axis=0)[::-1])
+    ax["B"].set_title("Max value in event: No fast sec. quench")
+    ax["B"].set_ylabel("Voltage / V")
+    ax["B"].set_xlabel("# Events")
+    ax["B"].set_yscale("log")
+    ax["B"].set_ylim((1e-4, 1))
+
+    ax["C"].plot(np.sort(W_reshaped[bool_test].max(axis=1), axis=0)[::-1])
+    ax["C"].set_title("Max value in event: Fast sec. quench")
+    ax["C"].set_ylabel("Voltage / V")
+    ax["C"].set_xlabel("# Events")
+    ax["C"].set_yscale("log")
+    ax["C"].set_ylim(ax["B"].get_ylim())
+
+    ax["D"].plot(np.sort(W_reshaped[bool_snapshot].max(axis=1), axis=0)[::-1])
+    ax["D"].set_title("Max value in event: Snapshots")
+    ax["D"].set_ylabel("Voltage / V")
+    ax["D"].set_xlabel("# Events")
+    ax["D"].set_yscale("log")
+    ax["D"].set_ylim(ax["B"].get_ylim())
+
+    ax["E"].plot(np.sort(W_reshaped[~(bool_snapshot | bool_test)], axis=1).mean(axis=0)[::-1])
+    ax["E"].set_title("Mean value in ciruit: No fast sec. quench")
+    ax["E"].set_ylabel("Voltage / V")
+    ax["E"].set_xlabel("# Magnet")
+    ax["E"].set_yscale("log")
+    ax["E"].set_ylim((1e-5, 1e-1))
+
+    ax["F"].plot(np.sort(W_reshaped[bool_test], axis=1).mean(axis=0)[::-1])
+    ax["F"].set_title("Fast sec. quench")
+    ax["F"].set_ylabel("Voltage / V")
+    ax["F"].set_xlabel("# Magnet")
+    ax["F"].set_yscale("log")
+    ax["F"].set_ylim(ax["E"].get_ylim())
+
+    ax["G"].plot(np.sort(W_reshaped[bool_snapshot], axis=1).mean(axis=0)[::-1])
+    ax["G"].set_title("Snapshots")
+    ax["G"].set_ylabel("Voltage / V")
+    ax["G"].set_xlabel("# Magnet")
+    ax["G"].set_yscale("log")
+    ax["G"].set_ylim(ax["E"].get_ylim())
+
+    plt.tight_layout()
+    plt.savefig(experiment_path / "cweights_data_types.png")
