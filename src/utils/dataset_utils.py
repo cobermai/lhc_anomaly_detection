@@ -190,7 +190,7 @@ def add_exp_trend_coeff(ds, data_var):
     df_data = pd.DataFrame(ds[data_var].values.T, columns=ds.el_position, index=ds.time)
     p0 = [0, 0, np.nanmean(df_data)]
     exp_fit = df_data.fillna(0).apply(
-        lambda x: curve_fit(f=exponential_func, xdata=x.index, ydata=x, p0=p0, maxfev=5000)[0], axis=0)
+        lambda x: curve_fit(f=exponential_func, xdata=x.index, ydata=x, p0=p0, maxfev=10000)[0], axis=0)
     ds.coords['polyfit_coefficient_names'] = ["amplitude", "tau", "offset"]
     ds['polyfit_coefficients'] = (('el_position', 'polyfit_coefficient_names'),
                                         exp_fit.values.T)

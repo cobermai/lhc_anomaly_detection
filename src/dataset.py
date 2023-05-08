@@ -12,7 +12,7 @@ import xarray as xr
 from scipy.optimize import curve_fit
 from scipy.signal import butter, lfilter, filtfilt
 
-from src.utils.frequency_utils import fit_exponential_trend, exponential_func
+from src.utils.frequency_utils import exponential_func
 from src.visualisation.xarray_visualisation import plot_xarray_event
 
 
@@ -115,7 +115,7 @@ class Dataset(ABC):
         :param dataset_path: path to datasets
         :param join: how to join the different datasets
         :param drop_data_vars: data_vars to load, default is all
-        :param location: location (e.g. timespan) to load, default is all
+        :param location: location (e.g. timespan: {'time':slice(0.1, 1.4)}) to load, default is all
         :return: DataArray with dims (event, type, el_position, time)
         """
         if drop_data_vars is None:
@@ -126,6 +126,12 @@ class Dataset(ABC):
             ds_dir = dataset_path / f"{fpa_identifier}.nc"
             if os.path.isfile(ds_dir):
                 fpa_event_data = xr.load_dataset(ds_dir)
+
+                # Drop duplicates on the data array
+                # time_da = fpa_event_data["time"].drop_duplicates("time")
+
+                # Reassign the modified data array back to the dataset
+                # fpa_event_data = fpa_event_data.sel(time=time_da)
 
                 if location is None:
                     dataset.append(fpa_event_data.drop_vars(drop_data_vars))
@@ -217,7 +223,6 @@ class Dataset(ABC):
         x_log = np.log10(vmin) + vdiff * X
         return 10 ** x_log
 
-
     @staticmethod
     def detrend_dim(da: xr.Dataset, dim: str = "time", data_var: str = "data", deg: int = 1) -> xr.Dataset:
         """
@@ -231,8 +236,9 @@ class Dataset(ABC):
         data = da.copy()
         if deg == -1:  # exp fit
             fit_coeff = da['polyfit_coefficients']
-            fit = np.array([exponential_func(data[dim], *p) for p in fit_coeff.values.reshape(-1, fit_coeff.values.shape[-1])])
-            fit = fit.reshape(data[data_var].shape)
+            p = fit_coeff.values.reshape(fit_coeff.shape[:-1] + (-1, 1))
+            t = da["time"].values.reshape((1, 1, -1))
+            fit = exponential_func(t, p[:, :, 0, :], p[:, :, 1, :], p[:, :, 2, :])
         else:
             fit_coeff = data[data_var].polyfit(dim=dim, deg=deg)
             fit = xr.polyval(data[dim], fit_coeff.polyfit_coefficients)
@@ -251,8 +257,9 @@ class Dataset(ABC):
         """
         if "tau" in da["polyfit_coefficient_names"]:
             fit_coeff = da['polyfit_coefficients']
-            fit = np.array([exponential_func(da[dim], *p) for p in fit_coeff.values.reshape(-1, fit_coeff.values.shape[-1])])
-            fit = fit.reshape(da[data_var].shape)
+            p = fit_coeff.values.reshape(fit_coeff.shape[:-1] + (-1, 1))
+            t = da["time"].values.reshape((1, 1, -1))
+            fit = exponential_func(t, p[:, :, 0, :], p[:, :, 1, :], p[:, :, 2, :])
         else:
             fit = xr.polyval(da[dim], da.polyfit_coefficients)
         da[data_var] = da[data_var] + fit

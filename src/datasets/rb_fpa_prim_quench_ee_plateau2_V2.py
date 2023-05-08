@@ -97,7 +97,7 @@ class RBFPAPrimQuenchEEPlateau2_V2(Dataset):
                                                  ee_margins=ee_margins)
 
             time_frame = [0.6, 0.95]
-            n_samples = 500
+            n_samples = 400
             df_data_cut = get_df_time_window(df=df_data_aligned,
                                              timestamp=t_first_extraction,
                                              time_frame=time_frame,

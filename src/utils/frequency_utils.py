@@ -132,22 +132,6 @@ def scale_fft_amplitude(data: xr.DataArray, f_window: Callable = np.ones, is_pol
 def exponential_func(x, a, b, c):
     return a * np.exp(-b * x) + c
 
-def fit_exponential_trend(da):
-    times = da.time.values
-    data = da.values.reshape(-1, len(times))
-    params = []
-    p0 = [0, 0, np.nanmean(data)]
-    i = 0
-    for d in data:
-        popt, _ = curve_fit(exponential_func, times, np.nan_to_num(d), p0=p0, maxfev=5000)
-        params.append(popt)
-        print(i)
-        i+=1
-
-    trend = np.array([exponential_func(times, *p) for p in params])
-    da_trend = xr.DataArray(trend.reshape(da.shape), coords=da.coords, dims=da.dims)
-
-    return
 
 
 

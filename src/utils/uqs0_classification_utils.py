@@ -45,7 +45,7 @@ def plot_confusion_matrix(y_test_argmax, y_pred_argmax, all_labels, output_path,
     plt.savefig(output_path / f"{n_split}_confusion_matrix")
 
 
-def write_excel(df_result_magnet: pd.DataFrame, labels_path: Path, neighbor_labelevent,  output_path:Path):
+def write_excel(df_result_magnet: pd.DataFrame, labels_path: Path, neighbor_labelevent: pd.DataFrame,  output_path:Path):
     """
     function stores result of df_result_magnet in Excel
     :param df_result_magnet: Dataframe with magnets in index and labels as columns
@@ -61,9 +61,13 @@ def write_excel(df_result_magnet: pd.DataFrame, labels_path: Path, neighbor_labe
     dest_workbook = xlsxwriter.Workbook(output_path)
     dest_sheet = dest_workbook.add_worksheet()
 
+    url_links = [source_sheet.cell(row=2 + i, column=2).hyperlink.target for i in range(len(df_event_labels))]
+    df_event_labels["url"] = url_links
+
     columns = ['event', 'Electrical order'] \
               + list(df_result_magnet.columns) \
-              + [f"NN_{c}" for c in df_result_magnet.filter(regex="pred").columns]
+              + [f"NN_{c}" for c in df_result_magnet.filter(regex="pred").columns] \
+              + neighbor_labelevent.filter(regex="_kneighbors").columns.to_list()
     dest_sheet.write_row(0, 0, columns)
 
     red_format = dest_workbook.add_format({'bg_color': '#FFC7CE'})
@@ -75,6 +79,9 @@ def write_excel(df_result_magnet: pd.DataFrame, labels_path: Path, neighbor_labe
         url = source_sheet.cell(row=2 + index, column=2).hyperlink.target
         el_order = source_sheet.cell(row=2 + index, column=2).value
 
+        if url != df_event_labels[df_event_labels.event == event].url.values[0]:
+            print("error")
+
         # Create a new Excel file and copy the URL to it
         dest_sheet.write(i, 0, event)
         dest_sheet.write_url(i, 1, url, string=str(el_order))
@@ -83,11 +90,19 @@ def write_excel(df_result_magnet: pd.DataFrame, labels_path: Path, neighbor_labe
 
         if neighbor_labelevent is not None:
             first_empty_column = len(row) + 2
-            for nl, neighbor_label in enumerate(neighbor_labelevent[i-1]): # iterate over labels
-                if neighbor_label != []:
-                    dest_sheet.write(i, first_empty_column + nl,  str(neighbor_label))
-                else:
-                    dest_sheet.write(i, first_empty_column + nl,  0)
+            kneighbors = neighbor_labelevent.filter(regex="_kneighbors").loc[event].values
+            distance = neighbor_labelevent.filter(regex="_distance").loc[event].values
+            t = 0
+            for k, d in zip(kneighbors, distance):
+                url = df_event_labels["url"].iloc[int(k)]
+                event = df_event_labels["event"].iloc[int(k)]
+                dest_sheet.write_url(i, first_empty_column + t, url, string=str(d)) #d
+                t += 1
+
+            #for nl, neighbor_label in enumerate(neighbor_labelevent[i-1]):  # iterate over labels
+            #        dest_sheet.write(i, first_empty_column + nl,  str(neighbor_label))
+            #    else:
+            #        dest_sheet.write(i, first_empty_column + nl,  0)
         i += 1
 
     for column_index in range(len(columns)):

@@ -11,10 +11,13 @@ from math import sqrt
 import warnings
 import numbers
 import time
+from operator import eq
 
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from scipy.cluster.hierarchy import linkage, cophenet
+from scipy.spatial.distance import pdist
 
 from sklearn.decomposition.cdnmf_fast import _update_cdnmf_fast
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -23,6 +26,8 @@ from sklearn.utils.extmath import randomized_svd, safe_sparse_dot, squared_norm
 from sklearn.utils.extmath import safe_min
 from sklearn.utils.validation import check_is_fitted, check_non_negative
 from sklearn.exceptions import ConvergenceWarning
+
+from src.visualisation.NMF_visualization import plot_dendrogram_from_linkage
 
 EPSILON = np.finfo(np.float32).eps
 
@@ -1607,4 +1612,73 @@ class NMF(BaseEstimator, TransformerMixin):
         W_norm = (W * np.expand_dims(max_H.T, axis=0))[0]
         return H_norm, W_norm
 
+    @staticmethod
+    def cophenetic_correlation(W, dendrogram_path=None):
+        # Dendrogram Compontent weights
+        pairwise_dist_w = pdist(W.T)
+
+        methods = np.array(['average']) #'single', 'complete', 'average', 'weighted', 'centroid', 'median', 'ward'
+        corr_list = []
+        link_list = []
+        for m in methods:
+            linkage_matrix = linkage(pairwise_dist_w, method=m)
+            corr = cophenet(linkage_matrix, pairwise_dist_w)[0]
+            corr_list.append(corr)
+            link_list.append(linkage_matrix)
+
+        idx_corr = np.argmax(corr_list)
+        corr = np.array(corr_list)[idx_corr]
+        method = methods[idx_corr]
+        lm = np.array(link_list)[idx_corr]
+        if dendrogram_path is not None:
+            plot_dendrogram_from_linkage(lm, dendrogram_path, method)
+
+        return corr
+
+    @staticmethod
+    def connectivity(H):
+        """
+        Source: https://github.com/mims-harvard/nimfa/blob/master/nimfa/models/nmf.py
+        Compute the connectivity matrix for the samples based on their mixture coefficients.
+
+        The connectivity matrix C is a symmetric matrix which shows the shared membership of the samples: entry C_ij is 1 iff sample i and
+        sample j belong to the same cluster, 0 otherwise. Sample assignment is determined by its largest metagene expression value.
+
+        Return connectivity matrix.
+
+        :param idx: Used in the multiple NMF model. In factorizations following
+            standard NMF model or nonsmooth NMF model ``idx`` is always None.
+        :type idx: None or `str` with values 'coef' or 'coef1' (`int` value of 0 or 1, respectively)
+        """
+        idx = np.argmax(H, axis=0)
+        return (np.mat(idx) == np.mat(idx).T) + 0
+
+    @staticmethod
+    def brunet_coph_cor(H_list):
+        """
+        Compute cophenetic correlation coefficient of consensus matrix, generally obtained from multiple NMF runs.
+
+        The cophenetic correlation coefficient is measure which indicates the dispersion of the consensus matrix and is based
+        on the average of connectivity matrices. It measures the stability of the clusters obtained from NMF.
+        It is computed as the Pearson correlation of two distance matrices: the first is the distance between samples induced by the
+        consensus matrix; the second is the distance between samples induced by the linkage used in the reordering of the consensus
+        matrix [Brunet2004]_.
+
+        Return real number. In a perfect consensus matrix, cophenetic correlation equals 1. When the entries in consensus matrix are
+        scattered between 0 and 1, the cophenetic correlation is < 1. We observe how this coefficient changes as factorization rank
+        increases. We select the first rank, where the magnitude of the cophenetic correlation coefficient begins to fall [Brunet2004]_.
+
+        :param idx: Used in the multiple NMF model. In factorizations following standard NMF model or nonsmooth NMF model
+                    :param:`idx` is always None.
+        :type idx: None or `str` with values 'coef' or 'coef1' (`int` value of 0 or 1, respectively)
+        """
+        A = np.mean(H_list, axis=0)
+        # upper diagonal elements of consensus np.triu((np.mat(idx) == np.mat(idx).T) + 0, k=1)
+        # consensus entries are similarities, conversion to distances
+        Y = 1 - A[np.triu_indices(len(A), k=1)].reshape(-1)
+        Z = linkage(Y, method='average')
+        # cophenetic correlation coefficient of a hierarchical clustering
+        # defined by the linkage matrix Z and matrix Y from which Z was
+        # generated
+        return cophenet(Z, Y)[0]
 

@@ -24,6 +24,7 @@ if __name__ == "__main__":
     output_path = Path(f"../output/{os.path.basename(__file__)}")  # datetime.now().strftime("%Y-%m-%dT%H.%M.%S.%f")
     output_path.mkdir(parents=True, exist_ok=True)
 
+
     # load dataset
     dataset = load_dataset(creator=RBFPAPrimQuenchEEPlateau_V2,
                            dataset_path=dataset_path,

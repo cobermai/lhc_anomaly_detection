@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from scipy.cluster.hierarchy import dendrogram, linkage
+from scipy.spatial.distance import pdist
 from scipy.stats import gamma, chi2
 from sklearn.cluster import KMeans
 
@@ -139,8 +141,8 @@ def plot_outliers(ds, df_p_values, loss, out_path, n_outliers, mp3_fpa_df, da_ff
         quenched_magnet = mp3_fpa_df[mp3_fpa_df.fpa_identifier == row['fpa_identifier']].Magnet.values[0]
 
         plt.figure()
-        for s, signal in enumerate(ds.data.loc[{'event': row['fpa_identifier']}]):
-            plt.plot(ds.time, signal, alpha=event_loss_norm[s])
+        for s, signal in enumerate(ds.data[ds['t0'].values == row['t0']].loc[{'event': row['fpa_identifier']}]):
+            plt.plot(ds.time + row['t0'], signal, alpha=event_loss_norm[s])
         plt.xlabel('Time / s')
         plt.ylabel('Voltage / V')
         plt.savefig(outlier_path / f"{j}_{quenched_magnet}_{row['fpa_identifier']}.png")
@@ -167,7 +169,7 @@ def plot_outliers(ds, df_p_values, loss, out_path, n_outliers, mp3_fpa_df, da_ff
 
 
     plt.figure()
-    df_p_values.drop(columns=['fpa_identifier', 'median', 'std']).head(n_outliers).T.boxplot()
+    df_p_values.drop(columns=['fpa_identifier', 'median', 'std', "t0"]).head(n_outliers).T.boxplot()
     plt.xlabel('Outlier number')
     plt.ylabel('p-value')
     plt.axhline(y=0.01, color='r', linestyle='-', label='99% confidence interval')
@@ -254,6 +256,8 @@ def plot_event_componet_weigts(W_norm, H_norm, da_fft_amp, ds, mp3_fpa_df, exper
 
     snapshot_conditions = mp3_fpa_df["Date (FGC)"].isna()
     bool_snapshot = np.isin(ds.event.values, mp3_fpa_df[snapshot_conditions].fpa_identifier.unique())
+    bool_1EE = (ds.t0.values < 0.5)
+    bool_2EE = (ds.t0.values > 0.5)
 
     fig, ax = plt.subplot_mosaic('AAA;BCD;EFG', figsize=(20, 15))
     ax["A"].plot(da_fft_amp.frequency, H_norm.T, label=[f"Component {i}" for i in range(len(H_norm))])
@@ -263,47 +267,117 @@ def plot_event_componet_weigts(W_norm, H_norm, da_fft_amp, ds, mp3_fpa_df, exper
     ax["A"].set_xlabel("Frequency / Hz")
     ax["A"].set_xlim((0, 270))
 
-    ax["B"].plot(np.sort(W_reshaped[~(bool_snapshot | bool_test)].max(axis=1), axis=0)[::-1])
-    ax["B"].set_title("Max value in event: No fast sec. quench")
+    ax["B"].plot(np.sort(W_reshaped[~(bool_snapshot | bool_test) & bool_1EE].max(axis=1), axis=0)[::-1])
+    ax["B"].set_title("1EE: No fast sec. quench")
     ax["B"].set_ylabel("Voltage / V")
     ax["B"].set_xlabel("# Events")
     ax["B"].set_yscale("log")
-    ax["B"].set_ylim((1e-4, 1))
+    ax["B"].set_ylim((1e-5, 1))
 
-    ax["C"].plot(np.sort(W_reshaped[bool_test].max(axis=1), axis=0)[::-1])
-    ax["C"].set_title("Max value in event: Fast sec. quench")
+    ax["C"].plot(np.sort(W_reshaped[bool_test & bool_1EE].max(axis=1), axis=0)[::-1])
+    ax["C"].set_title("1EE: Fast sec. quench")
     ax["C"].set_ylabel("Voltage / V")
     ax["C"].set_xlabel("# Events")
     ax["C"].set_yscale("log")
     ax["C"].set_ylim(ax["B"].get_ylim())
 
-    ax["D"].plot(np.sort(W_reshaped[bool_snapshot].max(axis=1), axis=0)[::-1])
-    ax["D"].set_title("Max value in event: Snapshots")
+    ax["D"].plot(np.sort(W_reshaped[bool_snapshot & bool_1EE].max(axis=1), axis=0)[::-1])
+    ax["D"].set_title("1EE: Snapshots")
     ax["D"].set_ylabel("Voltage / V")
     ax["D"].set_xlabel("# Events")
     ax["D"].set_yscale("log")
     ax["D"].set_ylim(ax["B"].get_ylim())
 
-    ax["E"].plot(np.sort(W_reshaped[~(bool_snapshot | bool_test)], axis=1).mean(axis=0)[::-1])
-    ax["E"].set_title("Mean value in ciruit: No fast sec. quench")
+    ax["E"].plot(np.sort(W_reshaped[~(bool_snapshot | bool_test) & bool_2EE].max(axis=1), axis=0)[::-1])
+    ax["E"].set_title("2EE: No fast sec. quench")
     ax["E"].set_ylabel("Voltage / V")
-    ax["E"].set_xlabel("# Magnet")
+    ax["E"].set_xlabel("# Events")
     ax["E"].set_yscale("log")
-    ax["E"].set_ylim((1e-5, 1e-1))
+    ax["E"].set_ylim((1e-5, 1))
 
-    ax["F"].plot(np.sort(W_reshaped[bool_test], axis=1).mean(axis=0)[::-1])
-    ax["F"].set_title("Fast sec. quench")
+    ax["F"].plot(np.sort(W_reshaped[bool_test & bool_2EE].max(axis=1), axis=0)[::-1])
+    ax["F"].set_title("2EE: Fast sec. quench")
     ax["F"].set_ylabel("Voltage / V")
-    ax["F"].set_xlabel("# Magnet")
+    ax["F"].set_xlabel("# Events")
     ax["F"].set_yscale("log")
-    ax["F"].set_ylim(ax["E"].get_ylim())
+    ax["F"].set_ylim(ax["B"].get_ylim())
 
-    ax["G"].plot(np.sort(W_reshaped[bool_snapshot], axis=1).mean(axis=0)[::-1])
-    ax["G"].set_title("Snapshots")
+    ax["G"].plot(np.sort(W_reshaped[bool_snapshot & bool_2EE].max(axis=1), axis=0)[::-1])
+    ax["G"].set_title("2EE: Snapshots")
     ax["G"].set_ylabel("Voltage / V")
-    ax["G"].set_xlabel("# Magnet")
+    ax["G"].set_xlabel("# Events")
     ax["G"].set_yscale("log")
-    ax["G"].set_ylim(ax["E"].get_ylim())
+    ax["G"].set_ylim(ax["B"].get_ylim())
 
     plt.tight_layout()
-    plt.savefig(experiment_path / "cweights_data_types.png")
+    plt.savefig(experiment_path / "cweights_data_types_event.png")
+
+    fig, ax = plt.subplot_mosaic('AAA;BCD;EFG', figsize=(20, 15))
+    ax["A"].plot(da_fft_amp.frequency, H_norm.T, label=[f"Component {i}" for i in range(len(H_norm))])
+    ax["A"].legend()
+    ax["A"].set_title("Components")
+    ax["A"].set_ylabel("Relative Value")
+    ax["A"].set_xlabel("Frequency / Hz")
+    ax["A"].set_xlim((0, 270))
+
+    ax["B"].plot(np.sort(W_reshaped[~(bool_snapshot | bool_test) & bool_1EE], axis=1).mean(axis=0)[::-1])
+    ax["B"].set_title("1EE: No fast sec. quench")
+    ax["B"].set_ylabel("Voltage / V")
+    ax["B"].set_xlabel("# Events")
+    ax["B"].set_yscale("log")
+    ax["B"].set_ylim((1e-5, 1))
+
+    ax["C"].plot(np.sort(W_reshaped[bool_test & bool_1EE], axis=1).mean(axis=0)[::-1])
+    ax["C"].set_title("1EE: Fast sec. quench")
+    ax["C"].set_ylabel("Voltage / V")
+    ax["C"].set_xlabel("# Events")
+    ax["C"].set_yscale("log")
+    ax["C"].set_ylim(ax["B"].get_ylim())
+
+    ax["D"].plot(np.sort(W_reshaped[bool_snapshot & bool_1EE], axis=1).mean(axis=0)[::-1])
+    ax["D"].set_title("1EE: Snapshots")
+    ax["D"].set_ylabel("Voltage / V")
+    ax["D"].set_xlabel("# Events")
+    ax["D"].set_yscale("log")
+    ax["D"].set_ylim(ax["B"].get_ylim())
+
+    ax["E"].plot(np.sort(W_reshaped[~(bool_snapshot | bool_test) & bool_2EE], axis=1).mean(axis=0)[::-1])
+    ax["E"].set_title("2EE: No fast sec. quench")
+    ax["E"].set_ylabel("Voltage / V")
+    ax["E"].set_xlabel("# Events")
+    ax["E"].set_yscale("log")
+    ax["E"].set_ylim((1e-5, 1))
+
+    ax["F"].plot(np.sort(W_reshaped[bool_test & bool_2EE], axis=1).mean(axis=0)[::-1])
+    ax["F"].set_title("2EE: Fast sec. quench")
+    ax["F"].set_ylabel("Voltage / V")
+    ax["F"].set_xlabel("# Events")
+    ax["F"].set_yscale("log")
+    ax["F"].set_ylim(ax["B"].get_ylim())
+
+    ax["G"].plot(np.sort(W_reshaped[bool_snapshot & bool_2EE], axis=1).mean(axis=0)[::-1])
+    ax["G"].set_title("2EE: Snapshots")
+    ax["G"].set_ylabel("Voltage / V")
+    ax["G"].set_xlabel("# Events")
+    ax["G"].set_yscale("log")
+    ax["G"].set_ylim(ax["B"].get_ylim())
+
+    plt.tight_layout()
+    plt.savefig(experiment_path / "cweights_data_types_magnet.png")
+
+
+def plot_dendrogram_from_linkage(linkage_matrix, experiment_path, method=None):
+    plt.figure(figsize=(10, 5))
+    dendrogram(linkage_matrix)
+    plt.title('Dendrogram')
+    plt.xlabel('Sample index')
+    plt.ylabel('Distance')
+    if method is not None:
+        plt.title(method)
+    plt.savefig(experiment_path / 'Dendrogram_Weights.png')
+
+def plot_dendrogram(W, experiment_path):
+    # Dendrogram compontent weights
+    pairwise_dist_w = pdist(W.T)
+    linkage_matrix = linkage(pairwise_dist_w, method='average')
+    plot_dendrogram_from_linkage(linkage_matrix, experiment_path)
