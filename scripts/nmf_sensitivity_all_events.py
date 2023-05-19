@@ -271,12 +271,11 @@ if __name__ == "__main__":
     mp3_fpa_df = mp3_fpa_df[~mp3_fpa_df.fpa_identifier.isin(drop_events)]
     mp3_fpa_df_unique = mp3_fpa_df.drop_duplicates(subset=['fpa_identifier'])
 
-    # add snapshot data
+    # load data 1EE
     dataset_creator = RBFPAPrimQuenchEEPlateau_V2()
     ds1 = dataset_creator.load_dataset(fpa_identifiers=mp3_fpa_df_unique.fpa_identifier.values,
                                       dataset_path=dataset_path)
-
-    # add snapshot data
+    # load data 1EE
     dataset_creator = RBFPAPrimQuenchEEPlateau2_V2()
     ds2 = dataset_creator.load_dataset(fpa_identifiers=mp3_fpa_df_unique.fpa_identifier.values,
                                       dataset_path=dataset_path2)
