@@ -302,8 +302,6 @@ if __name__ == "__main__":
     bool_1EE = (ds.t0.values < 0.5)
     bool_2EE = (ds.t0.values > 0.5)
 
-
-
     window_functions = {"ones": np.ones,
                         "hanning": np.hanning,
                         "bartlett": signal.windows.bartlett,
