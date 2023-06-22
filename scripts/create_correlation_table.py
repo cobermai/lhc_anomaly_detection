@@ -59,6 +59,8 @@ if __name__ == "__main__":
 
     # Load frequency data
     df_comp = pd.read_csv("../data/final_components/cweights_trend.csv")
+    # python index starts at 0:
+    df_comp['El. Position'] = df_comp['El. Position'] - 1
     fpa_identifiers_fitted = df_comp.fpa_identifier
     fpa_identifiers = mp3_fpa_df_unique.loc[mp3_fpa_df_unique.fpa_identifier.isin(fpa_identifiers_fitted),
                                             "fpa_identifier"].values
