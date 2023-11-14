@@ -1679,6 +1679,6 @@ class NMF(BaseEstimator, TransformerMixin):
         Z = linkage(Y, method='average')
         # cophenetic correlation coefficient of a hierarchical clustering
         # defined by the linkage matrix Z and matrix Y from which Z was
-        # generated
+        # processed
         return cophenet(Z, Y)[0]
 

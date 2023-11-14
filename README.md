@@ -6,7 +6,7 @@ Repository for analysis of fast power aborts in the LHC main dipole circuit with
 ## Repository structure
 ```
 ├── data                                           > Context data used for analysis, big files are not stored on git
-│ ├── RB_TC_extract_2021_11_22.xlsx                     > Unprocessed mp3 excel file with all FPA < 2021.11.22  
+│ ├── RB_TC_extract_2021_11_22.xlsx                     > Unprocessed mp3 excel file with all FPA  
 │ ├── RB_TC_extract_2021_11_22_processed.csv            > Cleaned mp3 file with fgc timestamps 
 │ ├── RB_TC_extract_2021_11_22_processed_filled.csv     > Cleaned mp3 file with fgc timestamps & added features for simulation
 │ ├── STEAM_context_data                                > Folder with data necessary for simulation with STEAM
@@ -34,6 +34,19 @@ Repository for analysis of fast power aborts in the LHC main dipole circuit with
 ├── requirements.txt                               > Package requirements
 └── README.md                                      > Git readme
 ```
+
+## Data Sources
+
+| File                                                                                             | Description                           | Author             | Last Update | Source                                                                                                                                                        |
+|--------------------------------------------------------------------------------------------------|---------------------------------------|--------------------|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| MB_feature_analysis/analysis_conductor_fieldQuality_FPA2021_FTM2023_year2021_FPA2021_TFM2023.csv | Context data of RB magnets            | Emmanuele Ravaioli | 19.05.2023  | [MB feature analysis data](https://gitlab.cern.ch/machine-protection/mb-feature-classification/-/tree/main?ref_type=heads)                                    |
+| MB_feature_analysis/RB_Beamscreen_Resistances.csv                                                | Beamscreen resistance of RB magnets   | Marvin Janitschke  | 29.08.2022  | [MB feature analysis data](https://gitlab.cern.ch/machine-protection/mb-feature-classification/-/tree/main?ref_type=heads)                                    |
+| MP3_context_data/RB_TC_extract_2023_03_13.xlsx                                                   | Context data of RB quenches           | MP3                | 03.13.2023  | [MP3 database](https://social.cern.ch/community/MP3-onedrive/_layouts/15/WopiFrame.aspx?sourcedoc=/community/MP3-onedrive/QuenchData/RB.xlsx&action=default)  |
+| MP3_context_data/snapshot_timestamps.json                                                        | Timestamps of snapshot tests          | MP3                | 03.13.2023  | [MP3 twiki](https://twiki.cern.ch/twiki/bin/viewauth/MP3/FPAinRB)                                                                                             |
+| SIGMON_context_data/nQPS_RB_busBarProtectionDetails.csv                                          | Context data of nQPS Busbars          | SIGMON             | 08.09.2022  | [SIGMON busbar metadata](https://gitlab.cern.ch/LHCData/lhc-sm-api/-/blob/dev/lhcsmapi/metadata/busbar/nQPS_RB_busBarProtectionDetails.csv)                   |
+| SIGMON_context_data/RB_CrateToDiodeMap.csv                                                       | Map of QPS crates to diode position   | SIGMON             | 08.05.2023  | [SIGMON QPS crate metadata](https://gitlab.cern.ch/LHCData/lhc-sm-api/-/blob/dev/lhcsmapi/metadata/qps_crate/RB_CrateToDiodeMap.csv)                          |
+| SIGMON_context_data/RB_LayoutDetails.csv                                                         | Context data of RB circuit            | SIGMON             | 08.09.2022  | [SIGMON magnet_metadata](https://gitlab.cern.ch/LHCData/lhc-sm-api/-/blob/dev/lhcsmapi/metadata/magnet/RB_LayoutDetails.csv)                                  |
+
 
 ### Generate venv requirements
 ```

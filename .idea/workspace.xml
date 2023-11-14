@@ -1,0 +1,1216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="4367090a-8af0-48a2-baf3-1a56ee6aca1c" name="Changes" comment="Cleaned folder &quot;documentation&quot;">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/lhc-anomaly-detection.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/processed/MP3_context/RB_TC_extract_2023_03_13_processed.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/processed/MP3_context/process_MP3_excel.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/processed/RB_snapshot_context/RB_snapshot_context.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/processed/RB_snapshot_context/generate_RB_snapshot_context.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/raw/MP3_context/RB_snapshot_context.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/documentation/latex/main.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/1_process_context_data.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20220707_acquisition_summary.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/20230313_acquisition_summary.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/AFT_faults.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/MP3_context_data/20230313_RB.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/MP3_context/RB_TC_extract_2023_03_13.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/MP3_context_data/20230313_RB_processed.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/MP3_context_data/RB_TC_extract_2022_07_07.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/MP3_context_data/RB_TC_extract_2022_07_07_processed.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/RB_TC_extract_2022_07_07_processed_filled.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/RB_metadata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/processed/RB_position_context/RB_position_context.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/RB_snapshot_context.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/SIGMON_context_data/RB_CrateToDiodeMap.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/SIGMON_context/RB_CrateToDiodeMap.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/SIGMON_context_data/RB_LayoutDetails.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/SIGMON_context/RB_LayoutDetails.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/SIGMON_context_data/nQPS_RB_busBarProtectionDetails.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/SIGMON_context/nQPS_RB_busBarProtectionDetails.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/STEAM_context_data/BeamScreen_EAMdata.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/STEAM_context_data/BeamScreen_EAMdata_Magnets.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/STEAM_context_data/RB_Beamscreen_Resistances.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/MB_feature_analysis/RB_Beamscreen_Resistances.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/STEAM_context_data/analysisSTEAM_example_RB.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/UQS0_labels/Outliers_summary_Meas_2015_2016_2018_backup.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/UQS0_labels/Outliers_summary_Meas_2021_2022_NoZero.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/UQS0_labels/Outliers_summary_Meas_2021_2022_NoZero_backup.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/UQS0_labels/dest_file_v02.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/analysis_conductor_fieldQuality_FPA2021_FTM2023_year2021_FPA2021_TFM2023.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/MB_feature_analysis/analysis_conductor_fieldQuality_FPA2021_FTM2023_year2021_FPA2021_TFM2023.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/circuit_sort.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/processed/position_mapping/position_mapping.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_components/components_merged.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_components/components_merged_V2.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_components/cweights_fitted.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/final_components/weights_fitted.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/master_file_TEST.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/metadata_context_variables.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/sec_quench_feature.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/circuit_diagram.drawio.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/circuit_diagram.drawio.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/consistency_terms.tex" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/consistency_terms.tex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/H_toy.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/H_toy.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/H_toy.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/H_toy.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/V_toy.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/V_toy.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/W_toy.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/W_toy.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/circuit_diagram.drawio.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/circuit_diagram.drawio.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/circuit_diagram.drawio.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/circuit_diagram.drawio.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/circuit_diagram.png" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/circuit_diagram.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/comp_chebyshev.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/comp_chebyshev.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_1_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_1_example.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_2_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_2_example.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_3_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_3_example.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_4_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_4_example.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_5_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_5_example.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_6_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_6_example.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_7_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_7_example.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/diff_eu.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/diff_eu.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/diff_is.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/diff_is.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/diff_kl.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/diff_kl.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/dist_measures.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/dist_measures.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/outliers.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/outliers.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/outliers_position.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/outliers_position.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/u_mag.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/u_mag.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/u_mag_freq.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/u_mag_freq.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/u_mag_rec.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/u_mag_rec.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/u_mag_zoom.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/u_mag_zoom.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/weights_norm_chebyshev.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/weights_norm_chebyshev.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/main.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/final/main.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/main.tex" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/main.tex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/Decomposition_methods.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/NMF_n_components.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_FPM.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/3_process_data.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/4_detect_component_with_NMF.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_all_events.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_analysis.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_analysis_lowfreq.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_anomalies.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_correlation.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_correlation_V2.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/5_interpret_components.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_weight_prediction.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_sensitivity.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_snapshots.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_quenched_magnet.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_statistics.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_Kirchhoff.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_acquisition_simulation_comparison.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_analysis_full_quench.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_analysis_prim_quench.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_analysis_prim_quench_em_disturbance.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_analysis_sec_quench.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_data_aquisition.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/2_download_rb_data.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_data_loading.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/RB_FPA_data_loading.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_mp3_excel_analysis.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_mp3_excel_processing.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/UQS0.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/UQS0_classification.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/Untitled.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/comp_weight_anlysis.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/comp_weight_anlysis2.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/comp_weight_anlysis3.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/comp_weight_anlysis3_max.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/comp_weight_anlysis4.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/corr.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/correlation.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/correlation_pearson.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/correlation_spearman.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/cweight_anlysis.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/ieee_plot.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/kullback-leibler_cweight_anlysis" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/manual_components.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/max_em_disturbance.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/1EE_event_fast_sec.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/1EE_event_normal.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/1EE_event_snap.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/1EE_mag_fast_sec.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/1EE_mag_normal.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/1EE_mag_snap.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/2EE_event_fast_sec.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/2EE_event_normal.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/2EE_event_snap.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/2EE_mag_fast_sec.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/2EE_mag_normal.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/2EE_mag_snapsvg.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/comp_chebyshev.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/comp_norm_chebyshev.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_0.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_1.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_1_example.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_2.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_2_example.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_3.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_3_example.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_4.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_4_example.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_5_example.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_6_example.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_7_example.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/coph_corr.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/coph_corr_frob.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/coph_corr_kl.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/cophcorr_esim.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/corrcoef.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/cosine_dist.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/diff_eu.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/diff_is.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/diff_kl.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/dist_measures.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_0.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_0_kmeans.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_1.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_10.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_11.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_12.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_13.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_14.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_1_kmeans.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_2.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_2_kmeans.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_3.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_3_kmeans.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_4.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_4_kmeans.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_5.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_6.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_7.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_8.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_9.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/loss.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/outliers.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/u_mag.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/u_mag_freq.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/u_mag_rec.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/u_mag_rec_kmeans.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/u_mag_zoom.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/weights_norm_chebyshev.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/saved_model.pb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/scientific_plots_IEEE.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/scientific_plots_IEEE2.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/t.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/t.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/temp.xls" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/temp.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/udiode.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/udiode_sim.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/variables/variables.data-00000-of-00001" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/1_process_context_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/variables/variables.index" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/fgc_timestamp_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/references/20210609_LMC_diode_short.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/references/20211201_Marvin_Thesis.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/references/20211203_Local_TFM_analysis_report.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/references/20221201_MP3_Day_Ravaioli_Janitschke.pptx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/references/2023-04-03 HWC results.pptx" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/presentations/20220705_slow_secondary_quench_analysis.pptx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/references/DFT_script.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/references/MPE QPS documentation/MPE_QPS_Sunglasses.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/references/RB_QPS_Signals.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/references/RB_circuit.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/analyze_sec_quench.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/autoencoder.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/create_correlation_table.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/download_rb_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/2_download_rb_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/generate_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/3_process_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/generate_dataset_snapshots.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/generate_dataset_snapshots.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/generate_position_mapping.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/processed/position_mapping/generate_position_mapping.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/nmf_sensitivity.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/nmf_sensitivity_all_events.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/plot_fp_maps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/simulate_rb_data.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/uqs0_classification.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modeling/sec_quench.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/modeling/sec_quench.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/models/nmf.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/nmf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/dataset_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/dataset_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/mp3_excel_processing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/rb_magnet_metadata.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/processed/RB_position_context/generate_RB_position_context.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/uqs0_classification_utils.py" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="dev" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/scripts/2_download_rb_data.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/modeling/sec_quench.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/visualisation/visualisation.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectId" id="24uRjLg3MAOiUifIjidgpRXvLln" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Dokumente/SWAN_projects/lhc-anomaly-detection/documentation/final&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\documentation\final" />
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\documentation" />
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\notebooks" />
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data" />
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\output\nmf_sensitivity_k20\1EE_2EE" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\processed\MP3_context" />
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\raw\MB_feature_analysis" />
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\raw\MP3_context_data" />
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\processed\RB_snapshot_context" />
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\processed\MP3_context_data" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.1_process_context_data">
+    <configuration name="1_process_context_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="lhc-anomaly-detection" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/scripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/1_process_context_data.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="RB_position_context" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="lhc-anomaly-detection" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data/processed/RB_metadata" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\processed\RB_metadata\RB_position_context.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="generate_RB_position_context" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="lhc-anomaly-detection" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data/processed/RB_position_context" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data/processed/RB_position_context/generate_RB_position_context.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="generate_RB_snapshot_context" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="lhc-anomaly-detection" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data/processed/RB_snapshot_context" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\processed\RB_snapshot_context\generate_RB_snapshot_context.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="generate_position_mapping (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="lhc-anomaly-detection" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data/processed/position_mapping" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data/processed/position_mapping/generate_position_mapping.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.1_process_context_data" />
+      <item itemvalue="Python.generate_RB_snapshot_context" />
+      <item itemvalue="Python.RB_position_context" />
+      <item itemvalue="Python.generate_RB_position_context" />
+      <item itemvalue="Python.generate_position_mapping (1)" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.1_process_context_data" />
+        <item itemvalue="Python.generate_position_mapping (1)" />
+        <item itemvalue="Python.generate_RB_snapshot_context" />
+        <item itemvalue="Python.generate_RB_position_context" />
+        <item itemvalue="Python.RB_position_context" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration>C:\Users\oberm\AppData\Roaming\Subversion</configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4367090a-8af0-48a2-baf3-1a56ee6aca1c" name="Changes" comment="improved logging to eos" />
+      <created>1647421842853</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1647421842853</updated>
+      <workItem from="1647421844349" duration="8040000" />
+      <workItem from="1647502590814" duration="6078000" />
+      <workItem from="1647510289117" duration="12511000" />
+      <workItem from="1647867971697" duration="682000" />
+      <workItem from="1648022850716" duration="639000" />
+      <workItem from="1648045908577" duration="595000" />
+      <workItem from="1648650912718" duration="19000" />
+      <workItem from="1648652343045" duration="597000" />
+      <workItem from="1648817302043" duration="2187000" />
+      <workItem from="1648822587458" duration="3790000" />
+      <workItem from="1648880402680" duration="47000" />
+      <workItem from="1648900527776" duration="238000" />
+      <workItem from="1649056715735" duration="8313000" />
+      <workItem from="1649316570767" duration="15725000" />
+      <workItem from="1649347244370" duration="1027000" />
+      <workItem from="1649408392576" duration="400000" />
+      <workItem from="1650024941680" duration="27000" />
+      <workItem from="1650881509038" duration="4484000" />
+      <workItem from="1650908736611" duration="260000" />
+      <workItem from="1651040581295" duration="8886000" />
+      <workItem from="1651135624171" duration="1890000" />
+      <workItem from="1651490907353" duration="5000" />
+      <workItem from="1651491971483" duration="1083000" />
+      <workItem from="1651764453314" duration="736000" />
+      <workItem from="1651837541305" duration="48000" />
+      <workItem from="1652167157845" duration="1395000" />
+      <workItem from="1652367262459" duration="600000" />
+      <workItem from="1652445669236" duration="588000" />
+      <workItem from="1652447438992" duration="5000" />
+      <workItem from="1652708174227" duration="730000" />
+      <workItem from="1652709966744" duration="604000" />
+      <workItem from="1652723787436" duration="12000" />
+      <workItem from="1652725073878" duration="275000" />
+      <workItem from="1652770276775" duration="2004000" />
+      <workItem from="1653026983200" duration="600000" />
+      <workItem from="1653290068584" duration="9647000" />
+      <workItem from="1654095901316" duration="127000" />
+      <workItem from="1654592429280" duration="2707000" />
+      <workItem from="1654674647209" duration="11941000" />
+      <workItem from="1654757030378" duration="2724000" />
+      <workItem from="1654837244158" duration="665000" />
+      <workItem from="1654847345546" duration="620000" />
+      <workItem from="1654859349714" duration="6000" />
+      <workItem from="1655101439874" duration="16344000" />
+      <workItem from="1655188167317" duration="9183000" />
+      <workItem from="1655212092679" duration="2291000" />
+      <workItem from="1655272529212" duration="8496000" />
+      <workItem from="1655494705905" duration="613000" />
+      <workItem from="1655630708138" duration="57000" />
+      <workItem from="1655799309281" duration="665000" />
+      <workItem from="1656400018671" duration="1999000" />
+      <workItem from="1656483858353" duration="4352000" />
+      <workItem from="1656572046451" duration="1371000" />
+      <workItem from="1656674595663" duration="6984000" />
+      <workItem from="1656745357623" duration="48000" />
+      <workItem from="1656916328528" duration="5393000" />
+      <workItem from="1657002714303" duration="1736000" />
+      <workItem from="1657089913095" duration="6537000" />
+      <workItem from="1657177348520" duration="8427000" />
+      <workItem from="1657259809263" duration="833000" />
+      <workItem from="1658748321672" duration="1852000" />
+      <workItem from="1658816613301" duration="2380000" />
+      <workItem from="1658836558358" duration="1721000" />
+      <workItem from="1658839322375" duration="2828000" />
+      <workItem from="1658904112582" duration="546000" />
+      <workItem from="1658914829630" duration="301000" />
+      <workItem from="1658915569016" duration="1115000" />
+      <workItem from="1658923723701" duration="222000" />
+      <workItem from="1658924704166" duration="6941000" />
+      <workItem from="1658996565686" duration="2847000" />
+      <workItem from="1659084304693" duration="12000" />
+      <workItem from="1659338861093" duration="18972000" />
+      <workItem from="1659423732131" duration="596000" />
+      <workItem from="1659511356467" duration="3757000" />
+      <workItem from="1659595679154" duration="5458000" />
+      <workItem from="1659684964149" duration="1381000" />
+      <workItem from="1659945349613" duration="7886000" />
+      <workItem from="1660026542096" duration="5196000" />
+      <workItem from="1660112681855" duration="18254000" />
+      <workItem from="1660199511072" duration="13838000" />
+      <workItem from="1660231031465" duration="2235000" />
+      <workItem from="1660286510413" duration="2762000" />
+      <workItem from="1660717779781" duration="14623000" />
+      <workItem from="1660806329279" duration="21911000" />
+      <workItem from="1660896682250" duration="6013000" />
+      <workItem from="1661154589173" duration="29545000" />
+      <workItem from="1661323278784" duration="18838000" />
+      <workItem from="1661358194208" duration="449000" />
+      <workItem from="1661411285232" duration="17174000" />
+      <workItem from="1661499563863" duration="509000" />
+      <workItem from="1661756796565" duration="19862000" />
+      <workItem from="1661838763458" duration="12323000" />
+      <workItem from="1661935256218" duration="28806000" />
+      <workItem from="1662360211030" duration="9119000" />
+      <workItem from="1662537821994" duration="11219000" />
+      <workItem from="1662646480275" duration="28000" />
+      <workItem from="1662704443375" duration="3497000" />
+      <workItem from="1663082635007" duration="196000" />
+      <workItem from="1663161797146" duration="1950000" />
+      <workItem from="1663318176193" duration="1831000" />
+      <workItem from="1663576768341" duration="762000" />
+      <workItem from="1663917971260" duration="670000" />
+      <workItem from="1664178417527" duration="3197000" />
+      <workItem from="1664186497467" duration="3788000" />
+      <workItem from="1664261959499" duration="4022000" />
+      <workItem from="1664784314761" duration="599000" />
+      <workItem from="1664887610709" duration="772000" />
+      <workItem from="1665042921928" duration="1241000" />
+      <workItem from="1665387457545" duration="4463000" />
+      <workItem from="1665472052407" duration="788000" />
+      <workItem from="1665585096253" duration="643000" />
+      <workItem from="1665651024661" duration="5936000" />
+      <workItem from="1665727952193" duration="24000" />
+      <workItem from="1666082325426" duration="1424000" />
+      <workItem from="1666178747328" duration="33000" />
+      <workItem from="1666254860526" duration="1409000" />
+      <workItem from="1666286564513" duration="791000" />
+      <workItem from="1666605149795" duration="8473000" />
+      <workItem from="1666617293304" duration="308000" />
+      <workItem from="1666617677958" duration="2166000" />
+      <workItem from="1666679447960" duration="806000" />
+      <workItem from="1666861553747" duration="12373000" />
+      <workItem from="1666936740506" duration="9397000" />
+      <workItem from="1667293563375" duration="8348000" />
+      <workItem from="1667374491810" duration="23692000" />
+      <workItem from="1667575282746" duration="3209000" />
+      <workItem from="1667584085837" duration="1228000" />
+      <workItem from="1667677302955" duration="654000" />
+      <workItem from="1667749952994" duration="5000" />
+      <workItem from="1667807230980" duration="10676000" />
+      <workItem from="1667837430161" duration="11836000" />
+      <workItem from="1667980178601" duration="418000" />
+      <workItem from="1668001862581" duration="2087000" />
+      <workItem from="1668013912467" duration="604000" />
+      <workItem from="1668072490300" duration="1295000" />
+      <workItem from="1668083859200" duration="4081000" />
+      <workItem from="1668158314278" duration="1044000" />
+      <workItem from="1668337506439" duration="149000" />
+      <workItem from="1668419977632" duration="6432000" />
+      <workItem from="1668588407276" duration="1143000" />
+      <workItem from="1668622087391" duration="1149000" />
+      <workItem from="1669025271069" duration="5370000" />
+      <workItem from="1669122064711" duration="2708000" />
+      <workItem from="1669189213513" duration="10280000" />
+      <workItem from="1669224732287" duration="610000" />
+      <workItem from="1669228814165" duration="44000" />
+      <workItem from="1669277621096" duration="9748000" />
+      <workItem from="1669360662040" duration="10223000" />
+      <workItem from="1669449648154" duration="308000" />
+      <workItem from="1669449968649" duration="10000" />
+      <workItem from="1669622205718" duration="9715000" />
+      <workItem from="1669672016560" duration="679000" />
+      <workItem from="1669707982601" duration="16065000" />
+      <workItem from="1669795140538" duration="19343000" />
+      <workItem from="1669830063524" duration="1228000" />
+      <workItem from="1669899353940" duration="473000" />
+      <workItem from="1669899870860" duration="687000" />
+      <workItem from="1669986051897" duration="5392000" />
+      <workItem from="1669995788170" duration="1261000" />
+      <workItem from="1670233750977" duration="10186000" />
+      <workItem from="1670492356758" duration="6052000" />
+      <workItem from="1670835701474" duration="2784000" />
+      <workItem from="1670923676272" duration="775000" />
+      <workItem from="1671000472634" duration="6091000" />
+      <workItem from="1671094465558" duration="7764000" />
+      <workItem from="1671174088524" duration="1374000" />
+      <workItem from="1673344886907" duration="2277000" />
+      <workItem from="1673444736422" duration="595000" />
+      <workItem from="1673460007898" duration="615000" />
+      <workItem from="1673510567217" duration="6368000" />
+      <workItem from="1673552649121" duration="617000" />
+      <workItem from="1673596422058" duration="2829000" />
+      <workItem from="1673785187937" duration="614000" />
+      <workItem from="1673876600369" duration="1741000" />
+      <workItem from="1673941254272" duration="6227000" />
+      <workItem from="1674049703315" duration="7487000" />
+      <workItem from="1674061727110" duration="1268000" />
+      <workItem from="1674114711945" duration="16655000" />
+      <workItem from="1674199848273" duration="14365000" />
+      <workItem from="1674395225565" duration="8000" />
+      <workItem from="1674459418016" duration="27184000" />
+      <workItem from="1674633590723" duration="595000" />
+      <workItem from="1674659472687" duration="21000" />
+      <workItem from="1674659545243" duration="705000" />
+      <workItem from="1674720026712" duration="5515000" />
+      <workItem from="1674808078309" duration="6942000" />
+      <workItem from="1674915553099" duration="598000" />
+      <workItem from="1674986816625" duration="249000" />
+      <workItem from="1675065088887" duration="18391000" />
+      <workItem from="1675239341954" duration="9084000" />
+      <workItem from="1675274362153" duration="10000" />
+      <workItem from="1675326181854" duration="17442000" />
+      <workItem from="1675352845727" duration="266000" />
+      <workItem from="1675412074570" duration="2584000" />
+      <workItem from="1675671454516" duration="28000" />
+      <workItem from="1675687778284" duration="28939000" />
+      <workItem from="1675930480114" duration="8924000" />
+      <workItem from="1676018673251" duration="2886000" />
+      <workItem from="1676279676788" duration="21652000" />
+      <workItem from="1676361776710" duration="16254000" />
+      <workItem from="1676446252483" duration="9553000" />
+      <workItem from="1676466462302" duration="10322000" />
+      <workItem from="1676532544048" duration="21090000" />
+      <workItem from="1676617933295" duration="10828000" />
+      <workItem from="1676702688976" duration="12000" />
+      <workItem from="1676878958585" duration="3802000" />
+      <workItem from="1676882873774" duration="77825000" />
+      <workItem from="1677084214078" duration="3156000" />
+      <workItem from="1677101702519" duration="945000" />
+      <workItem from="1677137294557" duration="14823000" />
+      <workItem from="1677221661402" duration="6831000" />
+      <workItem from="1677480280103" duration="43308000" />
+      <workItem from="1677652506634" duration="4404000" />
+      <workItem from="1677666677294" duration="1839000" />
+      <workItem from="1677745917279" duration="8666000" />
+      <workItem from="1677774901685" duration="38000" />
+      <workItem from="1678262695372" duration="114000" />
+      <workItem from="1678272935747" duration="1210000" />
+      <workItem from="1678288457371" duration="1531000" />
+      <workItem from="1678444554060" duration="9644000" />
+      <workItem from="1678692033100" duration="120000" />
+      <workItem from="1678692284507" duration="29528000" />
+      <workItem from="1678864477942" duration="14663000" />
+      <workItem from="1678951839057" duration="88081000" />
+      <workItem from="1679417237454" duration="3651000" />
+      <workItem from="1679436125999" duration="683000" />
+      <workItem from="1679471009045" duration="47104000" />
+      <workItem from="1679601994780" duration="6559000" />
+      <workItem from="1679898394228" duration="33759000" />
+      <workItem from="1680509849435" duration="14000" />
+      <workItem from="1681709704040" duration="11235000" />
+      <workItem from="1681797304664" duration="5730000" />
+      <workItem from="1681972592575" duration="16053000" />
+      <workItem from="1682248073881" duration="651000" />
+      <workItem from="1682324144913" duration="4974000" />
+      <workItem from="1682360425899" duration="633000" />
+      <workItem from="1682403521955" duration="8769000" />
+      <workItem from="1682492208878" duration="34002000" />
+      <workItem from="1682957709767" duration="636000" />
+      <workItem from="1683007838693" duration="4387000" />
+      <workItem from="1683210537775" duration="1304000" />
+      <workItem from="1683294875614" duration="2057000" />
+      <workItem from="1683531565518" duration="3261000" />
+      <workItem from="1683614772325" duration="6371000" />
+      <workItem from="1683873671796" duration="1362000" />
+      <workItem from="1683960961444" duration="16000" />
+      <workItem from="1684131681300" duration="4705000" />
+      <workItem from="1684167594955" duration="12000" />
+      <workItem from="1684224454225" duration="12094000" />
+      <workItem from="1684332119318" duration="3147000" />
+      <workItem from="1684395020230" duration="18000" />
+      <workItem from="1684478424732" duration="18846000" />
+      <workItem from="1684566714368" duration="1067000" />
+      <workItem from="1684736494290" duration="7306000" />
+      <workItem from="1684823991815" duration="2222000" />
+      <workItem from="1685004107137" duration="3930000" />
+      <workItem from="1685102739667" duration="5639000" />
+      <workItem from="1685433033913" duration="877000" />
+      <workItem from="1685516961912" duration="5461000" />
+      <workItem from="1685956991081" duration="194000" />
+      <workItem from="1686558474908" duration="5705000" />
+      <workItem from="1686657364226" duration="4000" />
+      <workItem from="1686725862512" duration="998000" />
+      <workItem from="1686918421678" duration="2688000" />
+      <workItem from="1687082762000" duration="11000" />
+      <workItem from="1687157297175" duration="2770000" />
+      <workItem from="1687181678910" duration="593000" />
+      <workItem from="1687244232472" duration="2031000" />
+      <workItem from="1687348937111" duration="5121000" />
+      <workItem from="1687443315389" duration="2511000" />
+      <workItem from="1689146131906" duration="648000" />
+      <workItem from="1689774166550" duration="782000" />
+      <workItem from="1690010810142" duration="2795000" />
+      <workItem from="1690112743110" duration="1964000" />
+      <workItem from="1690219766189" duration="1061000" />
+      <workItem from="1690266228180" duration="1399000" />
+      <workItem from="1690377818090" duration="6287000" />
+      <workItem from="1690809566676" duration="605000" />
+      <workItem from="1690826278646" duration="675000" />
+      <workItem from="1690871445449" duration="2225000" />
+      <workItem from="1692097913575" duration="1236000" />
+      <workItem from="1692279029545" duration="949000" />
+      <workItem from="1692301583629" duration="612000" />
+      <workItem from="1692796311749" duration="634000" />
+      <workItem from="1692880317567" duration="18000" />
+      <workItem from="1693243540244" duration="561000" />
+      <workItem from="1693557148760" duration="770000" />
+      <workItem from="1693895701422" duration="65000" />
+      <workItem from="1695624969500" duration="2142000" />
+      <workItem from="1695649414688" duration="2524000" />
+      <workItem from="1697286486780" duration="598000" />
+      <workItem from="1697614763390" duration="5606000" />
+      <workItem from="1697656080181" duration="5000" />
+      <workItem from="1697986080658" duration="136000" />
+      <workItem from="1699621387310" duration="6616000" />
+      <workItem from="1699689045601" duration="12000" />
+      <workItem from="1699878712921" duration="11302000" />
+      <workItem from="1699903272296" duration="385000" />
+      <workItem from="1699947809124" duration="22036000" />
+    </task>
+    <task id="LOCAL-00038" summary="Updated RB_TC_extract_2022_07_07_processed_filled.csv with di/dt">
+      <created>1661267227194</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1661267227194</updated>
+    </task>
+    <task id="LOCAL-00039" summary="Updated structure of dataset to include metadata">
+      <created>1661781130229</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1661781130229</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Updated RB_TC_extract_2022_07_07_processed_filled.csv (delete timestamps with string)">
+      <created>1661781290777</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1661781290777</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Added documentation powerpoint">
+      <created>1661856227909</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1661856227909</updated>
+    </task>
+    <task id="LOCAL-00042" summary="Improved prim quench analysis">
+      <created>1662450154083</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1662450154083</updated>
+    </task>
+    <task id="LOCAL-00043" summary="Improved prim quench analysis">
+      <created>1662451138510</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1662451138510</updated>
+    </task>
+    <task id="LOCAL-00044" summary="Frequency analysis">
+      <created>1662646496282</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1662646496282</updated>
+    </task>
+    <task id="LOCAL-00045" summary="new dataset ee plateau 2">
+      <created>1664261987125</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1664261987125</updated>
+    </task>
+    <task id="LOCAL-00046" summary="Frequency Position Plot analysis">
+      <created>1666082562458</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1666082562458</updated>
+    </task>
+    <task id="LOCAL-00047" summary="nmf_decomposition.py from scikit learn">
+      <created>1666612761105</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1666612761105</updated>
+    </task>
+    <task id="LOCAL-00048" summary="nmf implementation">
+      <created>1666877164511</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1666877164511</updated>
+    </task>
+    <task id="LOCAL-00049" summary="othogonal nmf implementation">
+      <created>1667578215495</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1667578215495</updated>
+    </task>
+    <task id="LOCAL-00050" summary="othogonal nmf implementation">
+      <created>1667891307449</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1667891307449</updated>
+    </task>
+    <task id="LOCAL-00051" summary="new plot_fp_maps.py">
+      <created>1667917269391</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1667917269391</updated>
+    </task>
+    <task id="LOCAL-00052" summary="imporved positon indexing">
+      <created>1669059260298</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1669059260298</updated>
+    </task>
+    <task id="LOCAL-00053" summary="outsourced functions of sort notebooks, improved nmf sort">
+      <created>1669200475509</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1669200475509</updated>
+    </task>
+    <task id="LOCAL-00054" summary="new datasets for snapshots">
+      <created>1669365640903</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1669365640903</updated>
+    </task>
+    <task id="LOCAL-00055" summary="new datasets for snapshots, updated notebooks">
+      <created>1669381614047</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1669381614047</updated>
+    </task>
+    <task id="LOCAL-00056" summary="new datasets for snapshots, updated notebooks">
+      <created>1669715972853</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1669715972853</updated>
+    </task>
+    <task id="LOCAL-00057" summary="optimized notebook imports">
+      <created>1669729724250</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1669729724250</updated>
+    </task>
+    <task id="LOCAL-00058" summary="retrain unmerged components">
+      <created>1669816529346</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1669816529346</updated>
+    </task>
+    <task id="LOCAL-00059" summary="Added documentation">
+      <created>1670252323334</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1670252323334</updated>
+    </task>
+    <task id="LOCAL-00060" summary="Improved metadata: age must still be checked if magnet changed twice">
+      <created>1670516394850</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1670516394850</updated>
+    </task>
+    <task id="LOCAL-00061" summary="added documentation">
+      <created>1671021903930</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1671021903930</updated>
+    </task>
+    <task id="LOCAL-00062" summary="added AFT fault table">
+      <created>1673357051805</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1673357051805</updated>
+    </task>
+    <task id="LOCAL-00063" summary="new notebooks, updated presentation">
+      <created>1673510653135</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1673510653136</updated>
+    </task>
+    <task id="LOCAL-00064" summary="deleted redundant notebooks">
+      <created>1673512216646</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1673512216646</updated>
+    </task>
+    <task id="LOCAL-00065" summary="additional notebooks &amp; presentations">
+      <created>1674059278552</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1674059278553</updated>
+    </task>
+    <task id="LOCAL-00066" summary="Improved FFT part 1">
+      <created>1675092283029</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1675092283029</updated>
+    </task>
+    <task id="LOCAL-00067" summary="Improved FFT part 2">
+      <created>1675262245648</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1675262245648</updated>
+    </task>
+    <task id="LOCAL-00068" summary="Improved FFT NMF">
+      <created>1675352869651</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1675352869651</updated>
+    </task>
+    <task id="LOCAL-00069" summary="Trend adding with offset">
+      <created>1675694421341</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1675694421341</updated>
+    </task>
+    <task id="LOCAL-00070" summary="Complex NMF">
+      <created>1675943160378</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1675943160378</updated>
+    </task>
+    <task id="LOCAL-00071" summary="Outliers with confidence intervals">
+      <created>1676303588269</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1676303588270</updated>
+    </task>
+    <task id="LOCAL-00072" summary="UQS0 classification">
+      <created>1676990163638</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1676990163638</updated>
+    </task>
+    <task id="LOCAL-00073" summary="UQS0 classification">
+      <created>1677078342582</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1677078342583</updated>
+    </task>
+    <task id="LOCAL-00074" summary="UQS0 classification V2">
+      <created>1678464479888</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1678464479889</updated>
+    </task>
+    <task id="LOCAL-00075" summary="New UQS0 classification">
+      <created>1678871370921</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1678871370921</updated>
+    </task>
+    <task id="LOCAL-00076" summary="data acquisition 20230313">
+      <created>1678897494499</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1678897494499</updated>
+    </task>
+    <task id="LOCAL-00077" summary="new datasets for acquisition 20230313">
+      <created>1678980672733</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1678980672733</updated>
+    </task>
+    <task id="LOCAL-00078" summary="new snapshot datasets for acquisition 20230313">
+      <created>1679305134920</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1679305134920</updated>
+    </task>
+    <task id="LOCAL-00079" summary="Exponential detrend">
+      <created>1679415821182</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1679415821182</updated>
+    </task>
+    <task id="LOCAL-00080" summary="Final uncleaned version">
+      <created>1683552668176</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1683552668176</updated>
+    </task>
+    <task id="LOCAL-00081" summary="Script create_correlation_table.py">
+      <created>1684484000443</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1684484000444</updated>
+    </task>
+    <task id="LOCAL-00082" summary="Script generate_position_mapping.py.py">
+      <created>1685538686125</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1685538686125</updated>
+    </task>
+    <task id="LOCAL-00083" summary="Improved plots">
+      <created>1687439681109</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1687439681109</updated>
+    </task>
+    <task id="LOCAL-00084" summary="Uncleaned code with plots for IEEE paper.">
+      <created>1699621496726</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1699621496726</updated>
+    </task>
+    <task id="LOCAL-00085" summary="Uncleaned code with plots for IEEE paper.">
+      <created>1699631361279</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1699631361279</updated>
+    </task>
+    <task id="LOCAL-00086" summary="Cleaned folder &quot;documentation&quot;">
+      <created>1699633110376</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1699633110376</updated>
+    </task>
+    <option name="localTasksCounter" value="87" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="dev_cleaned" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Improved metadata: age must still be checked if magnet changed twice" />
+    <MESSAGE value="added documentation" />
+    <MESSAGE value="added AFT fault table" />
+    <MESSAGE value="new notebooks, updated presentation" />
+    <MESSAGE value="deleted redundant notebooks" />
+    <MESSAGE value="additional notebooks &amp; presentations" />
+    <MESSAGE value="Improved FFT part 1" />
+    <MESSAGE value="Improved FFT part 2" />
+    <MESSAGE value="Improved FFT NMF" />
+    <MESSAGE value="Trend adding with offset" />
+    <MESSAGE value="Complex NMF" />
+    <MESSAGE value="Outliers with confidence intervals" />
+    <MESSAGE value="UQS0 classification" />
+    <MESSAGE value="UQS0 classification V2" />
+    <MESSAGE value="New UQS0 classification" />
+    <MESSAGE value="data acquisition 20230313" />
+    <MESSAGE value="new datasets for acquisition 20230313" />
+    <MESSAGE value="new snapshot datasets for acquisition 20230313" />
+    <MESSAGE value="Exponential detrend" />
+    <MESSAGE value="Final uncleaned version" />
+    <MESSAGE value="Script create_correlation_table.py" />
+    <MESSAGE value="Script generate_position_mapping.py.py" />
+    <MESSAGE value="Improved plots" />
+    <MESSAGE value="Uncleaned code with plots for IEEE paper." />
+    <MESSAGE value="Cleaned folder &quot;documentation&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaned folder &quot;documentation&quot;" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/datasets/rb_fpa_full_quench.py</url>
+          <line>181</line>
+          <option name="timeStamp" value="62" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/datasets/rb_fpa_udiode.py</url>
+          <line>138</line>
+          <option name="timeStamp" value="69" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/datasets/rb_fpa_udiode.py</url>
+          <line>242</line>
+          <option name="timeStamp" value="77" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau.py</url>
+          <line>147</line>
+          <option name="timeStamp" value="83" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau_V2.py</url>
+          <line>175</line>
+          <option name="timeStamp" value="201" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/data/processed/component_correlation/correlate_components.py</url>
+          <line>162</line>
+          <option name="timeStamp" value="233" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="jupyter-line">
+          <url>notebook://D:/Dokumente/SWAN_projects/lhc-anomaly-detection/notebooks/RB_FPA_FFT_FPM.ipynb</url>
+          <line>49</line>
+          <option name="timeStamp" value="101" />
+        </line-breakpoint>
+      </breakpoints>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_anomaly_detection.coverage" NAME="decoder Coverage Results" MODIFIED="1661240681396" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_complex.coverage" NAME="nmf_complex Coverage Results" MODIFIED="1675865741103" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$RB_magnet_metadata.coverage" NAME="rb_magnet_metadata Coverage Results" MODIFIED="1661331956070" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/utils" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$decoder__1_.coverage" NAME="decoder (1) Coverage Results" MODIFIED="1661332503986" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$autoencoder.coverage" NAME="autoencoder Coverage Results" MODIFIED="1664193540938" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_magnet_metadata.coverage" NAME="rb_magnet_metadata Coverage Results" MODIFIED="1699889429149" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data/processed/RB_metadata" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$uqs0_classification.coverage" NAME="uqs0_classification Coverage Results" MODIFIED="1678458470356" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_dataset_temp.coverage" NAME="generate_dataset_temp Coverage Results" MODIFIED="1678982056138" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_decomposition.coverage" NAME="nmf_decomposition Coverage Results" MODIFIED="1676294147621" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_sensitivity_1EE_all_events.coverage" NAME="nmf_sensitivity_all_events Coverage Results" MODIFIED="1679574840869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_dataset.coverage" NAME="generate_dataset Coverage Results" MODIFIED="1679478288147" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_position_mapping.coverage" NAME="generate_position_mapping Coverage Results" MODIFIED="1685536989020" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_magnet_metadata__1_.coverage" NAME="rb_magnet_metadata (1) Coverage Results" MODIFIED="1662716080781" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/utils" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_RB_snapshot_context.coverage" NAME="generate_RB_snapshot_context Coverage Results" MODIFIED="1699968715623" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data/processed/RB_snapshot_context" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_dataset_snapshots.coverage" NAME="generate_dataset_snapshots Coverage Results" MODIFIED="1679418703275" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$sec_quench_visualisation.coverage" NAME="sec_quench_visualisation Coverage Results" MODIFIED="1659361345197" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/visualisation" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$gmm.coverage" NAME="gmm Coverage Results" MODIFIED="1675330032195" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_sensitivity_2EE.coverage" NAME="nmf_sensitivity_2EE Coverage Results" MODIFIED="1679066672535" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_anomalie_detection.coverage" NAME="rb_fpa_anomaly_detection Coverage Results" MODIFIED="1660222370604" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$decoder.coverage" NAME="decoder Coverage Results" MODIFIED="1661326571711" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$1_process_context_data.coverage" NAME="1_process_context_data Coverage Results" MODIFIED="1699975372304" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$uqs0_classification_v2.coverage" NAME="uqs0_classification_v2 Coverage Results" MODIFIED="1681720127345" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$plot_fp_maps.coverage" NAME="plot_fp_maps Coverage Results" MODIFIED="1679044678261" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_prim_quench_ee_plateau_V2.coverage" NAME="rb_fpa_prim_quench_ee_plateau_V2 Coverage Results" MODIFIED="1679409182905" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/datasets" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_snapshots_ee_plateau.coverage" NAME="rb_fpa_snapshots_ee_plateau Coverage Results" MODIFIED="1668420493623" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/datasets" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_RB_position_context.coverage" NAME="generate_RB_position_context Coverage Results" MODIFIED="1699953366693" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data/processed/RB_position_context" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_full_quench_V2.coverage" NAME="rb_fpa_full_quench_V2 Coverage Results" MODIFIED="1679049817123" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/datasets" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_sensitivity.coverage" NAME="nmf_sensitivity Coverage Results" MODIFIED="1682513168199" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$simulation.coverage" NAME="simulation Coverage Results" MODIFIED="1659353732149" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_position_mapping__1_.coverage" NAME="generate_position_mapping (1) Coverage Results" MODIFIED="1699974154387" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data/processed/position_mapping" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_sensitivity_2EE_all_events.coverage" NAME="nmf_sensitivity_2EE_all_events Coverage Results" MODIFIED="1679385918909" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$analyze_sec_quench.coverage" NAME="analyze_sec_quench Coverage Results" MODIFIED="1659367035865" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$create_correlation_table.coverage" NAME="create_correlation_table Coverage Results" MODIFIED="1686574383918" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$uqs0_classification_v3.coverage" NAME="uqs0_classification_v3 Coverage Results" MODIFIED="1678865502310" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_sensitivity_all_events__1_.coverage" NAME="nmf_sensitivity_all_events (1) Coverage Results" MODIFIED="1685533537457" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+  </component>
+</project>

@@ -79,7 +79,7 @@ def sort_by_metadata(df: pd.DataFrame, circuit: str, quenched_magnet: str, by: s
     """
     df["Circuit"] = circuit
 
-    meta_data_path = Path("../../data/RB_metadata.csv") # TODO: take path as argument
+    meta_data_path = Path("../../data/RB_position_context.csv") # TODO: take path as argument
     df_metadata = pd.read_csv(meta_data_path, index_col=False) # MappingMetadata.read_layout_details("RB")
 
     df_metadata_circuit = df_metadata[df_metadata.Circuit == circuit].reset_index(drop=True)
