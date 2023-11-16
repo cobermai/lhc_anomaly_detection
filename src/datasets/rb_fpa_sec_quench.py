@@ -1,19 +1,16 @@
 import os
-from collections import namedtuple
 from pathlib import Path
 from typing import Optional
 
-import numpy as np
 import pandas as pd
-import xarray as xr
 from matplotlib import pyplot as plt
 
 from src.dataset import Dataset
+from src.modeling.sec_quench import get_sec_quench_frame_exclude_quench
+from src.utils.dataset_utils import u_diode_simulation_to_df, \
+    u_diode_data_to_df, data_to_xarray
 from src.utils.hdf_tools import load_from_hdf_with_regex
-from src.utils.utils import interp
-from src.modeling.sec_quench import get_df_time_window, get_sec_quench_frame_exclude_quench
-from src.utils.dataset_utils import align_u_diode_data, drop_quenched_magnets, u_diode_simulation_to_df, \
-    u_diode_data_to_df, data_to_xarray, get_u_diode_data_alignment_timestamps
+
 
 class RBFPASecQuench(Dataset):
     """

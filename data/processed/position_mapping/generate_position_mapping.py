@@ -11,7 +11,13 @@ warnings.filterwarnings('ignore')
 
 
 def generate_position_mapping(input_dir: Path, output_dir: Path, file_name: str, print_output: bool=False):
-
+    """
+    generates position_mapping.csv file with map to different position e.g. El. Position -> Phys. Position
+    :param input_dir: path to RB_position_context.csv
+    :param output_dir: path to store processed file
+    :param file_name: name of RB_position_context.csv
+    :param print_output: print output to validate result
+    """
     rb_magnet_metadata = pd.read_csv(input_dir / (file_name + ".csv"), index_col=False)
 
     # Define position map

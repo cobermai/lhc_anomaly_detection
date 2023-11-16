@@ -3,21 +3,29 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-if __name__ == "__main__":
-    year = 2021
-
-    data_dir = Path("../../raw")
-    RB_LayoutDetails_path = data_dir / "SIGMON_context/RB_LayoutDetails.csv"
+def generate_RB_position_context(year: int,
+                                 RB_LayoutDetails_path: Path,
+                                 nQPS_RB_busBarProtectionDetails_path,
+                                 RB_Beamscreen_Resistances_path: Path,
+                                 RB_Magnet_metadata_path: Path,
+                                 output_dir: Path):
+    """
+    merge different files with context data of RB circuit and store it as RB_position_context.csv
+    :param year: RB layout depends on year
+    :param RB_LayoutDetails_path: path to RB_LayoutDetails.csv
+    :param RB_Beamscreen_Resistances_path: path to file RB_Beamscreen_Resistances.csv
+    :param RB_Magnet_metadata_path: mp3 Excel file path
+    :param output_dir: path to store RB_position_context.csv
+    """
     df_RB_LayoutDetails = pd.read_csv(RB_LayoutDetails_path)
 
     # add busbar protection details
-    # https://gitlab.cern.ch/LHCData/lhc-sm-api/-/blob/dev/info/metadata_and_references.md
-    nQPS_RB_busBarProtectionDetails_path = data_dir / "SIGMON_context/nQPS_RB_busBarProtectionDetails.csv"
     df_nQPS_RB_busBarProtectionDetails = pd.read_csv(nQPS_RB_busBarProtectionDetails_path)
     df_metadata = df_RB_LayoutDetails.merge(df_nQPS_RB_busBarProtectionDetails,
                                             left_on=["Magnet", "Circuit"],
                                             right_on=["2nd Magnet", "Circuit"],
                                             how="left", suffixes=('', '_y'))
+
     # add cryostat group
     df_metadata['cryostat_group'] = df_metadata['Cryostat2'].apply(lambda x: x.split('_')[1])
     # add physical position
@@ -27,7 +35,6 @@ if __name__ == "__main__":
     df_metadata["El. Position"] = df_metadata["#Electric_circuit"].astype(int)
 
     # add beamscreen resistance
-    RB_Beamscreen_Resistances_path = data_dir / "MB_feature_analysis/RB_Beamscreen_Resistances.csv"
     df_RB_Beamscreen_Resistances = pd.read_csv(RB_Beamscreen_Resistances_path)
     df_RB_Beamscreen_Resistances["Magnet"] = df_RB_Beamscreen_Resistances.Name.apply(lambda x: "MB." + x)
     df_metadata = df_metadata.merge(df_RB_Beamscreen_Resistances,
@@ -36,7 +43,6 @@ if __name__ == "__main__":
                                     how="left", suffixes=('', '_y'))
 
     # add magnet metadata
-    RB_Magnet_metadata_path = data_dir / "MP3_context/RB_TC_extract_2023_03_13.xlsx"
     df_RB_metadata_layout = pd.read_excel(RB_Magnet_metadata_path, sheet_name="layout")
     df_RB_metadata_magnet = pd.read_excel(RB_Magnet_metadata_path, sheet_name="magnet data")
     int_columns = [c for c in df_RB_metadata_layout.columns.values if type(c) is int]
@@ -75,4 +81,28 @@ if __name__ == "__main__":
 
     drop_columns = df_metadata.filter(regex='Unnamed').columns.to_list()
     drop_columns += df_metadata.filter(regex='_y').columns.to_list()
-    df_metadata.drop(columns=drop_columns).to_csv("RB_position_context.csv", index=False)
+    df_metadata.drop(columns=drop_columns).to_csv(output_dir / "RB_position_context.csv", index=False)
+
+
+if __name__ == "__main__":
+    year = 2021
+
+    data_dir = Path("../../raw")
+    RB_LayoutDetails_path = data_dir / "SIGMON_context/RB_LayoutDetails.csv"
+    nQPS_RB_busBarProtectionDetails_path = data_dir / "SIGMON_context/nQPS_RB_busBarProtectionDetails.csv"
+    RB_Beamscreen_Resistances_path = data_dir / "MB_feature_analysis/RB_Beamscreen_Resistances.csv"
+    RB_Magnet_metadata_path = data_dir / "MP3_context/RB_TC_extract_2023_03_13.xlsx"
+    output_dir = Path("")
+
+    generate_RB_position_context(year=year,
+                                 RB_LayoutDetails_path=RB_LayoutDetails_path,
+                                 nQPS_RB_busBarProtectionDetails_path=nQPS_RB_busBarProtectionDetails_path,
+                                 RB_Beamscreen_Resistances_path=RB_Beamscreen_Resistances_path,
+                                 RB_Magnet_metadata_path=RB_Magnet_metadata_path,
+                                 output_dir=output_dir)
+
+
+
+
+
+

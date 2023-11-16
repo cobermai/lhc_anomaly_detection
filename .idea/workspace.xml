@@ -1,227 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4367090a-8af0-48a2-baf3-1a56ee6aca1c" name="Changes" comment="Cleaned folder &quot;documentation&quot;">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/lhc-anomaly-detection.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/processed/MP3_context/RB_TC_extract_2023_03_13_processed.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/processed/MP3_context/process_MP3_excel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/processed/RB_snapshot_context/RB_snapshot_context.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/processed/RB_snapshot_context/generate_RB_snapshot_context.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/raw/MP3_context/RB_snapshot_context.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/documentation/latex/main.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/1_process_context_data.ipynb" afterDir="false" />
+    <list default="true" id="4367090a-8af0-48a2-baf3-1a56ee6aca1c" name="Changes" comment="Cleaned folder &quot;data&quot;">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/20220707_acquisition_summary.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/20230313_acquisition_summary.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/AFT_faults.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/MP3_context_data/20230313_RB.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/MP3_context/RB_TC_extract_2023_03_13.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/MP3_context_data/20230313_RB_processed.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/MP3_context_data/RB_TC_extract_2022_07_07.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/MP3_context_data/RB_TC_extract_2022_07_07_processed.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/RB_TC_extract_2022_07_07_processed_filled.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/RB_metadata.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/processed/RB_position_context/RB_position_context.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/RB_snapshot_context.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/SIGMON_context_data/RB_CrateToDiodeMap.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/SIGMON_context/RB_CrateToDiodeMap.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/SIGMON_context_data/RB_LayoutDetails.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/SIGMON_context/RB_LayoutDetails.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/SIGMON_context_data/nQPS_RB_busBarProtectionDetails.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/SIGMON_context/nQPS_RB_busBarProtectionDetails.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/STEAM_context_data/BeamScreen_EAMdata.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/STEAM_context_data/BeamScreen_EAMdata_Magnets.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/STEAM_context_data/RB_Beamscreen_Resistances.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/MB_feature_analysis/RB_Beamscreen_Resistances.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/STEAM_context_data/analysisSTEAM_example_RB.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/UQS0_labels/Outliers_summary_Meas_2015_2016_2018_backup.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/UQS0_labels/Outliers_summary_Meas_2021_2022_NoZero.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/UQS0_labels/Outliers_summary_Meas_2021_2022_NoZero_backup.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/UQS0_labels/dest_file_v02.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/analysis_conductor_fieldQuality_FPA2021_FTM2023_year2021_FPA2021_TFM2023.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/raw/MB_feature_analysis/analysis_conductor_fieldQuality_FPA2021_FTM2023_year2021_FPA2021_TFM2023.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/circuit_sort.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/processed/position_mapping/position_mapping.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/final_components/components_merged.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/final_components/components_merged_V2.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/final_components/cweights_fitted.npy" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/final_components/weights_fitted.npy" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/master_file_TEST.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/metadata_context_variables.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/sec_quench_feature.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/circuit_diagram.drawio.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/circuit_diagram.drawio.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/consistency_terms.tex" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/consistency_terms.tex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/H_toy.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/H_toy.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/H_toy.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/H_toy.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/V_toy.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/V_toy.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/W_toy.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/W_toy.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/circuit_diagram.drawio.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/circuit_diagram.drawio.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/circuit_diagram.drawio.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/circuit_diagram.drawio.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/circuit_diagram.png" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/circuit_diagram.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/comp_chebyshev.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/comp_chebyshev.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_1_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_1_example.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_2_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_2_example.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_3_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_3_example.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_4_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_4_example.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_5_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_5_example.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_6_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_6_example.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/component_7_example.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/component_7_example.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/diff_eu.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/diff_eu.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/diff_is.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/diff_is.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/diff_kl.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/diff_kl.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/dist_measures.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/dist_measures.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/outliers.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/outliers.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/outliers_position.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/outliers_position.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/u_mag.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/u_mag.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/u_mag_freq.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/u_mag_freq.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/u_mag_rec.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/u_mag_rec.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/u_mag_zoom.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/u_mag_zoom.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/figures/weights_norm_chebyshev.svg" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/figures/weights_norm_chebyshev.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/main.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/final/main.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/publications/IEEE/main.tex" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/latex/main.tex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/Decomposition_methods.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/NMF_n_components.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_FPM.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/3_process_data.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/4_detect_component_with_NMF.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_all_events.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_analysis.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_analysis_lowfreq.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_anomalies.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_correlation.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_correlation_V2.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/5_interpret_components.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_weight_prediction.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_sensitivity.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_snapshots.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_quenched_magnet.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_statistics.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_Kirchhoff.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_acquisition_simulation_comparison.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_analysis_full_quench.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_analysis_prim_quench.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_analysis_prim_quench_em_disturbance.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_analysis_sec_quench.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_data_aquisition.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/2_download_rb_data.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_data_loading.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/RB_FPA_data_loading.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_mp3_excel_analysis.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_mp3_excel_processing.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/UQS0.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/UQS0_classification.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/Untitled.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/comp_weight_anlysis.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/comp_weight_anlysis2.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/comp_weight_anlysis3.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/comp_weight_anlysis3_max.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/comp_weight_anlysis4.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/corr.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/correlation.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/correlation_pearson.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/correlation_spearman.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/cweight_anlysis.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/ieee_plot.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/kullback-leibler_cweight_anlysis" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/manual_components.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/max_em_disturbance.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/1EE_event_fast_sec.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/1EE_event_normal.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/1EE_event_snap.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/1EE_mag_fast_sec.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/1EE_mag_normal.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/1EE_mag_snap.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/2EE_event_fast_sec.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/2EE_event_normal.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/2EE_event_snap.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/2EE_mag_fast_sec.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/2EE_mag_normal.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/2EE_mag_snapsvg.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/comp_chebyshev.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/comp_norm_chebyshev.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_0.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_1.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_1_example.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_2.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_2_example.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_3.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_3_example.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_4.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_4_example.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_5_example.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_6_example.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/component_7_example.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/coph_corr.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/coph_corr_frob.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/coph_corr_kl.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/cophcorr_esim.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/corrcoef.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/cosine_dist.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/diff_eu.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/diff_is.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/diff_kl.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/dist_measures.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_0.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_0_kmeans.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_1.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_10.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_11.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_12.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_13.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_14.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_1_kmeans.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_2.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_2_kmeans.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_3.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_3_kmeans.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_4.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_4_kmeans.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_5.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_6.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_7.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_8.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/example_9.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/loss.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/outliers.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/u_mag.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/u_mag_freq.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/u_mag_rec.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/u_mag_rec_kmeans.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/u_mag_zoom.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/paper_plots/weights_norm_chebyshev.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/saved_model.pb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/scientific_plots_IEEE.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/scientific_plots_IEEE2.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/t.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/t.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/temp.xls" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/temp.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/udiode.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/udiode_sim.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/variables/variables.data-00000-of-00001" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/1_process_context_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/variables/variables.index" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/fgc_timestamp_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/references/20210609_LMC_diode_short.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/references/20211201_Marvin_Thesis.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/references/20211203_Local_TFM_analysis_report.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/references/20221201_MP3_Day_Ravaioli_Janitschke.pptx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/references/2023-04-03 HWC results.pptx" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/presentations/20220705_slow_secondary_quench_analysis.pptx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/references/DFT_script.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/references/MPE QPS documentation/MPE_QPS_Sunglasses.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/references/RB_QPS_Signals.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/references/RB_circuit.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/analyze_sec_quench.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/autoencoder.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/create_correlation_table.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/download_rb_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/2_download_rb_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/generate_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/3_process_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/RB_position_context/generate_RB_position_context.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/processed/RB_position_context/generate_RB_position_context.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/processed/position_mapping/generate_position_mapping.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/processed/position_mapping/generate_position_mapping.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/1_process_context_data.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/1_process_context_data.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/2_download_rb_data.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/2_download_rb_data.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/1_process_context_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/1_process_context_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/2_download_rb_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/2_download_rb_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/3_process_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/3_process_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/generate_dataset_snapshots.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/generate_dataset_snapshots.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/generate_position_mapping.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/processed/position_mapping/generate_position_mapping.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/nmf_sensitivity.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/nmf_sensitivity_all_events.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/plot_fp_maps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/simulate_rb_data.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/uqs0_classification.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modeling/sec_quench.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/modeling/sec_quench.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/models/nmf.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/nmf.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/dataset_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/dataset_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/mp3_excel_processing.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/rb_magnet_metadata.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/processed/RB_position_context/generate_RB_position_context.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/uqs0_classification_utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_full_quench.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/datasets/rb_fpa_full_quench.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_full_quench_V2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_full_quench_snapshot.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau2.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau2_V2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau_V2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_sec_quench.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/datasets/rb_fpa_sec_quench.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_snapshots_ee_plateau.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/datasets/rb_fpa_snapshots_ee_plateau.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_sunglass_voltage.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_udiode.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/datasets/xarray_Dataset_structure.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modeling/sec_quench.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/models/ae1d_3e_3d.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/models/nmf_complex.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -245,7 +51,6 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/scripts/2_download_rb_data.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/modeling/sec_quench.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/visualisation/visualisation.py" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -289,7 +94,7 @@
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\processed\MP3_context_data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.1_process_context_data">
+  <component name="RunManager" selected="Python.generate_RB_position_context">
     <configuration name="1_process_context_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="lhc-anomaly-detection" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -312,7 +117,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="RB_position_context" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="2_download_rb_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="lhc-anomaly-detection" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -320,12 +125,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data/processed/RB_metadata" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/scripts" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\processed\RB_metadata\RB_position_context.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/2_download_rb_data.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -401,19 +206,19 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Python.2_download_rb_data" />
       <item itemvalue="Python.1_process_context_data" />
       <item itemvalue="Python.generate_RB_snapshot_context" />
-      <item itemvalue="Python.RB_position_context" />
       <item itemvalue="Python.generate_RB_position_context" />
       <item itemvalue="Python.generate_position_mapping (1)" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.generate_RB_position_context" />
+        <item itemvalue="Python.2_download_rb_data" />
         <item itemvalue="Python.1_process_context_data" />
         <item itemvalue="Python.generate_position_mapping (1)" />
         <item itemvalue="Python.generate_RB_snapshot_context" />
-        <item itemvalue="Python.generate_RB_position_context" />
-        <item itemvalue="Python.RB_position_context" />
       </list>
     </recent_temporary>
   </component>
@@ -726,14 +531,9 @@
       <workItem from="1699689045601" duration="12000" />
       <workItem from="1699878712921" duration="11302000" />
       <workItem from="1699903272296" duration="385000" />
-      <workItem from="1699947809124" duration="22036000" />
-    </task>
-    <task id="LOCAL-00038" summary="Updated RB_TC_extract_2022_07_07_processed_filled.csv with di/dt">
-      <created>1661267227194</created>
-      <option name="number" value="00038" />
-      <option name="presentableId" value="LOCAL-00038" />
-      <option name="project" value="LOCAL" />
-      <updated>1661267227194</updated>
+      <workItem from="1699947809124" duration="22245000" />
+      <workItem from="1700034117360" duration="10673000" />
+      <workItem from="1700122428797" duration="377000" />
     </task>
     <task id="LOCAL-00039" summary="Updated structure of dataset to include metadata">
       <created>1661781130229</created>
@@ -1071,7 +871,14 @@
       <option name="project" value="LOCAL" />
       <updated>1699633110376</updated>
     </task>
-    <option name="localTasksCounter" value="87" />
+    <task id="LOCAL-00087" summary="Cleaned folder &quot;data&quot;">
+      <created>1699977144459</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1699977144459</updated>
+    </task>
+    <option name="localTasksCounter" value="88" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1101,7 +908,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Improved metadata: age must still be checked if magnet changed twice" />
     <MESSAGE value="added documentation" />
     <MESSAGE value="added AFT fault table" />
     <MESSAGE value="new notebooks, updated presentation" />
@@ -1126,33 +932,14 @@
     <MESSAGE value="Improved plots" />
     <MESSAGE value="Uncleaned code with plots for IEEE paper." />
     <MESSAGE value="Cleaned folder &quot;documentation&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cleaned folder &quot;documentation&quot;" />
+    <MESSAGE value="Cleaned folder &quot;data&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaned folder &quot;data&quot;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/datasets/rb_fpa_full_quench.py</url>
-          <line>181</line>
-          <option name="timeStamp" value="62" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/datasets/rb_fpa_udiode.py</url>
-          <line>138</line>
-          <option name="timeStamp" value="69" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/datasets/rb_fpa_udiode.py</url>
-          <line>242</line>
-          <option name="timeStamp" value="77" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau.py</url>
-          <line>147</line>
-          <option name="timeStamp" value="83" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau_V2.py</url>
           <line>175</line>
           <option name="timeStamp" value="201" />
         </line-breakpoint>
@@ -1196,13 +983,14 @@
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$gmm.coverage" NAME="gmm Coverage Results" MODIFIED="1675330032195" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_sensitivity_2EE.coverage" NAME="nmf_sensitivity_2EE Coverage Results" MODIFIED="1679066672535" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_anomalie_detection.coverage" NAME="rb_fpa_anomaly_detection Coverage Results" MODIFIED="1660222370604" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$2_download_rb_data.coverage" NAME="2_download_rb_data Coverage Results" MODIFIED="1700044867792" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$decoder.coverage" NAME="decoder Coverage Results" MODIFIED="1661326571711" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$1_process_context_data.coverage" NAME="1_process_context_data Coverage Results" MODIFIED="1699975372304" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$uqs0_classification_v2.coverage" NAME="uqs0_classification_v2 Coverage Results" MODIFIED="1681720127345" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$plot_fp_maps.coverage" NAME="plot_fp_maps Coverage Results" MODIFIED="1679044678261" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_prim_quench_ee_plateau_V2.coverage" NAME="rb_fpa_prim_quench_ee_plateau_V2 Coverage Results" MODIFIED="1679409182905" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/datasets" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_snapshots_ee_plateau.coverage" NAME="rb_fpa_snapshots_ee_plateau Coverage Results" MODIFIED="1668420493623" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/datasets" />
-    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_RB_position_context.coverage" NAME="generate_RB_position_context Coverage Results" MODIFIED="1699953366693" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data/processed/RB_position_context" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_RB_position_context.coverage" NAME="generate_RB_position_context Coverage Results" MODIFIED="1700122497176" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data/processed/RB_position_context" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_full_quench_V2.coverage" NAME="rb_fpa_full_quench_V2 Coverage Results" MODIFIED="1679049817123" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/datasets" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_sensitivity.coverage" NAME="nmf_sensitivity Coverage Results" MODIFIED="1682513168199" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$simulation.coverage" NAME="simulation Coverage Results" MODIFIED="1659353732149" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />

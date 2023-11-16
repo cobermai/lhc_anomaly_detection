@@ -1,54 +1,42 @@
+from datetime import datetime
 import os
 from pathlib import Path
 
 import pandas as pd
 from nxcals.spark_session_builder import get_or_create, Flavor
 
-from src.acquisitions.current_voltage_diode_leads_nxcals import CurrentVoltageDiodeLeadsNXCALS
-from src.acquisitions.current_voltage_diode_leads_pm import CurrentVoltageDiodeLeadsPM
-from src.acquisitions.ee_t_res_pm import EETResPM
-from src.acquisitions.ee_u_dump_res_pm import EEUDumpResPM
-from src.acquisitions.leads import Leads
-from src.acquisitions.pc_pm import PCPM
-from src.acquisitions.qh_pm import QHPM
-from src.acquisitions.voltage_logic_iqps import VoltageLogicIQPS
 from src.acquisitions.voltage_nqps import VoltageNQPS
-from src.acquisitions.voltage_nxcals import VoltageNXCALS
 from src.utils.hdf_tools import acquisition_to_hdf5, load_from_hdf_with_regex
-from src.utils.mp3_excel_processing import select_fgc_period, select_fgc_not_downloaded
+from src.utils.fgc_timestamp_utils import select_fgc_period
 from src.utils.utils import log_acquisition
 from src.visualisation.visualisation import plot_hdf
 
 if __name__ == "__main__":
     spark = get_or_create(flavor=Flavor.YARN_MEDIUM)
     file_dir = Path('/eos/project/m/ml-for-alarm-system/private/RB_signals')
-    #signal_groups = [PCPM, VoltageNXCALS, VoltageNQPS, VoltageLogicIQPS, EEUDumpResPM, QHPM]
-    signal_groups = [VoltageNQPS]
-    date_suffix = "20230313"
+    date_suffix = datetime.now().strftime('%Y%m%d')
+    signal_groups = [VoltageNQPS]  # select all signals to download from src/acquisition
 
-    mp3_excel_path = f"../data/MP3_context_data/{date_suffix}_RB_processed.csv"
+    # get list of fpa_identifiers
+    mp3_excel_path = Path("../data/processed/MP3_context/RB_TC_extract_2023_03_13_processed.csv")
     mp3_fpa_df = pd.read_csv(mp3_excel_path)
 
     # secondary quenches have same timestamp as primary quenches
-    mp3_fpa_df_unique = mp3_fpa_df.drop_duplicates(subset=['timestamp_fgc', 'Circuit Name'])
-
+    mp3_fpa_df_unique = mp3_fpa_df.drop_duplicates(subset=['fpa_identifier']).dropna(subset=['fpa_identifier'])
     mp3_fpa_df_period = select_fgc_period(mp3_fpa_df_unique,
                                           lower_threshold='2014-01-01 00:00:00+01:00',
                                           upper_threshold='2024-01-01 00:00:00+01:00')
 
-    #mp3_fpa_df_to_download = select_fgc_not_downloaded(context_path=file_dir / "context", mp3_df=mp3_fpa_df_period) # loading of context data takes to long
-    mp3_fpa_df_to_download = mp3_fpa_df_period
 
-    for index, row in mp3_fpa_df_to_download.iterrows():
+    for index, row in mp3_fpa_df_period.iterrows():
 
         fpa_identifier = {'circuit_type': row['Circuit Family'],
                           'circuit_name': row['Circuit Name'],
                           'timestamp_fgc': int(row['timestamp_fgc'])}
-        file_name = f"{fpa_identifier['circuit_type']}_{fpa_identifier['circuit_name']}_{fpa_identifier['timestamp_fgc']}"
         plot_dir = file_dir / Path(f'{date_suffix}_data_plots')
         Path(plot_dir).mkdir(parents=True, exist_ok=True)
-        plot_path = plot_dir / (file_name + ".png")
-        file_path = file_dir / Path(f'{date_suffix}_data') / (file_name + ".hdf5")
+        plot_path = plot_dir / (row['fpa_identifier'] + ".png")
+        file_path = file_dir / Path(f'{date_suffix}_data') / (row['fpa_identifier'] + ".hdf5")
 
         if not os.path.isfile(file_path):
             for signal_group in signal_groups:

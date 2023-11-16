@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 from src.dataset import load_dataset
-from src.datasets.rb_fpa_full_quench_V2 import RBFPAFullQuench_V2
+from src.datasets.rb_fpa_full_quench import RBFPAFullQuench_V2
 from src.datasets.rb_fpa_snapshots_ee_plateau import RBFPASnapshotsEEPlateau
 from src.datasets.rb_fpa_snapshots_ee_plateau2 import RBFPASnapshotsEEPlateau2
 

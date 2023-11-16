@@ -4,9 +4,9 @@ from pathlib import Path
 
 
 from src.dataset import load_dataset
-#from src.datasets.rb_fpa_full_quench_V2 import RBFPAFullQuench_V2
-from src.datasets.rb_fpa_prim_quench_ee_plateau2_V2 import RBFPAPrimQuenchEEPlateau2_V2
-from src.datasets.rb_fpa_prim_quench_ee_plateau_V2 import RBFPAPrimQuenchEEPlateau_V2
+#from src.datasets.rb_fpa_full_quench_V2 import RBFPAFullQuench
+from src.datasets.rb_fpa_prim_quench_ee_plateau2 import RBFPAPrimQuenchEEPlateau2
+from src.datasets.rb_fpa_prim_quench_ee_plateau import RBFPAPrimQuenchEEPlateau
 
 warnings.filterwarnings('ignore')
 
@@ -19,14 +19,14 @@ if __name__ == "__main__":
     data_path = Path(r"D:\datasets\20230313_data")
 
     # define paths to read + write
-    dataset_path = Path(r"D:\datasets\20230313_RBFPAPrimQuenchEEPlateau_V2")
-    plot_dataset_path = Path(r"D:\datasets\20230313_RBFPAPrimQuenchEEPlateau_V2_plots")
+    dataset_path = Path(r"D:\datasets\20230313_RBFPAPrimQuenchEEPlateau")
+    plot_dataset_path = Path(r"D:\datasets\20230313_RBFPAPrimQuenchEEPlateau_plots")
     output_path = Path(f"../output/{os.path.basename(__file__)}")  # datetime.now().strftime("%Y-%m-%dT%H.%M.%S.%f")
     output_path.mkdir(parents=True, exist_ok=True)
 
 
     # load dataset
-    dataset = load_dataset(creator=RBFPAPrimQuenchEEPlateau_V2,
+    dataset = load_dataset(creator=RBFPAPrimQuenchEEPlateau,
                            dataset_path=dataset_path,
                            context_path=context_path,
                            metadata_path=metadata_path,
