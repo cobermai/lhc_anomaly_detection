@@ -21,7 +21,7 @@ if __name__ == "__main__":
     generate_RB_snapshot_context(input_dir=data_dir, output_dir=output_dir, file_name=file_name)
 
     year = 2021
-    data_dir = Path("../../raw")
+    data_dir = Path("../data/raw")
     RB_LayoutDetails_path = data_dir / "SIGMON_context/RB_LayoutDetails.csv"
     nQPS_RB_busBarProtectionDetails_path = data_dir / "SIGMON_context/nQPS_RB_busBarProtectionDetails.csv"
     RB_Beamscreen_Resistances_path = data_dir / "MB_feature_analysis/RB_Beamscreen_Resistances.csv"

@@ -1,19 +1,16 @@
 import os
-import typing
 from abc import ABC, abstractmethod
-from collections import namedtuple
 from pathlib import Path
 from typing import Optional
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
-from scipy.optimize import curve_fit
-from scipy.signal import butter, lfilter, filtfilt
+from matplotlib import pyplot as plt
+from scipy.signal import butter, filtfilt
 
+from src.utils.dataset_utils import data_to_xarray, add_exp_trend_coeff_to_xr
 from src.utils.frequency_utils import exponential_func
-from src.visualisation.xarray_visualisation import plot_xarray_event
 
 
 class Dataset(ABC):
@@ -26,22 +23,32 @@ class Dataset(ABC):
                  context_path: Optional[Path] = None,
                  metadata_path: Optional[Path] = None,
                  data_path: Optional[Path] = None,
-                 simulation_path: Optional[Path] = None,
                  acquisition_summary_path: Optional[Path] = None,
                  plot_dataset_path: Optional[Path] = None):
         self.dataset_path = dataset_path
         self.context_path = context_path
         self.metadata_path = metadata_path
         self.data_path = data_path
-        self.simulation_path = simulation_path
         self.acquisition_summary_path = acquisition_summary_path
         self.plot_dataset_path = plot_dataset_path
 
-    @abstractmethod
     def select_events(self) -> list:
         """
         generates list of events to load
+        default is to load all files from manually filtered folder in acquisition_summary_path
         :return: list of strings which defines event, i.e. "<Circuit Family>_<Circuit Name>_<timestamp_fgc>"
+        """
+        return [filename.split('.png')[0] for filename in os.listdir(self.acquisition_summary_path)]
+
+    @staticmethod
+    @abstractmethod
+    def process_fpa_event(fpa_df: pd.DataFrame, data_path: Path, metadata_path: Path) -> pd.DataFrame:
+        """
+        abstract method to generate dataset for fpa event
+        :param fpa_df: DataFrame with mp3 data of this fpa event
+        :param data_path: path to hdf5 data
+        :param metadata_path: path to file "RB_position_context.csv"
+        :return: dataframe with data
         """
 
     @staticmethod
@@ -95,12 +102,6 @@ class Dataset(ABC):
         df_event_features.loc[0, circuits] = [int(mp3_fpa_df_subset['Circuit Name'].values[0] == c) for c in circuits]
 
         return df_event_features
-
-    @abstractmethod
-    def generate_dataset(self, fpa_identifiers: list):
-        """
-        abstract method to generate dataset
-        """
 
     @staticmethod
     def load_dataset(fpa_identifiers: list,
@@ -327,16 +328,86 @@ class Dataset(ABC):
                                      order)
         return da_filtered
 
+    @staticmethod
+    def plot_data(df_data: pd.DataFrame, plot_path: Path, fit_coefficients: Optional[np.array] = None):
+        """
+        Plots data from a DataFrame and, if provided, an exponential fit trend.
+        :param df_data: DataFrame containing the data to be plotted. Columns represent different data series.
+        :param plot_path: Path object representing the file path where the plot will be saved.
+        :param fit_coefficients: Optional NumPy array containing parameters for the exponential fit.
+                        If provided, a second plot of the trend is generated.
+        """
+
+        bool_na = ~df_data.isna().all().values
+
+        # Decide the number of subplots based on fit_coefficients
+        subplot_count = 2 if fit_coefficients is not None else 1
+        fig, axes = plt.subplots(subplot_count, 1, figsize=(15, 10))
+
+        # Plotting the data
+        ax_data = axes[0] if subplot_count > 1 else axes
+        ax_data.plot(df_data.values.T[bool_na].T)
+        ax_data.set_title(f"Data {len(df_data.dropna(axis=1, how='all').columns)}")
+        ax_data.set_ylabel("Voltage / V")
+
+        # Plotting the trend if fit_coefficients is provided
+        if fit_coefficients is not None:
+            trend = np.array([exponential_func(df_data.index, *p) for p in fit_coefficients])
+            ax_trend = axes[1] if subplot_count > 1 else axes
+            ax_trend.plot(df_data.index, trend[bool_na].T)
+            ax_trend.set_title("Trend")
+            ax_trend.set_ylabel("Voltage / V")
+
+        plt.tight_layout()
+        plt.grid()
+        plt.savefig(plot_path)
+        plt.close(fig)
+
+    def generate_dataset(self, fpa_identifiers: list, add_exp_trend_coeff: Optional[bool] = False):
+        """
+        generates xarray.DataArray for each fpa identifier. Dataset includes u diode pm data
+        :param fpa_identifiers: list of strings which defines event,
+        i.e. "<Circuit Family>_<Circuit Name>_<timestamp_fgc>"
+        :param add_exp_trend_coeff: calculate time-consuming exponential fit and add coefficients to dataset
+        """
+        self.dataset_path.mkdir(parents=True, exist_ok=True)
+        # load and process mp3 excel
+        mp3_fpa_df = pd.read_csv(self.context_path)
+
+        for i, fpa_identifier in enumerate(fpa_identifiers):
+            # if dataset already exists
+            if not os.path.isfile(self.plot_dataset_path / f"{fpa_identifier}.png"):
+                print(f"{i}/{len(fpa_identifiers)}: {fpa_identifier}")
+                mp3_fpa_df_subset = mp3_fpa_df[mp3_fpa_df.fpa_identifier == fpa_identifier]
+
+                df_data = self.process_fpa_event(mp3_fpa_df_subset,
+                                                 self.data_path,
+                                                 self.metadata_path)
+
+                # add data
+                xr_array = data_to_xarray(df_data=df_data, event_identifier=fpa_identifier)
+                if add_exp_trend_coeff:
+                    xr_array = add_exp_trend_coeff_to_xr(ds=xr_array, data_var="data")
+                    fit_coefficients = xr_array['polyfit_coefficients'].values
+                else:
+                    fit_coefficients = None
+                xr_array.to_netcdf(self.dataset_path / f"{fpa_identifier}.nc")
+
+                if self.plot_dataset_path:
+                    self.plot_dataset_path.mkdir(parents=True, exist_ok=True)
+                    self.plot_data(df_data=df_data,
+                                   plot_path=self.plot_dataset_path / f"{fpa_identifier}.png",
+                                   fit_coefficients=fit_coefficients)
 
 def load_dataset(creator: "DatasetCreator",
                  dataset_path: Path,
                  context_path: Path,
                  data_path: Path,
                  metadata_path: Optional[Path] = None,
-                 simulation_path: Optional[Path] = None,
                  acquisition_summary_path: Optional[Path] = None,
                  plot_dataset_path: Optional[Path] = None,
                  generate_dataset: Optional[bool] = False,
+                 add_exp_trend_coeff: Optional[bool] = False,
                  split_mask: Optional[np.array] = None,
                  scale_dataset: Optional[np.array] = None,
                  drop_data_vars: Optional[list] = None,
@@ -349,30 +420,30 @@ def load_dataset(creator: "DatasetCreator",
     :param context_path: path to mp3 Excel file, must be .csv
     :param metadata_path: path to magnet metadata, must be .csv
     :param data_path: path to hdf5 data
-    :param simulation_path: path to hdf5 simulations
     :param acquisition_summary_path: optional file path if data is manually analyzed, must be .xlsx
     :param plot_dataset_path: path to plot dataset events
     :param generate_dataset: flag to indicate whether dataset should be recreated
+    :param add_exp_trend_coeff: calculate time-consuming exponential fit and add coefficients when generating dataset
     :param split_mask: array of shape (3,len(dataset["events]))
     with bool, specifying which events to put in training set
     :param scale_dataset: flag to indicate whether dataset should be scaled
     :param drop_data_vars: data_vars to load, default is all
     :param location: location to load, default is all
-    :return: Dataset with dims ('event', 'el_position', 'mag_feature_name', 'event_feature_name', 'time')
+    :return: Dataset
     """
 
     ds = creator(dataset_path=dataset_path,
                  context_path=context_path,
                  metadata_path=metadata_path,
                  data_path=data_path,
-                 simulation_path=simulation_path,
                  acquisition_summary_path=acquisition_summary_path,
                  plot_dataset_path=plot_dataset_path)
 
     fpa_identifiers = ds.select_events()
 
     if generate_dataset:
-        ds.generate_dataset(fpa_identifiers=fpa_identifiers)
+        ds.generate_dataset(fpa_identifiers=fpa_identifiers,
+                            add_exp_trend_coeff=add_exp_trend_coeff)
 
     dataset = ds.load_dataset(fpa_identifiers=fpa_identifiers,
                               dataset_path=dataset_path,

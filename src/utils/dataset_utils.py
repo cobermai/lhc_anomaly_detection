@@ -9,12 +9,16 @@ from scipy.optimize import curve_fit
 from src.utils.frequency_utils import exponential_func
 
 
-def u_diode_data_to_df(data: list, len_data: int = 5500, sort_circuit = None) -> pd.DataFrame:
+def u_diode_data_to_df(data: list,
+                       rb_position_context_path: Path,
+                       len_data: int = 5500,
+                       sort_circuit=None) -> pd.DataFrame:
     """
     puts list of df with u diode data in dataframe
     :param data: list of df with u diode data
     :param len_data: len to cut signals to if to long/short
-    :param sort_with_metadata: sort df with metadata
+    :param sort_circuit: sort df with metadata
+    :param rb_position_context_path: path to file "RB_position_context.csv"
     :return: dataframe with U_Diode_signals
     """
     data_columns = [df.columns.values[0].split("/")[1] for df in data]
@@ -30,7 +34,7 @@ def u_diode_data_to_df(data: list, len_data: int = 5500, sort_circuit = None) ->
 
     if sort_circuit is not None:
         # simulation numbering is sorted by #Electric_circuit
-        meta_data_path = Path("../data/RB_position_context.csv")  # TODO: take path as argument
+        meta_data_path = Path(rb_position_context_path)
         df_metadata = pd.read_csv(meta_data_path, index_col=False)  # MappingMetadata.read_layout_details("RB")
         df_metadata = df_metadata[df_metadata.Circuit == sort_circuit].sort_values("#Electric_circuit")
         magnet_names = df_metadata.Magnet.apply(lambda x: x + ":U_DIODE_RB").values
@@ -95,16 +99,16 @@ def get_u_diode_data_alignment_timestamps(df: pd.DataFrame,
     df_filt = df.rolling(medfilt_size, center=True).median()
     df_diff_filt = df_filt[(ee_margins[0] < df_filt.index) &
                            (df_filt.index < ee_margins[1])].diff()
-    alignment_timestamps = df_diff_filt[(df_filt > voltage_threshold[0]) & (df_filt < voltage_threshold[1])].idxmin().to_list()
+    alignment_timestamps = df_diff_filt[
+        (df_filt > voltage_threshold[0]) & (df_filt < voltage_threshold[1])].idxmin().to_list()
     magnets = [c.split(":")[0] for c in df.columns.values]
     df_offset = pd.DataFrame(alignment_timestamps, index=magnets, columns=["offset"])
 
-
     if metadata is not None:
         metadata = metadata.set_index("Magnet")
-        #metadata.loc[magnets, "offset_ts"] = alignment_timestamps
-        #crate_offset = metadata.groupby("QPS Crate")["offset_ts"].median()
-        #df_offset = metadata.apply(lambda x: crate_offset[x["QPS Crate"]], axis=1).to_frame(name ="offset")
+        # metadata.loc[magnets, "offset_ts"] = alignment_timestamps
+        # crate_offset = metadata.groupby("QPS Crate")["offset_ts"].median()
+        # df_offset = metadata.apply(lambda x: crate_offset[x["QPS Crate"]], axis=1).to_frame(name ="offset")
         df_offset.loc[magnets, "QPS Crate"] = metadata.loc[magnets, "QPS Crate"].values
 
     return df_offset
@@ -113,16 +117,24 @@ def get_u_diode_data_alignment_timestamps(df: pd.DataFrame,
 def align_u_diode_data(df_data: pd.DataFrame,
                        method="timestamp_EE",
                        t_first_extraction: Optional[Union[float, int, list]] = None,
-                       ee_margins: list = [-0.25, 0.4],
-                       metadata: Optional[pd.DataFrame] = None) -> pd.DataFrame:
+                       ee_margins=None,
+                       metadata: Optional[pd.DataFrame] = None) -> tuple:
     """
     align u diode data, which is often shifted due to wrong triggers
     :param df_data: df with data, magnets are columns, time is index
+    :param method: Specifies the alignment method used for data processing.
+                   "timestamp_EE" aligns the data to a single, common extraction timestamp for all magnets.
+                   "timestamp_EE_list" aligns each magnet's data to a corresponding timestamp from a list,
+                   allowing individual alignment for each magnet.
     :param t_first_extraction: int with timestamp of first energy extraction for all magnets,
-    if list: timestamp of each magnet, signals will be aligned to this timestamp
+                               if list: timestamp of each magnet, signals will be aligned to this timestamp
     :param ee_margins: timeframe where first energy extraction takes place
+    :param metadata: file "RB_position_context.csv"
     :return: df with aligned data
     """
+    if ee_margins is None:
+        ee_margins = [-0.25, 0.4]
+
     # timestamp of first energy extraction
     offset_ts = get_u_diode_data_alignment_timestamps(df_data, ee_margins, metadata=metadata)
 
@@ -145,7 +157,7 @@ def align_u_diode_data(df_data: pd.DataFrame,
     if metadata is not None:
         return df_data, offset_ts
     else:
-        return df_data
+        return df_data, None
 
 
 def data_to_xarray(df_data: pd.DataFrame,
@@ -186,12 +198,71 @@ def data_to_xarray(df_data: pd.DataFrame,
 
     return ds
 
-def add_exp_trend_coeff(ds, data_var):
+
+def add_exp_trend_coeff_to_xr(ds, data_var):
+    """
+    Fits an exponential trend to each column of a dataset's specified variable and adds the fit coefficients as a
+    new coordinate to the dataset.
+    :param ds: The input dataset containing the data to be fitted.
+    It should have 'el_position' and 'time' as coordinates.
+    :param data_var: The name of the variable within the dataset to which the exponential trend will be fitted.
+    :return: The modified dataset with an added 'polyfit_coefficients' coordinate.
+    This coordinate contains the fit coefficients (amplitude, tau, offset) for each 'el_position'.
+    """
     df_data = pd.DataFrame(ds[data_var].values.T, columns=ds.el_position, index=ds.time)
     p0 = [0, 0, np.nanmean(df_data)]
     exp_fit = df_data.fillna(0).apply(
         lambda x: curve_fit(f=exponential_func, xdata=x.index, ydata=x, p0=p0, maxfev=10000)[0], axis=0)
     ds.coords['polyfit_coefficient_names'] = ["amplitude", "tau", "offset"]
     ds['polyfit_coefficients'] = (('el_position', 'polyfit_coefficient_names'),
-                                        exp_fit.values.T)
+                                  exp_fit.values.T)
     return ds
+
+
+def get_sec_quench_frame_exclude_quench(df_data: pd.DataFrame,
+                                        all_quenched_magnets: list,
+                                        quench_times: list,
+                                        time_frame: list,
+                                        n_samples: Optional[int] = None) -> list:
+    """
+    spliting dataframe with nxcals u diode data into list of dataframes around secondary quench
+    :param df_data: dataframe with nxcals u diode data
+    :param all_quenched_magnets: list of string with quenched magnets
+    :param quench_times: list of ints with quench times
+    :param time_frame: timeframe to analyze after quench
+    :param n_samples: if not none, n samples will be taken after time_frame[0] instead of timeframe[1]
+    :return: list of dataframes
+    """
+    sec_quenches = []
+    for i, row in enumerate(all_quenched_magnets):
+        delta = quench_times[i]
+        quench_within_frame = ["MB." + all_quenched_magnets[i] + ":U_DIODE_RB" for i, t in enumerate(quench_times)
+                               if (t < delta + time_frame[1])]
+
+        df_subset = get_df_time_window(df=df_data, timestamp=delta, time_frame=time_frame, n_samples=n_samples)
+        df_subset[quench_within_frame] = np.nan
+        sec_quenches.append(df_subset)
+    return sec_quenches[1:]
+
+
+def get_df_time_window(df: pd.DataFrame,
+                       timestamp: float,
+                       time_frame: list,
+                       n_samples: Optional[int] = None) -> pd.DataFrame:
+    """
+    cuts time_frame window out of datafame
+    :param df: dataframe with u diode data
+    :param timestamp: integer with time center
+    :param time_frame: list which defines area around timestamp
+    :param n_samples: if not none, n samples will be taken after time_frame[0] instead of timeframe[1]
+    :return: dataframes
+    """
+
+    if n_samples:
+        start_index = len(df[df.index < timestamp + time_frame[0]])
+        df_subset = df.iloc[start_index:start_index + n_samples]
+    else:
+        # mask: defines time window
+        mask = (df.index > timestamp + time_frame[0]) & (df.index < timestamp + time_frame[1])
+        df_subset = df.loc[mask]
+    return df_subset

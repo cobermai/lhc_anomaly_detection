@@ -24,7 +24,7 @@ def plot_hdf(data: list, column_regex: list = [""], fig_path: Path = None):
     if fig_path is None:
         plt.show()
     else:
-        plt.savefig(str(fig_path))
+        plt.savefig(str(fig_path), dpi=300)
     fig.clf()
 
 

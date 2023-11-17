@@ -12,7 +12,7 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.stats import chi2
 from scipy import signal
 
-from src.datasets.rb_fpa_prim_quench_ee_plateau import RBFPAPrimQuenchEEPlateau_V2
+from src.datasets.rb_fpa_prim_quench_ee_plateau1 import RBFPAPrimQuenchEEPlateau_V2
 from src.models.nmf import NMF
 from src.utils.frequency_utils import get_fft_of_DataArray, scale_fft_amplitude, get_ifft_of_DataArray, \
     complex_to_polar, polar_to_complex
