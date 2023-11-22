@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Union, Optional, List
 
 import pandas as pd
+from PIL import Image
 from pyspark.sql import SparkSession
 
 from src.utils.hdf_tools import acquisition_to_hdf5, load_from_hdf_with_regex
@@ -72,29 +73,35 @@ def download_data(fpa_identifiers: List[str],
     Path(plot_dir).mkdir(parents=True, exist_ok=True)
 
     for fpa_identifier in fpa_identifiers:
-        fpa_identifier_split = fpa_identifier.split("_")
-        fpa_identifier_dict = {'circuit_type': fpa_identifier_split[0],
-                               'circuit_name': fpa_identifier_split[1],
-                               'timestamp_fgc': int(fpa_identifier_split[2])}
+        try:
+            fpa_identifier_split = fpa_identifier.split("_")
+            fpa_identifier_dict = {'circuit_type': fpa_identifier_split[0],
+                                   'circuit_name': fpa_identifier_split[1],
+                                   'timestamp_fgc': int(fpa_identifier_split[2])}
 
-        plot_path = plot_dir / (fpa_identifier + ".png")
-        file_path = output_dir / Path(f'{date_suffix}_data') / (fpa_identifier + ".hdf5")
+            plot_path = plot_dir / (fpa_identifier + ".png")
+            file_path = output_dir / Path(f'{date_suffix}_data') / (fpa_identifier + ".hdf5")
 
-        if not os.path.isfile(file_path):
-            for signal_group in signal_groups:
-                group = signal_group(**fpa_identifier_dict, spark=spark)
-                acquisition_to_hdf5(acquisition=group,
-                                    file_dir=output_dir,
-                                    context_dir_name=f"{date_suffix}_context",
-                                    failed_queries_dir_name=f"{date_suffix}_failed",
-                                    data_dir_name=f"{date_suffix}_data")
-            log_acquisition(identifier=fpa_identifier_dict, log_data={"download_complete": True},
-                            log_path=output_dir / f"{date_suffix}_context")
+            if not os.path.isfile(file_path):
+                for signal_group in signal_groups:
+                    group = signal_group(**fpa_identifier_dict, spark=spark)
+                    acquisition_to_hdf5(acquisition=group,
+                                        file_dir=output_dir,
+                                        context_dir_name=f"{date_suffix}_context",
+                                        failed_queries_dir_name=f"{date_suffix}_failed",
+                                        data_dir_name=f"{date_suffix}_data")
+                log_acquisition(identifier=fpa_identifier_dict, log_data={"download_complete": True},
+                                log_path=output_dir / f"{date_suffix}_context")
 
-            if plot_regex is not None:
-                if os.path.isfile(file_path):
-                    data = load_from_hdf_with_regex(file_path)
-                    plot_hdf(data=data, column_regex=plot_regex, fig_path=plot_path)
+                if plot_regex is not None:
+                    if os.path.isfile(file_path):
+                        data = load_from_hdf_with_regex(file_path)
+                        plot_hdf(data=data, column_regex=plot_regex, fig_path=plot_path)
+        except:
+            # Create an empty image with transparency (RGBA mode)
+            empty_image = Image.new('RGBA', (1024, 1024), (0, 0, 0, 0))
+            # Save the image as a PNG file
+            empty_image.save(f'{fpa_identifier}.png')
 
 
 

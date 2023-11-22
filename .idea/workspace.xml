@@ -1,33 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4367090a-8af0-48a2-baf3-1a56ee6aca1c" name="Changes" comment="Cleaned folder &quot;data&quot;">
+    <list default="true" id="4367090a-8af0-48a2-baf3-1a56ee6aca1c" name="Changes" comment="Cleaned src datasets">
+      <change afterPath="$PROJECT_DIR$/src/result.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/results/nmf_result.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/RB_position_context/generate_RB_position_context.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/processed/RB_position_context/generate_RB_position_context.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/processed/position_mapping/generate_position_mapping.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/processed/position_mapping/generate_position_mapping.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/notebooks/1_process_context_data.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/1_process_context_data.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/notebooks/2_download_rb_data.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/2_download_rb_data.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/1_process_context_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/1_process_context_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/2_download_rb_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/2_download_rb_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/3_process_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/3_process_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/3_process_data.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_analysis_V2.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_analysis.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_data_aquisition_snapshots.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_data_loading.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_position_sort.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/generate_dataset_snapshots.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/generate_dataset_snapshots.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_full_quench.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/datasets/rb_fpa_full_quench.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_full_quench_V2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_full_quench_snapshot.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau2.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau2_V2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau_V2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_sec_quench.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/datasets/rb_fpa_sec_quench.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_snapshots_ee_plateau.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/datasets/rb_fpa_snapshots_ee_plateau.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_sunglass_voltage.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/rb_fpa_udiode.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/datasets/xarray_Dataset_structure.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modeling/sec_quench.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/models/ae1d_3e_3d.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/models/nmf_complex.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/acquisition.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/acquisition.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/dataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/models/nmf.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/nmf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/visualisation/NMF_visualization.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/visualisation/NMF_visualization.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,7 +64,7 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Dokumente/SWAN_projects/lhc-anomaly-detection/documentation/final&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Dokumente/SWAN_projects/lhc-anomaly-detection/scripts&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
@@ -80,22 +72,22 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\scripts" />
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\documentation\final" />
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\documentation" />
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\notebooks" />
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data" />
-      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\output\nmf_sensitivity_k20\1EE_2EE" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\src" />
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\raw\MP3_context" />
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\processed" />
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\processed\MP3_context" />
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\raw\MB_feature_analysis" />
-      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\raw\MP3_context_data" />
-      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\processed\RB_snapshot_context" />
-      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\processed\MP3_context_data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.generate_RB_position_context">
-    <configuration name="1_process_context_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.4_detect_components_with_NMF">
+    <configuration name="4_detect_components_with_NMF" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="lhc-anomaly-detection" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -108,7 +100,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/1_process_context_data.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -117,7 +109,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="2_download_rb_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="process_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="lhc-anomaly-detection" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -130,7 +122,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/2_download_rb_data.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/process_data.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -139,7 +131,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="generate_RB_position_context" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="result" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="lhc-anomaly-detection" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -147,12 +139,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data/processed/RB_position_context" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data/processed/RB_position_context/generate_RB_position_context.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/result.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -161,7 +153,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="generate_RB_snapshot_context" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="test (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="lhc-anomaly-detection" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -169,12 +161,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data/processed/RB_snapshot_context" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\processed\RB_snapshot_context\generate_RB_snapshot_context.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -183,7 +175,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="generate_position_mapping (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="lhc-anomaly-detection" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -191,12 +183,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data/processed/position_mapping" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/scripts" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data/processed/position_mapping/generate_position_mapping.py" />
+      <option name="SCRIPT_NAME" value="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\src\test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -206,19 +198,19 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.2_download_rb_data" />
-      <item itemvalue="Python.1_process_context_data" />
-      <item itemvalue="Python.generate_RB_snapshot_context" />
-      <item itemvalue="Python.generate_RB_position_context" />
-      <item itemvalue="Python.generate_position_mapping (1)" />
+      <item itemvalue="Python.test" />
+      <item itemvalue="Python.test (1)" />
+      <item itemvalue="Python.result" />
+      <item itemvalue="Python.4_detect_components_with_NMF" />
+      <item itemvalue="Python.process_data" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.generate_RB_position_context" />
-        <item itemvalue="Python.2_download_rb_data" />
-        <item itemvalue="Python.1_process_context_data" />
-        <item itemvalue="Python.generate_position_mapping (1)" />
-        <item itemvalue="Python.generate_RB_snapshot_context" />
+        <item itemvalue="Python.4_detect_components_with_NMF" />
+        <item itemvalue="Python.test (1)" />
+        <item itemvalue="Python.test" />
+        <item itemvalue="Python.result" />
+        <item itemvalue="Python.process_data" />
       </list>
     </recent_temporary>
   </component>
@@ -533,21 +525,11 @@
       <workItem from="1699903272296" duration="385000" />
       <workItem from="1699947809124" duration="22245000" />
       <workItem from="1700034117360" duration="10673000" />
-      <workItem from="1700122428797" duration="377000" />
-    </task>
-    <task id="LOCAL-00039" summary="Updated structure of dataset to include metadata">
-      <created>1661781130229</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1661781130229</updated>
-    </task>
-    <task id="LOCAL-00040" summary="Updated RB_TC_extract_2022_07_07_processed_filled.csv (delete timestamps with string)">
-      <created>1661781290777</created>
-      <option name="number" value="00040" />
-      <option name="presentableId" value="LOCAL-00040" />
-      <option name="project" value="LOCAL" />
-      <updated>1661781290777</updated>
+      <workItem from="1700122428797" duration="13872000" />
+      <workItem from="1700143978174" duration="30139000" />
+      <workItem from="1700468506079" duration="22776000" />
+      <workItem from="1700552485793" duration="23730000" />
+      <workItem from="1700640132301" duration="10167000" />
     </task>
     <task id="LOCAL-00041" summary="Added documentation powerpoint">
       <created>1661856227909</created>
@@ -878,7 +860,21 @@
       <option name="project" value="LOCAL" />
       <updated>1699977144459</updated>
     </task>
-    <option name="localTasksCounter" value="88" />
+    <task id="LOCAL-00088" summary="Cleaned folder &quot;data&quot;">
+      <created>1700122973569</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1700122973569</updated>
+    </task>
+    <task id="LOCAL-00089" summary="Cleaned src datasets">
+      <created>1700225766054</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1700225766054</updated>
+    </task>
+    <option name="localTasksCounter" value="90" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -908,8 +904,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added documentation" />
-    <MESSAGE value="added AFT fault table" />
     <MESSAGE value="new notebooks, updated presentation" />
     <MESSAGE value="deleted redundant notebooks" />
     <MESSAGE value="additional notebooks &amp; presentations" />
@@ -933,20 +927,27 @@
     <MESSAGE value="Uncleaned code with plots for IEEE paper." />
     <MESSAGE value="Cleaned folder &quot;documentation&quot;" />
     <MESSAGE value="Cleaned folder &quot;data&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cleaned folder &quot;data&quot;" />
+    <MESSAGE value="Cleaned src/datasets" />
+    <MESSAGE value="Cleaned src datasets" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaned src datasets" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/datasets/rb_fpa_prim_quench_ee_plateau.py</url>
-          <line>175</line>
-          <option name="timeStamp" value="201" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/data/processed/component_correlation/correlate_components.py</url>
           <line>162</line>
           <option name="timeStamp" value="233" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/test.py</url>
+          <line>9</line>
+          <option name="timeStamp" value="296" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py</url>
+          <line>98</line>
+          <option name="timeStamp" value="332" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="jupyter-line">
           <url>notebook://D:/Dokumente/SWAN_projects/lhc-anomaly-detection/notebooks/RB_FPA_FFT_FPM.ipynb</url>
@@ -967,21 +968,28 @@
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_anomaly_detection.coverage" NAME="decoder Coverage Results" MODIFIED="1661240681396" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_complex.coverage" NAME="nmf_complex Coverage Results" MODIFIED="1675865741103" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$RB_magnet_metadata.coverage" NAME="rb_magnet_metadata Coverage Results" MODIFIED="1661331956070" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/utils" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$result.coverage" NAME="result Coverage Results" MODIFIED="1700572644943" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$decoder__1_.coverage" NAME="decoder (1) Coverage Results" MODIFIED="1661332503986" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$autoencoder.coverage" NAME="autoencoder Coverage Results" MODIFIED="1664193540938" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_prim_quench_ee_plateau.coverage" NAME="rb_fpa_prim_quench_ee_plateau Coverage Results" MODIFIED="1700145357421" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/datasets" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_magnet_metadata.coverage" NAME="rb_magnet_metadata Coverage Results" MODIFIED="1699889429149" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data/processed/RB_metadata" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$uqs0_classification.coverage" NAME="uqs0_classification Coverage Results" MODIFIED="1678458470356" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_dataset_temp.coverage" NAME="generate_dataset_temp Coverage Results" MODIFIED="1678982056138" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_decomposition.coverage" NAME="nmf_decomposition Coverage Results" MODIFIED="1676294147621" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_sensitivity_1EE_all_events.coverage" NAME="nmf_sensitivity_all_events Coverage Results" MODIFIED="1679574840869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_dataset.coverage" NAME="generate_dataset Coverage Results" MODIFIED="1679478288147" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1700577376328" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$test.coverage" NAME="test Coverage Results" MODIFIED="1700572839204" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_position_mapping.coverage" NAME="generate_position_mapping Coverage Results" MODIFIED="1685536989020" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_magnet_metadata__1_.coverage" NAME="rb_magnet_metadata (1) Coverage Results" MODIFIED="1662716080781" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/utils" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_RB_snapshot_context.coverage" NAME="generate_RB_snapshot_context Coverage Results" MODIFIED="1699968715623" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data/processed/RB_snapshot_context" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_dataset_snapshots.coverage" NAME="generate_dataset_snapshots Coverage Results" MODIFIED="1679418703275" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$sec_quench_visualisation.coverage" NAME="sec_quench_visualisation Coverage Results" MODIFIED="1659361345197" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/visualisation" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$gmm.coverage" NAME="gmm Coverage Results" MODIFIED="1675330032195" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_full_quench.coverage" NAME="rb_fpa_full_quench Coverage Results" MODIFIED="1700215706083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/datasets" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$4_detect_components_with_NMF.coverage" NAME="4_detect_components_with_NMF Coverage Results" MODIFIED="1700650409196" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_sensitivity_2EE.coverage" NAME="nmf_sensitivity_2EE Coverage Results" MODIFIED="1679066672535" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$process_data.coverage" NAME="process_data Coverage Results" MODIFIED="1700228327199" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_anomalie_detection.coverage" NAME="rb_fpa_anomaly_detection Coverage Results" MODIFIED="1660222370604" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$2_download_rb_data.coverage" NAME="2_download_rb_data Coverage Results" MODIFIED="1700044867792" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$decoder.coverage" NAME="decoder Coverage Results" MODIFIED="1661326571711" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
@@ -996,6 +1004,7 @@
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$simulation.coverage" NAME="simulation Coverage Results" MODIFIED="1659353732149" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$generate_position_mapping__1_.coverage" NAME="generate_position_mapping (1) Coverage Results" MODIFIED="1699974154387" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data/processed/position_mapping" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_sensitivity_2EE_all_events.coverage" NAME="nmf_sensitivity_2EE_all_events Coverage Results" MODIFIED="1679385918909" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$3_process_data.coverage" NAME="3_process_data Coverage Results" MODIFIED="1700217422744" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$analyze_sec_quench.coverage" NAME="analyze_sec_quench Coverage Results" MODIFIED="1659367035865" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$create_correlation_table.coverage" NAME="create_correlation_table Coverage Results" MODIFIED="1686574383918" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$uqs0_classification_v3.coverage" NAME="uqs0_classification_v3 Coverage Results" MODIFIED="1678865502310" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />

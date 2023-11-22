@@ -1557,7 +1557,7 @@ class NMF(BaseEstimator, TransformerMixin):
         return np.dot(W, self.components_)
 
     def evaluate(self, X, W):
-        """ Author: Christop Obermair
+        """ Author: Christoph Obermair
         evaluate NMF
 
         Parameters
@@ -1590,7 +1590,7 @@ class NMF(BaseEstimator, TransformerMixin):
 
     @staticmethod
     def normalize_H(H, W):
-        """ Author: Christop Obermair
+        """ Author: Christoph Obermair
         evaluate NMF
 
         Parameters

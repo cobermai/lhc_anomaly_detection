@@ -17,6 +17,7 @@ def plot_NMF_components(freqency, H, fig_dir):
     plt.ylabel('Voltage / V')
     plt.savefig(fig_dir)
 
+
 def plot_ts_circle(ds, da_processed, da_fft_amp, na_fft_nmf_amp, da_ifft_nmf, da_ifft, ds_fft_nmf_rec, ds_fft_rec,
                    figpath, event=2, magnet=150):
     fig, ax = plt.subplots(3, 3, figsize=(17, 11))
@@ -57,7 +58,7 @@ def plot_ts_circle(ds, da_processed, da_fft_amp, na_fft_nmf_amp, da_ifft_nmf, da
     ax[1, 1].set_xlabel('Time / s')
     ax[1, 1].set_ylabel('Voltage / V')
     ax[1, 1].legend(['$x^*[n]$', '$\hat{x}^*_{NMF}[n]$', '$\hat{x}^*_{FFT}[n]$'])
-    #ax[1, 1].legend(['$x^*[n]$',  '$\hat{x}^*_{FFT}[n]$'])
+    # ax[1, 1].legend(['$x^*[n]$',  '$\hat{x}^*_{FFT}[n]$'])
 
     # \hat{x}(t)
     ax[1, 0].plot(ds.time, ds.data[event, magnet].T, c="b")
@@ -66,13 +67,13 @@ def plot_ts_circle(ds, da_processed, da_fft_amp, na_fft_nmf_amp, da_ifft_nmf, da
     ax[1, 0].set_xlabel('Time / s')
     ax[1, 0].set_ylabel('Voltage / V')
     ax[1, 0].legend(['$x[n]]$', '$\hat{x}_{NMF}[n]$', '$\hat{x}_{FFT}[n]$'])
-    #ax[1, 0].legend(['$x[n]]$', '$\hat{x}_{FFT}[n]$'])
+    # ax[1, 0].legend(['$x[n]]$', '$\hat{x}_{FFT}[n]$'])
     ax[1, 0].set_ylim(ax[0, 0].get_ylim())
 
     # NMF+FFT+Preprocessing Loss
     pp_fft_nmf_loss = ds.data[event, magnet].T.values - ds_fft_nmf_rec.data[event, magnet].T.values
     ax[2, 0].plot(ds.time, pp_fft_nmf_loss, c="r")
-    ax[2, 0].plot(ds.time, ds.data[event, magnet].T.values - ds_fft_rec.data[event, magnet].T.values , c="g")
+    ax[2, 0].plot(ds.time, ds.data[event, magnet].T.values - ds_fft_rec.data[event, magnet].T.values, c="g")
     ax[2, 0].set_title(f'Preprocessing + FFT + NMF Loss {np.linalg.norm(pp_fft_nmf_loss):.2f}')
     ax[2, 0].set_xlabel('Time / s')
     ax[2, 0].set_ylabel('Voltage / V')
@@ -82,7 +83,7 @@ def plot_ts_circle(ds, da_processed, da_fft_amp, na_fft_nmf_amp, da_ifft_nmf, da
     fft_nmf_loss = da_processed.data[event, magnet].T - da_ifft_nmf.data[event, magnet].T
     ax[2, 1].plot(ds.time, fft_nmf_loss, c="r")
     ax[2, 1].set_title(f'FFT + NMF Loss {np.linalg.norm(fft_nmf_loss):.2f}')
-    ax[2, 1].plot(ds.time, da_processed.data[event, magnet].T  - da_ifft.data[event, magnet].T, c="g")
+    ax[2, 1].plot(ds.time, da_processed.data[event, magnet].T - da_ifft.data[event, magnet].T, c="g")
     ax[2, 1].set_xlabel('Time / s')
     ax[2, 1].set_ylabel('Voltage / V')
     ax[2, 1].legend(['$x^*[n] - \hat{x}^*_{NMF}[n]$', '$x^*[n] - \hat{x}^*_{FFT}[n]$'])
@@ -98,10 +99,10 @@ def plot_ts_circle(ds, da_processed, da_fft_amp, na_fft_nmf_amp, da_ifft_nmf, da
     plt.tight_layout()
     plt.savefig(figpath)
 
-def plot_loss_hist(loss, output_path, params_fit=None):
 
+def plot_loss_hist(loss, output_path, params_fit=None):
     plt.figure(figsize=(7, 5))
-    #for line in loss[bool_outlier]:
+    # for line in loss[bool_outlier]:
     #    plt.axvline(line, c='orange')
 
     plt.hist(loss, bins=200, density=True)
@@ -109,7 +110,7 @@ def plot_loss_hist(loss, output_path, params_fit=None):
     plt.xlabel("$|||X[k]| - |\hat{X}[k]|||$", fontsize=15)
 
     # Fit a gamma distribution to the data
-    #params_fit = gamma.fit(fft_nmf_loss[~bool_test])
+    # params_fit = gamma.fit(fft_nmf_loss[~bool_test])
     if params_fit is None:
         params_fit = chi2.fit(loss)
 
@@ -125,6 +126,20 @@ def plot_loss_hist(loss, output_path, params_fit=None):
     plt.tight_layout()
     plt.savefig(output_path / 'loss_hist.png')
 
+
+def plot_outlier_events(da, df_outliers, out_path):
+    fig, ax = plt.subplots(len(df_outliers.columns), 1, figsize=(5, 3*len(df_outliers.columns)))
+    for i, outlier_identifier in enumerate(df_outliers.columns.values):
+        da_event = da.loc[{'event': outlier_identifier}]
+
+        ax[i].plot(da_event.time, da_event.values.T)
+        ax[i].set_title(outlier_identifier)
+        ax[i].set_xlabel('Time / s')
+        ax[i].set_ylabel('Voltage / V')
+    plt.tight_layout()
+    plt.savefig(out_path / 'outlier_signals.png')
+
+
 def plot_outliers(ds, df_p_values, loss, out_path, n_outliers, mp3_fpa_df, da_fft_amp=None):
     outlier_path = out_path / 'outliers'
     outlier_path.mkdir(parents=True, exist_ok=True)
@@ -134,11 +149,8 @@ def plot_outliers(ds, df_p_values, loss, out_path, n_outliers, mp3_fpa_df, da_ff
         outlier_event_index = np.isin(ds.event.values, row['fpa_identifier'])
         event_loss = np.nanmean(loss, axis=-1)[outlier_event_index].reshape(-1)
 
-
-        outlier_magnet_index = np.nanargmax(event_loss)
         event_loss_norm = np.nan_to_num(event_loss / np.nanmax(event_loss))
-        quenched_magnet_index = mp3_fpa_df[mp3_fpa_df.fpa_identifier == row['fpa_identifier']]['#Electric_circuit'].values[0]
-        quenched_magnet = mp3_fpa_df[mp3_fpa_df.fpa_identifier == row['fpa_identifier']].Magnet.values[0]
+        quenched_magnet = mp3_fpa_df[mp3_fpa_df.fpa_identifier == row['fpa_identifier']].Position.values[0]
 
         plt.figure()
         for s, signal in enumerate(ds.data[ds['t0'].values == row['t0']].loc[{'event': row['fpa_identifier']}]):
@@ -146,27 +158,7 @@ def plot_outliers(ds, df_p_values, loss, out_path, n_outliers, mp3_fpa_df, da_ff
         plt.xlabel('Time / s')
         plt.ylabel('Voltage / V')
         plt.savefig(outlier_path / f"{j}_{quenched_magnet}_{row['fpa_identifier']}.png")
-
-        #plt.figure()
-        #plt.title(f"{row['fpa_identifier']}\nqench@{quenched_magnet_index} maxloss@{outlier_magnet_index+1}")
-        #mean = np.nanmean(loss[outlier_event_index], axis=-1).reshape(-1)
-        #std = np.nanstd(loss[outlier_event_index], axis=-1).reshape(-1)
-        #plt.plot(np.arange(1, 155), mean)
-        #plt.xlabel('El. Position')
-        #plt.ylabel('Loss')
-        #plt.axvline(quenched_magnet_index, c="r")
-        #plt.fill_between(np.arange(1, 155), mean-std, mean+std, alpha=0.2)
-        #plt.savefig(outlier_path / f"{j}_{quenched_magnet}_{row['fpa_identifier']}_loss.png")
-#=
-        #fig, ax = plt.subplots(figsize=(10,5))
-        #im = plot_circuit_frequencies(ax, da_fft_amp.values[outlier_event_index], da_fft_amp.frequency, vmin=1e-5, vmax=1)
-        #ax.set_xlabel(f'El. Position')
-        #ax.set_ylabel(f'Frequency / Hz')
-        #cbar = fig.colorbar(im, ax=ax)
-        #cbar.set_label('Voltage / V')
-        #plt.savefig(outlier_path / f"{i}_{row['fpa_identifier']}_pfm.png")
-        j+=1
-
+        j += 1
 
     plt.figure()
     df_p_values.drop(columns=['fpa_identifier', 'median', 'std', "t0"]).head(n_outliers).T.boxplot()
@@ -177,7 +169,26 @@ def plot_outliers(ds, df_p_values, loss, out_path, n_outliers, mp3_fpa_df, da_ff
     plt.savefig(out_path / 'outlier_boxplot.png')
 
 
-def plot_component_examples(H_norm, W_norm, da_fft_amp, da_processed, experiment_path, n_examples = 5):
+def box_plot(p_values, event_index, out_path):
+    df_p_values = pd.DataFrame(p_values, columns=event_index)
+
+    plt.figure(figsize=(7, 7))  # (3.5,2.625*2)) #
+    bp = df_p_values.boxplot(showfliers=False, grid=False, return_type='dict')
+
+    plt.xlabel('Quenched Magnet')
+    plt.ylabel('p-value')
+    plt.axhline(y=0.05, color='orange', linestyle='--', label='95% confidence interval')
+    plt.axhline(y=0.01, color='r', linestyle='-', label='99% confidence interval')
+    plt.legend()
+    # plt.title('Outliers sorted by p-value')
+    plt.yscale('log')
+    plt.minorticks_off()
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+    plt.savefig(out_path / 'outlier_boxplot.png')
+
+
+def plot_component_examples(H_norm, W_norm, da_fft_amp, da_processed, experiment_path, n_examples=5):
     # cluster component weight
     # TODO indexing hoes not work with n_components =1
     fig, ax = plt.subplots(len(H_norm), 2, figsize=(8, len(H_norm) * 3))
@@ -208,7 +219,7 @@ def plot_component_examples(H_norm, W_norm, da_fft_amp, da_processed, experiment
         ax[i, 0].set_xlabel('Frequency / Hz')
         ax[i, 0].set_ylabel('Voltage / V')
         # ax[i, 0].grid()
-        #ax[i, 0].set_xlim((0, 300))
+        # ax[i, 0].set_xlim((0, 300))
         # ax[i, 0].set_ylim(ax[i, 1].get_ylim())
     plt.tight_layout()
     plt.savefig(experiment_path / 'component_examples.png')
@@ -247,6 +258,7 @@ def plot_kmeans_centers(H_norm, W_norm, ds_detrend, da_fft_amp, experiment_path)
     plt.setp(ax, ylim=custom_ylim)
     plt.tight_layout()
     plt.savefig(experiment_path / 'component_examples.png')
+
 
 def plot_event_componet_weigts(W_norm, H_norm, da_fft_amp, ds, mp3_fpa_df, experiment_path):
     W_reshaped = W_norm.reshape(da_fft_amp.data.shape[:-1] + (W_norm.shape[-1],))
@@ -375,6 +387,7 @@ def plot_dendrogram_from_linkage(linkage_matrix, experiment_path, method=None):
     if method is not None:
         plt.title(method)
     plt.savefig(experiment_path / 'Dendrogram_Weights.png')
+
 
 def plot_dendrogram(W, experiment_path):
     # Dendrogram compontent weights

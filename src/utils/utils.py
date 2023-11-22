@@ -1,6 +1,6 @@
 from pathlib import Path
 import glob
-from typing import Optional, Callable, Union
+from typing import Optional, Callable, Union, List
 
 import numpy as np
 import pandas as pd
@@ -123,4 +123,25 @@ def merge_array(array: np.array,
     return np.moveaxis(matrix_merged, 0, -1)
 
 
+def get_folders_with_suffix(result_path: Path, suffix: str) -> List[str]:
+    """
+    Returns a list of folders in the given result_path that contain at least one suffix file.
 
+    :param result_path: The Path object pointing to the root directory to search in.
+    :param suffix: suffix file to find
+    :return: A list of Path objects representing folders containing suffix files.
+    """
+    folders_with_suffix = []
+
+    # Check if result_path is a directory
+    if not result_path.is_dir():
+        raise ValueError(f"The path {result_path} is not a directory.")
+
+    # Iterate through all subdirectories
+    for folder in result_path.iterdir():
+        if folder.is_dir():
+            # Check if the folder contains any JSON file
+            if any(file.suffix == suffix for file in folder.glob(f'*{suffix}')):
+                folders_with_suffix.append(folder.name)
+
+    return folders_with_suffix

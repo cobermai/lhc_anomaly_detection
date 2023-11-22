@@ -128,18 +128,12 @@ class Dataset(ABC):
             if os.path.isfile(ds_dir):
                 fpa_event_data = xr.load_dataset(ds_dir)
 
-                # Drop duplicates on the data array
-                # time_da = fpa_event_data["time"].drop_duplicates("time")
-
-                # Reassign the modified data array back to the dataset
-                # fpa_event_data = fpa_event_data.sel(time=time_da)
-
                 if location is None:
                     dataset.append(fpa_event_data.drop_vars(drop_data_vars))
                 else:
                     dataset.append(fpa_event_data.drop_vars(drop_data_vars).loc[location])
 
-        dataset_full = xr.concat(dataset, dim="event", join="inner")
+        dataset_full = xr.concat(dataset, dim="event", join=join)
         return dataset_full
 
     @staticmethod
@@ -245,7 +239,7 @@ class Dataset(ABC):
             fit = xr.polyval(data[dim], fit_coeff.polyfit_coefficients)
 
         data[data_var] = data[data_var] - fit
-        return data.merge(fit_coeff)
+        return data.merge(fit_coeff, compat='override')
 
     @staticmethod
     def trend_dim(da: xr.Dataset, dim: str = "time", data_var: str = "data") -> xr.Dataset:
@@ -401,25 +395,24 @@ class Dataset(ABC):
 
 def load_dataset(creator: "DatasetCreator",
                  dataset_path: Path,
-                 context_path: Path,
-                 data_path: Path,
+                 context_path: Optional[Path] = None,
+                 data_path: Optional[Path] = None,
                  metadata_path: Optional[Path] = None,
                  acquisition_summary_path: Optional[Path] = None,
                  plot_dataset_path: Optional[Path] = None,
                  generate_dataset: Optional[bool] = False,
                  add_exp_trend_coeff: Optional[bool] = False,
                  split_mask: Optional[np.array] = None,
-                 scale_dataset: Optional[np.array] = None,
+                 scale_dataset: Optional[bool] = False,
                  drop_data_vars: Optional[list] = None,
                  location: Optional[dict] = None) -> xr.Dataset:
     """
     load dataset, dataset specific options can be changed in the dataset creator
     :param creator: any concrete subclass of DatasetCreator to specify dataset selection
-    :param dataset_path: path to dataset
     :param dataset_path: path where to store datasets
-    :param context_path: path to mp3 Excel file, must be .csv
-    :param metadata_path: path to magnet metadata, must be .csv
-    :param data_path: path to hdf5 data
+    :param context_path: path to mp3 Excel file, must be .csv, required if generate_dataset=True
+    :param metadata_path: path to magnet metadata, must be .csv, required if generate_dataset=True
+    :param data_path: path to hdf5 data, required if generate_dataset=True
     :param acquisition_summary_path: optional file path if data is manually analyzed, must be .xlsx
     :param plot_dataset_path: path to plot dataset events
     :param generate_dataset: flag to indicate whether dataset should be recreated
