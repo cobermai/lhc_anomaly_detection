@@ -1,25 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4367090a-8af0-48a2-baf3-1a56ee6aca1c" name="Changes" comment="Cleaned src datasets">
-      <change afterPath="$PROJECT_DIR$/src/result.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/results/nmf_result.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test.py" afterDir="false" />
+    <list default="true" id="4367090a-8af0-48a2-baf3-1a56ee6aca1c" name="Changes" comment="Cleaned src 4_detect_components_with_NMF.py&#10;Reproduced results of IEEE paper">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/1_process_context_data.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/1_process_context_data.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/2_download_rb_data.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/2_download_rb_data.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/3_process_data.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_analysis_V2.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_analysis.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_data_aquisition_snapshots.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_data_loading.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_position_sort.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/acquisition.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/acquisition.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/dataset.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/models/nmf.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/nmf.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/visualisation/NMF_visualization.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/visualisation/NMF_visualization.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/result.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/result.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/results/nmf_result.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/results/nmf_result.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,7 +51,7 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Dokumente/SWAN_projects/lhc-anomaly-detection/scripts&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Dokumente/SWAN_projects/lhc-anomaly-detection/output/4_detect_components_with_NMF.py&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
@@ -72,11 +59,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\output\4_detect_components_with_NMF.py" />
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\scripts" />
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\documentation\final" />
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\documentation" />
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\notebooks" />
-      <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\src" />
@@ -529,14 +516,8 @@
       <workItem from="1700143978174" duration="30139000" />
       <workItem from="1700468506079" duration="22776000" />
       <workItem from="1700552485793" duration="23730000" />
-      <workItem from="1700640132301" duration="10167000" />
-    </task>
-    <task id="LOCAL-00041" summary="Added documentation powerpoint">
-      <created>1661856227909</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1661856227909</updated>
+      <workItem from="1700640132301" duration="17505000" />
+      <workItem from="1700726468665" duration="13648000" />
     </task>
     <task id="LOCAL-00042" summary="Improved prim quench analysis">
       <created>1662450154083</created>
@@ -874,7 +855,14 @@
       <option name="project" value="LOCAL" />
       <updated>1700225766054</updated>
     </task>
-    <option name="localTasksCounter" value="90" />
+    <task id="LOCAL-00090" summary="Cleaned src 4_detect_components_with_NMF.py&#10;Reproduced results of IEEE paper">
+      <created>1700660856760</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1700660856760</updated>
+    </task>
+    <option name="localTasksCounter" value="91" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -904,7 +892,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="new notebooks, updated presentation" />
     <MESSAGE value="deleted redundant notebooks" />
     <MESSAGE value="additional notebooks &amp; presentations" />
     <MESSAGE value="Improved FFT part 1" />
@@ -929,7 +916,8 @@
     <MESSAGE value="Cleaned folder &quot;data&quot;" />
     <MESSAGE value="Cleaned src/datasets" />
     <MESSAGE value="Cleaned src datasets" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cleaned src datasets" />
+    <MESSAGE value="Cleaned src 4_detect_components_with_NMF.py&#10;Reproduced results of IEEE paper" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaned src 4_detect_components_with_NMF.py&#10;Reproduced results of IEEE paper" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -943,11 +931,6 @@
           <url>file://$PROJECT_DIR$/src/test.py</url>
           <line>9</line>
           <option name="timeStamp" value="296" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py</url>
-          <line>98</line>
-          <option name="timeStamp" value="332" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="jupyter-line">
           <url>notebook://D:/Dokumente/SWAN_projects/lhc-anomaly-detection/notebooks/RB_FPA_FFT_FPM.ipynb</url>
@@ -987,7 +970,7 @@
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$sec_quench_visualisation.coverage" NAME="sec_quench_visualisation Coverage Results" MODIFIED="1659361345197" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/visualisation" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$gmm.coverage" NAME="gmm Coverage Results" MODIFIED="1675330032195" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_full_quench.coverage" NAME="rb_fpa_full_quench Coverage Results" MODIFIED="1700215706083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/datasets" />
-    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$4_detect_components_with_NMF.coverage" NAME="4_detect_components_with_NMF Coverage Results" MODIFIED="1700650409196" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
+    <SUITE FILE_PATH="coverage/lhc_anomaly_detection$4_detect_components_with_NMF.coverage" NAME="4_detect_components_with_NMF Coverage Results" MODIFIED="1700743803411" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$nmf_sensitivity_2EE.coverage" NAME="nmf_sensitivity_2EE Coverage Results" MODIFIED="1679066672535" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$process_data.coverage" NAME="process_data Coverage Results" MODIFIED="1700228327199" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />
     <SUITE FILE_PATH="coverage/lhc_anomaly_detection$rb_fpa_anomalie_detection.coverage" NAME="rb_fpa_anomaly_detection Coverage Results" MODIFIED="1660222370604" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scripts" />

@@ -38,56 +38,33 @@ class NMFResult(Result):
         self.loss = loss
         self.p_values = p_values
 
-    def calculate_nmf_loss_per_signal(self, X_flat: np.array, beta: Optional[str] = 'frobenius'):
-        """
-        Calculate NMF loss per signal.
-        :param X_flat: Input data for NMF.
-        :param beta: Type of beta-divergence (default is 'frobenius').
-        :raises ValueError: If components or component_weights are not set.
-        """
-        # Check if components and component_weights are not None
-        if self.components is None or self.component_weights is None:
-            raise ValueError("components and component_weights not set yet")
-
-        self.nmf_loss_per_signal = np.array([
-            _beta_divergence(x_row, w_row, self.components, beta)
-            for x_row, w_row in zip(X_flat, self.component_weights)
-        ])
-
-    def calculate_nmf_loss_per_event(self, X: np.array, beta: Optional[str] = None):
+    def calculate_nmf_loss_per_event(self, X: np.array):
         """
         Calculate NMF loss per FPA event.
         :param X: Input data for NMF.
-        :param beta: Type of beta-divergence (optional).
         :raises ValueError: If components or component_weights are not set.
         """
         # Check if components and component_weights are not None
         if self.components is None or self.component_weights is None:
             raise ValueError("components and component_weights not set yet")
 
+        # default beta loss is frobenius
+        beta = 'frobenius' if not hasattr(self, 'beta_loss') else self.beta_loss
+
         reshaped_c_weights = np.reshape(self.component_weights, X.shape[:-1] + (self.component_weights.shape[-1],))
 
-        if beta is None:
-            na_fft_nmf_amp = (self.component_weights @ self.components).reshape(X.shape)
-            loss_sample = X - na_fft_nmf_amp
-            masked_arr = np.ma.masked_invalid(loss_sample)
-            loss_magnet = np.linalg.norm(masked_arr, axis=2)
-            outlier_radius = 3
-            self.nmf_loss_per_event = pd.DataFrame(loss_magnet.T).rolling(outlier_radius).mean().max().values
-        else:
-            self.nmf_loss_per_event = np.array([
-                _beta_divergence(x_row, w_row, self.components, beta)
-                for x_row, w_row in zip(X, reshaped_c_weights)
-            ])
+        self.nmf_loss_per_event = np.array([
+            _beta_divergence(x_row, w_row, self.components, beta)
+            for x_row, w_row in zip(X, reshaped_c_weights)
+        ])
 
-    def calculate_p_values(self, X: np.array, beta: Optional[str] = None, plot_fit=False):
+    def calculate_p_values(self, X: np.array, plot_fit=False):
         """
         Calculate p-values for NMF loss.
         :param X: Input data for NMF.
-        :param beta: Type of beta-divergence (optional).
         :param plot_fit: Whether to plot the loss histogram of the fit (default is False).
         """
-        self.calculate_nmf_loss_per_event(X=X, beta=beta)
+        self.calculate_nmf_loss_per_event(X=X)
 
         # calculate p values
         params_fit = chi2.fit(self.nmf_loss_per_event, floc=0)  # fit df, and fshape

@@ -25,14 +25,61 @@ class Result(ABC):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def load(self):
+    def set_result(self, **kwargs):
         """
-        Load the object from a JSON file
+        add individual results to attributes of Result class
         """
-        with open(self.result_path / "results_db.json", 'r') as file:
-            data = json.load(file)
-            for key, value in data.items():
-                setattr(self, key, value)
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def update_results(self, **kwargs):
+        """
+        Update existing attributes by stacking the new values with the old ones.
+        Only works for attributes that are numpy arrays or can be converted to numpy arrays.
+        """
+        for key, new_value in kwargs.items():
+            if hasattr(self, key):
+                existing_value = getattr(self, key)
+                if existing_value is not None:
+                    if isinstance(new_value, list):
+                        new_value = np.array(new_value)
+                    if isinstance(existing_value, list):
+                        existing_value = np.array(existing_value)
+                    updated_value = np.concatenate((existing_value, new_value))
+                    setattr(self, key, updated_value)
+            else:
+                # If the attribute does not exist, simply set it
+                setattr(self, key, new_value)
+
+    def load(self, input_path: Optional[Path] = None):
+        """
+        Load the object from a JSON file, transform list values to np.arrays,
+        convert keys ending with '_path' to Path objects, and only set attributes
+        if they do not already exist.
+        :param input_path: path where results are stored, assumes they are stored in self.result_path if None
+        """
+        if input_path is None:
+            input_path = self.result_path
+        try:
+            with open(input_path / "results_db.json", 'r') as file:
+                data = json.load(file)
+                for key, value in data.items():
+                    # Convert list values to numpy arrays
+                    if isinstance(value, list):
+                        value = np.array(value)
+                    # Convert values of keys ending with '_path' to Path objects
+                    elif key.endswith('_path'):
+                        value = Path(value)
+
+                    # Set attribute if it does not exist yet or is None
+                    if not hasattr(self, key) or getattr(self, key) is None:
+                        setattr(self, key, value)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"The file {input_path / 'results_db.json'} was not found.")
+        except json.JSONDecodeError:
+            raise json.JSONDecodeError(f"The file {input_path / 'results_db.json'} is not a valid JSON file.")
+        except Exception as e:
+            raise Exception(f"An unexpected error occurred: {e}")
 
     def save(self):
         """
@@ -70,7 +117,7 @@ class SensitivityAnalysis:
         self.result_names = []
         self.event_identifiers = event_identifiers
 
-    def add_result(self, result: Result):
+    def add_class_result(self, result: Result):
         """
         add class Result to attributes of SensitivityAnalysis
         :param result: object to add

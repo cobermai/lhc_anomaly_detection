@@ -1523,13 +1523,13 @@ class NMF(BaseEstimator, TransformerMixin):
         W : array, shape (n_samples, n_components)
             Transformed data
         """
-        #check_is_fitted(self, 'n_components_')
+        # check_is_fitted(self, 'n_components_')
 
         if H is not None:
             self.components_ = H
 
         W, _, n_iter_ = non_negative_factorization(
-            X=X, W=None, H=self.components_, n_components=self.n_components_,
+            X=X, W=None, H=self.components_, n_components=self.n_components,
             init=self.init, update_H=False, solver=self.solver,
             beta_loss=self.beta_loss, tol=self.tol, max_iter=self.max_iter,
             alpha=self.alpha, l1_ratio=self.l1_ratio, regularization='both',
