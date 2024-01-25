@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0,'..')
+
 from pathlib import Path
 
 from nxcals.spark_session_builder import get_or_create, Flavor

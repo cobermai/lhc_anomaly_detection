@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0,'..')
+
 import warnings
 from datetime import datetime
 from pathlib import Path
@@ -21,12 +24,12 @@ if __name__ == "__main__":
     root_dir = Path(r"D:\RB_data")  # data available at "/eos/project/m/ml-for-alarm-system/private/RB_signals/"
 
     # path to raw data
-    quench_data_path = root_dir / Path(r"raw\20230313_data")
-    snapshot_data_path = root_dir / Path(r"raw\20221123_snapshots_data")
+    quench_data_path = root_dir / Path(r"raw/20230313_data")
+    snapshot_data_path = root_dir / Path(r"raw/20221123_snapshots_data")
 
     # approach: manually move all signals not to use from this directory to raw\data_bad_plots
-    quench_data_filtered_plots = root_dir / Path(r"raw\20230313_data_plots")
-    snapshot_data_filtered_plots = root_dir / Path(r"raw\20221123_snapshots_data_plots")
+    quench_data_filtered_plots = root_dir / Path(r"raw/20230313_data_plots")
+    snapshot_data_filtered_plots = root_dir / Path(r"raw/20221123_snapshots_data_plots")
 
     for dataset_creator in dataset_creators:
         # output file paths

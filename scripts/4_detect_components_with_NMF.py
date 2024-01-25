@@ -1,8 +1,10 @@
+import sys
+sys.path.insert(0,'..')
+
 import gc
 import os
 from datetime import datetime
 from pathlib import Path
-import time
 
 import numpy as np
 import pandas as pd
@@ -23,8 +25,6 @@ def NMF_sensitivity_analysis(hyperparameter, out_path):
     analysis = SensitivityAnalysis(result_path=out_path,
                                    event_identifiers=ds.event.values[bool_train])
     for index, row in df_meshgrid.iterrows():
-        start_time = time.time()
-
         experiment_name = '_'.join(row.astype(str).values)
         print(f"{index}/{len(df_meshgrid)} {experiment_name}")
 
@@ -41,10 +41,9 @@ def NMF_sensitivity_analysis(hyperparameter, out_path):
 
         # Flatten data for nmf
         na_fft_flat = np.nan_to_num(da_fft_amp.data.reshape(-1, np.shape(da_fft_amp.data)[2]))
-        print(f"Time till postprocessing: {time.time() - start_time}") #6s
 
         # Train NMF
-        fit_model = False
+        fit_model = True  # if False, weights of existing results will be loaded
         nmf_model = NMF(**row.drop(["trend_deg", "f_window"]).to_dict())
         nmf_result = NMFResult(out_path=out_path,
                                name=experiment_name,
@@ -53,13 +52,14 @@ def NMF_sensitivity_analysis(hyperparameter, out_path):
             component_weights = nmf_model.fit_transform(X=na_fft_flat[bool_train_flat])
             nmf_result.set_result(components=nmf_model.components_)
         else:
-            input_path = Path(f"../output/{os.path.basename(__file__)}/2023-11-22_refitted") / experiment_name
+            # results in /eos/project/m/ml-for-alarm-system/private/RB_signals/results/20230425_reproduced_IEE
+            input_path = Path(f"/RB_data/results/20230425_reproduced_IEE")
             nmf_result.load(input_path=input_path)
             nmf_model.components_ = nmf_result.components
             component_weights = nmf_model.transform(X=na_fft_flat[bool_train_flat])
 
         # store results
-        #nmf_result.update_results(component_weights=component_weights)
+        # nmf_result.update_results(component_weights=component_weights)
         nmf_result.set_result(component_weights=component_weights)
         nmf_result.calculate_p_values(da_fft_amp.data[bool_train], plot_fit=True)
         nmf_result.save()
@@ -73,10 +73,8 @@ def NMF_sensitivity_analysis(hyperparameter, out_path):
         del ds_detrend, da_processed, da_fft, da_fft_amp, na_fft_flat
         gc.collect()
 
-        print(f"Time till fit & transform NMF: {time.time() - start_time}") #11s
-
     df_outliers = analysis.get_outlier_events(n_outliers=10, plot_outliers=True)
-    plot_outlier_events(ds.data, df_outliers, out_path)  # ds.data
+    plot_outlier_events(ds.data, df_outliers, out_path)
 
 
 if __name__ == "__main__":
@@ -88,19 +86,19 @@ if __name__ == "__main__":
     root_dir = Path(r"D:\RB_data")  # data available at "/eos/project/m/ml-for-alarm-system/private/RB_signals/"
 
     # data available at "/eos/project/m/ml-for-alarm-system/private/RB_signals/
-    dataset_path = root_dir / Path(r'processed\20230313_RBFPAPrimQuenchEEPlateau1')
+    dataset_path = root_dir / Path(r'processed/20230313_RBFPAPrimQuenchEEPlateau1')
 
     # approach: manually move all signals not to use from this directory to raw\data_bad_plots
-    quench_data_filtered_plots = root_dir / Path(r"raw\20230313_data_plots")
+    quench_data_filtered_plots = root_dir / Path(r"raw/20230313_data_plots")
 
     # define paths to read + write %Y-%m-%dT%H.%M.%S.%f
     output_path = Path(f"../output/{os.path.basename(__file__)}/{datetime.now().strftime('%Y-%m-%dT%H.%M.%S.%f')}")
-    #output_path = Path(f"../output/{os.path.basename(__file__)}/2023-11-22_refitted")
     output_path.mkdir(parents=True, exist_ok=True)
 
     # load desired fpa_identifiers
     mp3_fpa_df = pd.read_csv(mp3_excel_path)
-    mp3_fpa_df_unique = mp3_fpa_df[mp3_fpa_df['timestamp_fgc'] >= 1526582397220000000].drop_duplicates(
+    # load no data before 2018 where unit timestamp is 1526582397220000000
+    mp3_fpa_df_unique = mp3_fpa_df[mp3_fpa_df['timestamp_fgc'] >= 1516582397220000000].drop_duplicates(
         subset=['fpa_identifier']).dropna(
         subset=['fpa_identifier'])
     dataset_creator = RBFPAPrimQuenchEEPlateau1()
@@ -108,6 +106,7 @@ if __name__ == "__main__":
                                       dataset_path=dataset_path)
 
     # model is not trained on data before 2021 and events with fast secondary quenches
+    # do not train on slow secondary qenches, which occur 5s after quench
     test_conditions = ((mp3_fpa_df['Delta_t(iQPS-PIC)'] / 1000 < 5) &
                        (mp3_fpa_df['Nr in Q event'].astype(str) != '1'))
     bool_train = ~np.isin(ds.event.values, mp3_fpa_df[test_conditions].fpa_identifier.unique())
@@ -116,20 +115,6 @@ if __name__ == "__main__":
     # add dims for indexing flattened data
     bool_train_flat = np.stack([bool_train for l in range(len(ds.el_position))]).T.reshape(-1)
 
-    window_functions = {"hamming": signal.windows.hamming}
-
-    hyperparameter = {
-        "trend_deg": [1],
-        "f_window": list(window_functions.keys()),
-        "n_components": [6, 7],
-        "solver": ["mu"],
-        "beta_loss": ['frobenius', 'kullback-leibler'],
-        "init": ["nndsvda"],
-        "shuffle": ["False"]
-    }
-    NMF_sensitivity_analysis(hyperparameter, output_path)
-
-"""
     window_functions = {"ones": np.ones,
                         "hanning": np.hanning,
                         "bartlett": signal.windows.bartlett,
@@ -141,11 +126,11 @@ if __name__ == "__main__":
     hyperparameter = {
         "trend_deg": [0, 1],
         "f_window": list(window_functions.keys()),
-        "n_components": [2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+        "n_components": [2, 3, 4, 5, 6, 8, 9, 10, 11, 12],
         "solver": ["mu"],
         "beta_loss": ['frobenius', 'kullback-leibler'],
         "init": ["nndsvda"],
         "shuffle": ["False"]
     }
     NMF_sensitivity_analysis(hyperparameter, output_path)
-"""
+
