@@ -52,8 +52,8 @@ def NMF_sensitivity_analysis(hyperparameter, out_path):
             component_weights = nmf_model.fit_transform(X=na_fft_flat[bool_train_flat])
             nmf_result.set_result(components=nmf_model.components_)
         else:
-            # results in /eos/project/m/ml-for-alarm-system/private/RB_signals/results/20230425_reproduced_IEE
-            input_path = Path(f"/RB_data/results/20230425_reproduced_IEE")
+            # existing results in /eos/project/m/ml-for-alarm-system/private/RB_signals/results
+            input_path = Path(f"D:/RB_data/results/20230425_reproduced_IEE")
             nmf_result.load(input_path=input_path)
             nmf_model.components_ = nmf_result.components
             component_weights = nmf_model.transform(X=na_fft_flat[bool_train_flat])
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     # load desired fpa_identifiers
     mp3_fpa_df = pd.read_csv(mp3_excel_path)
     # load no data before 2018 where unit timestamp is 1526582397220000000
-    mp3_fpa_df_unique = mp3_fpa_df[mp3_fpa_df['timestamp_fgc'] >= 1516582397220000000].drop_duplicates(
+    mp3_fpa_df_unique = mp3_fpa_df[mp3_fpa_df['timestamp_fgc'] >= 1526582397220000000].drop_duplicates(
         subset=['fpa_identifier']).dropna(
         subset=['fpa_identifier'])
     dataset_creator = RBFPAPrimQuenchEEPlateau1()

@@ -4,19 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4367090a-8af0-48a2-baf3-1a56ee6aca1c" name="Changes" comment="Cleaned src 4_detect_components_with_NMF.py&#10;Reproduced results of IEEE paper">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="4367090a-8af0-48a2-baf3-1a56ee6aca1c" name="Changes" comment="Cleaned src 4_detect_components_with_NMF.py&#10;Reproduced results of IEEE paper, Additional documentation">
+      <change afterPath="$PROJECT_DIR$/scripts/5_single_event_anomaly_detection.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/4_detect_component_with_NMF.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/5_interpret_components.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/RB_FPA_FFT_NMF_component_analysis.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/1_process_context_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/1_process_context_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/2_download_rb_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/2_download_rb_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/3_process_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/3_process_data.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/4_detect_components_with_NMF.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/download_rb_data.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/process_data.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +52,8 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;Python.4_detect_components_with_NMF.executor&quot;: &quot;Run&quot;,
+    &quot;Python.4_detect_components_with_NMF.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.5_single_event_anomaly_detection.executor&quot;: &quot;Debug&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
@@ -87,7 +79,7 @@
       <recent name="D:\Dokumente\SWAN_projects\lhc-anomaly-detection\data\raw\MB_feature_analysis" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.4_detect_components_with_NMF">
+  <component name="RunManager" selected="Python.5_single_event_anomaly_detection">
     <configuration name="4_detect_components_with_NMF" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="lhc-anomaly-detection" />
       <option name="ENV_FILES" value="" />
@@ -111,7 +103,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="process_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="5_single_event_anomaly_detection" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="lhc-anomaly-detection" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -124,8 +116,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/process_data.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/5_single_event_anomaly_detection.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -204,19 +195,19 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Python.5_single_event_anomaly_detection" />
       <item itemvalue="Python.4_detect_components_with_NMF" />
-      <item itemvalue="Python.process_data" />
       <item itemvalue="Python.result" />
       <item itemvalue="Python.test (1)" />
       <item itemvalue="Python.test" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.5_single_event_anomaly_detection" />
         <item itemvalue="Python.4_detect_components_with_NMF" />
         <item itemvalue="Python.test (1)" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.result" />
-        <item itemvalue="Python.process_data" />
       </list>
     </recent_temporary>
   </component>
@@ -888,7 +879,7 @@
       <option name="project" value="LOCAL" />
       <updated>1700660856760</updated>
     </task>
-    <option name="localTasksCounter" value="91" />
+    <option name="localTasksCounter" value="92" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -918,7 +909,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="deleted redundant notebooks" />
     <MESSAGE value="additional notebooks &amp; presentations" />
     <MESSAGE value="Improved FFT part 1" />
     <MESSAGE value="Improved FFT part 2" />
@@ -943,7 +933,8 @@
     <MESSAGE value="Cleaned src/datasets" />
     <MESSAGE value="Cleaned src datasets" />
     <MESSAGE value="Cleaned src 4_detect_components_with_NMF.py&#10;Reproduced results of IEEE paper" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cleaned src 4_detect_components_with_NMF.py&#10;Reproduced results of IEEE paper" />
+    <MESSAGE value="Cleaned src 4_detect_components_with_NMF.py&#10;Reproduced results of IEEE paper, Additional documentation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaned src 4_detect_components_with_NMF.py&#10;Reproduced results of IEEE paper, Additional documentation" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -962,6 +953,11 @@
           <url>file://$PROJECT_DIR$/scripts/3_process_data.py</url>
           <line>31</line>
           <option name="timeStamp" value="297" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/scripts/5_single_event_anomaly_detection.py</url>
+          <line>63</line>
+          <option name="timeStamp" value="299" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
